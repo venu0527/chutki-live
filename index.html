@@ -471,7 +471,7 @@
     }
   });
 
-  // Post event form submission with validation and summary alert
+  // Post event form submission with validation, immediate update
   document.getElementById('postEventForm').addEventListener('submit', e => {
     e.preventDefault();
 
@@ -492,20 +492,36 @@
       return;
     }
 
-    alert(`Event Submitted:
-Title: ${title}
-Date: ${date}
-Time: ${time}
-Venue: ${venue}
-Contact: ${contact}
-Description: ${description}
-Images selected: ${images.length}`);
+    // Create new slide element
+    const slide = document.createElement('div');
+    slide.className = 'swiper-slide section-card max-w-xs mx-2 flex flex-col items-center';
 
+    const imgURL = images.length > 0 ? URL.createObjectURL(images[0]) : 'https://via.placeholder.com/300x150?text=New+Event';
+    slide.innerHTML = `
+      <img src="${imgURL}" alt="${title}" class="w-full rounded mb-2 object-cover max-h-40" />
+      <h4 class="text-lg font-bold mb-1 text-center">${title}</h4>
+      <p class="text-sm text-gray-700 mb-1 text-center">${date} ${time}</p>
+      <p class="text-sm text-gray-600 mb-2 text-center">${venue}</p>
+      <p class="text-sm text-gray-600 text-center">${description}</p>
+    `;
+
+    // Append new slide on top
+    const upcomingWrapper = document.getElementById('upcomingEvents');
+    upcomingWrapper.prepend(slide);
+
+    // Reset form and clear previews
     e.target.reset();
     document.getElementById('imagePreviewGroup').innerHTML = '';
+
+    alert('Event posted successfully and updated in Upcoming Events!');
+
+    // Update Swiper after adding slide
+    if(window.upcomingSwiperInstance) {
+      window.upcomingSwiperInstance.update();
+    }
   });
 
-  // Swiper JS initialization and other existing code as before
+  // Swiper JS main initialization
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cityName').textContent = "Your city detected: Hyderabad";
 
@@ -539,7 +555,7 @@ Images selected: ${images.length}`);
       },
     });
 
-    new Swiper('.upcomingSwiper', {
+    window.upcomingSwiperInstance = new Swiper('.upcomingSwiper', {
       ...baseSwiperOptions,
       navigation: {
         nextEl: '.upcomingSwiper .swiper-button-next',
@@ -586,7 +602,6 @@ Images selected: ${images.length}`);
       },
     });
 
-    // Image preview on upload
     const eventImagesInput = document.getElementById('eventImages');
     const imagePreviewGroup = document.getElementById('imagePreviewGroup');
     eventImagesInput.addEventListener('change', () => {
@@ -606,14 +621,12 @@ Images selected: ${images.length}`);
       });
     });
 
-    // Notification bell toggle
     const notifBell = document.getElementById('notifBell');
     const notifPanel = document.getElementById('notifPanel');
     notifBell.addEventListener('click', () => {
       notifPanel.classList.toggle('hidden');
     });
 
-    // Dummy alert stubs for remaining buttons/forms
     document.getElementById('filterForm').addEventListener('submit', e => {
       e.preventDefault();
       alert('Search submitted. Implement filtering logic.');
