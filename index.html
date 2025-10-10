@@ -383,14 +383,131 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+<!-- Facebook SDK -->
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 <script>
-  document.getElementById('hamburgerBtn').addEventListener('click', () => {
-    alert('Hamburger menu button clicked! Implement toggle logic.');
+  // Hamburger toggle logic - toggle nav visibility for mobile
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const navMenu = document.querySelector('header nav');
+  hamburgerBtn.addEventListener('click', () => {
+    navMenu.classList.toggle('hidden');
   });
 
+  // Initialize FB SDK
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : 'YOUR_FACEBOOK_APP_ID', // replace with real Facebook app ID
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v15.0'
+    });
+  };
+
+  // Google client ID (replace with your real client ID)
+  const googleClientId = 'YOUR_GOOGLE_CLIENT_ID';
+
+  function handleGoogleCredentialResponse(response) {
+    const userObject = parseJwt(response.credential);
+    if(userObject && userObject.email) {
+      document.getElementById('userEmail').textContent = `Signed in as ${userObject.email}`;
+      alert('Google Sign-in successful!');
+    }
+  }
+
+  function parseJwt(token) {
+    let base64Url = token.split('.')[1];
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  }
+
+  window.onload = () => {
+    google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: handleGoogleCredentialResponse
+    });
+  };
+
+  function fbLogin() {
+    FB.login(function(response) {
+      if (response.status === 'connected') {
+        FB.api('/me', {fields: 'email,name'}, function(response) {
+          document.getElementById('userEmail').textContent = `Signed in as ${response.email}`;
+          alert('Facebook login successful!');
+        });
+      } else {
+        alert('Facebook login cancelled or failed.');
+      }
+    }, {scope: 'email'});
+  }
+
+  // Sign In button triggers Google or Facebook login
+  document.getElementById('signInBtn').addEventListener('click', () => {
+    const method = prompt('Login with:\n1. Google\n2. Facebook\nEnter 1 or 2');
+    if(method === '1') {
+      google.accounts.id.prompt(); 
+    } else if(method === '2') {
+      fbLogin();
+    } else {
+      alert('Invalid login option');
+    }
+  });
+
+  // Admin login with prompt
+  document.getElementById('adminBtn').addEventListener('click', () => {
+    const email = prompt('Enter admin email:');
+    const password = prompt('Enter admin password:');
+    if (email === 'admin@example.com' && password === 'adminpass') {
+      alert('Admin successfully logged in!');
+    } else {
+      alert('Invalid admin credentials. Access denied.');
+    }
+  });
+
+  // Post event form submission with validation and summary alert
+  document.getElementById('postEventForm').addEventListener('submit', e => {
+    e.preventDefault();
+
+    const title = document.getElementById('eventTitle').value.trim();
+    const date = document.getElementById('eventDate').value;
+    const time = document.getElementById('eventTime').value;
+    const venue = document.getElementById('eventVenue').value.trim();
+    const contact = document.getElementById('contactNumber').value.trim();
+    const description = document.getElementById('eventDescription').value.trim();
+    const images = document.getElementById('eventImages').files;
+
+    if (!title || !date || !time || !venue || !contact || !description) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+    if(contact.length < 10 || contact.length > 15) {
+      alert('Please enter a valid contact number (10 to 15 digits).');
+      return;
+    }
+
+    alert(`Event Submitted:
+Title: ${title}
+Date: ${date}
+Time: ${time}
+Venue: ${venue}
+Contact: ${contact}
+Description: ${description}
+Images selected: ${images.length}`);
+
+    e.target.reset();
+    document.getElementById('imagePreviewGroup').innerHTML = '';
+  });
+
+  // Swiper JS initialization and other existing code as before
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cityName').textContent = "Your city detected: Hyderabad";
-    document.getElementById('userEmail').textContent = "Signed in as user@example.com";
 
     const baseSwiperOptions = {
       slidesPerView: 3,
@@ -469,10 +586,9 @@
       },
     });
 
-    // Image preview for event posting
+    // Image preview on upload
     const eventImagesInput = document.getElementById('eventImages');
     const imagePreviewGroup = document.getElementById('imagePreviewGroup');
-
     eventImagesInput.addEventListener('change', () => {
       imagePreviewGroup.innerHTML = '';
       const files = Array.from(eventImagesInput.files).slice(0, 5);
@@ -490,20 +606,14 @@
       });
     });
 
+    // Notification bell toggle
     const notifBell = document.getElementById('notifBell');
     const notifPanel = document.getElementById('notifPanel');
     notifBell.addEventListener('click', () => {
       notifPanel.classList.toggle('hidden');
     });
 
-    document.getElementById('signInBtn').addEventListener('click', () => {
-      alert('Sign In clicked. Implement authentication logic.');
-    });
-
-    document.getElementById('adminBtn').addEventListener('click', () => {
-      alert('Admin clicked. Implement admin panel logic.');
-    });
-
+    // Dummy alert stubs for remaining buttons/forms
     document.getElementById('filterForm').addEventListener('submit', e => {
       e.preventDefault();
       alert('Search submitted. Implement filtering logic.');
@@ -511,11 +621,6 @@
 
     document.getElementById('getLocationBtn').addEventListener('click', () => {
       alert('Use location clicked. Implement geolocation logic.');
-    });
-
-    document.getElementById('postEventForm').addEventListener('submit', e => {
-      e.preventDefault();
-      alert('Event posted. Implement event submission logic.');
     });
 
     document.getElementById('contactForm').addEventListener('submit', e => {
@@ -527,4 +632,3 @@
 
 </body>
 </html>
-
