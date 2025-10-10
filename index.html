@@ -306,6 +306,7 @@
     <input type="text" id="eventVenue" placeholder="Venue" required class="border rounded p-2"/>
     <input type="tel" id="contactNumber" placeholder="Contact Number" pattern="[0-9]{10,15}" required class="border rounded p-2" title="Please enter contact number (10 to 15 digits)"/>
     <textarea id="eventDescription" placeholder="Event Description" required class="border rounded p-2"></textarea>
+    <input type="url" id="eventURL" placeholder="Event URL (optional, e.g. https://example.com)" class="border rounded p-2" />
     <div>
       <label class="block mb-1 text-gray-600">Upload Images (up to 5, max 10MB each):</label>
       <input id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2 w-full"/>
@@ -489,7 +490,6 @@
     }
   });
 
-  // Event Modal elements
   const eventModal = document.getElementById('eventModal');
   const modalCloseBtn = document.getElementById('modalCloseBtn');
   const modalTitle = document.getElementById('modalTitle');
@@ -499,9 +499,8 @@
   const modalImage = document.getElementById('modalImage');
   const modalDeleteBtn = document.getElementById('modalDeleteBtn');
 
-  let currentEventSlide = null; // store current slide being viewed
+  let currentEventSlide = null;
 
-  // Function to open modal
   function openEventModal(slideEl) {
     currentEventSlide = slideEl;
     modalTitle.textContent = slideEl.querySelector('h4').textContent;
@@ -509,23 +508,17 @@
     modalVenue.textContent = slideEl.querySelector('.venue')?.textContent || '';
     modalDescription.textContent = slideEl.querySelector('.description')?.textContent || '';
     modalImage.src = slideEl.querySelector('img')?.src || '';
-    if(isAdminLoggedIn) {
-      modalDeleteBtn.style.display = 'inline-block';
-    } else {
-      modalDeleteBtn.style.display = 'none';
-    }
+    modalDeleteBtn.style.display = isAdminLoggedIn ? 'inline-block' : 'none';
     eventModal.classList.remove('hidden');
   }
 
-  // Close modal handler
   modalCloseBtn.addEventListener('click', () => {
     eventModal.classList.add('hidden');
     currentEventSlide = null;
   });
 
-  // Delete event handler - admin only
   modalDeleteBtn.addEventListener('click', () => {
-    if(isAdminLoggedIn && currentEventSlide) {
+    if (isAdminLoggedIn && currentEventSlide) {
       currentEventSlide.remove();
       if(window.upcomingSwiperInstance) {
         window.upcomingSwiperInstance.update();
@@ -534,21 +527,60 @@
     }
   });
 
-  // Add click listener to event slides for modal opening
+  function addLikeShareButtons(slide) {
+    if(slide.querySelector('.like-share-group')) return;
+    const lsDiv = document.createElement('div');
+    lsDiv.className = 'like-share-group flex space-x-4 my-2';
+
+    const likeBtn = document.createElement('div');
+    likeBtn.className = 'like-btn cursor-pointer select-none text-yellow-500 font-bold';
+    likeBtn.title = 'Like';
+    likeBtn.innerHTML = '👍 <span class="like-count">0</span>';
+
+    const shareBtn = document.createElement('div');
+    shareBtn.className = 'share-btn cursor-pointer select-none text-blue-600 font-bold';
+    shareBtn.title = 'Share';
+    shareBtn.textContent = '🔗';
+
+    lsDiv.appendChild(likeBtn);
+    lsDiv.appendChild(shareBtn);
+
+    slide.appendChild(lsDiv);
+
+    likeBtn.addEventListener('click', () => {
+      let countSpan = likeBtn.querySelector('.like-count');
+      let count = parseInt(countSpan.textContent);
+      if(likeBtn.classList.contains('liked')) {
+        count--;
+        likeBtn.classList.remove('liked');
+      } else {
+        count++;
+        likeBtn.classList.add('liked');
+      }
+      countSpan.textContent = count;
+    });
+
+    shareBtn.addEventListener('click', () => {
+      const url = slide.getAttribute('data-url');
+      if(url) {
+        window.open(url, '_blank');
+      } else {
+        alert('No URL available for this event.');
+      }
+    });
+  }
+
   function addClickableToSlide(slide) {
-    // Add identifying classes for easier modal population
-    if(!slide.querySelector('.date-time')) {
+    if (!slide.querySelector('.date-time')) {
       slide.querySelector('p:nth-of-type(1)').classList.add('date-time');
       slide.querySelector('p:nth-of-type(2)').classList.add('venue');
       slide.querySelector('p:nth-of-type(3)').classList.add('description');
     }
     slide.style.cursor = 'pointer';
-    slide.addEventListener('click', () => {
-      openEventModal(slide);
-    });
+    slide.addEventListener('click', () => openEventModal(slide));
+    addLikeShareButtons(slide);
   }
 
-  // On DOM loaded
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cityName').textContent = "Your city detected: Hyderabad";
 
@@ -594,7 +626,6 @@
       },
     });
 
-    // Add click listeners to existing slides (if any)
     const upcomingWrapper = document.getElementById('upcomingEvents');
     Array.from(upcomingWrapper.children).forEach(addClickableToSlide);
 
@@ -673,7 +704,6 @@
     });
   });
 
-  // Post event form submit handler - adds clickable slide immediately
   document.getElementById('postEventForm').addEventListener('submit', e => {
     e.preventDefault();
 
@@ -683,6 +713,7 @@
     const venue = document.getElementById('eventVenue').value.trim();
     const contact = document.getElementById('contactNumber').value.trim();
     const description = document.getElementById('eventDescription').value.trim();
+    const url = document.getElementById('eventURL').value.trim();
     const images = document.getElementById('eventImages').files;
 
     if (!title || !date || !time || !venue || !contact || !description) {
@@ -693,9 +724,14 @@
       alert('Please enter a valid contact number (10 to 15 digits).');
       return;
     }
+    if (url && !url.match(/^https?:\/\/.+$/)) {
+      alert('Please enter a valid URL starting with http:// or https://');
+      return;
+    }
 
     const slide = document.createElement('div');
     slide.className = 'swiper-slide section-card max-w-xs mx-2 flex flex-col items-center';
+    if(url) slide.setAttribute('data-url', url);
 
     const imgURL = images.length > 0 ? URL.createObjectURL(images[0]) : 'https://via.placeholder.com/300x150?text=New+Event';
     slide.innerHTML = `
