@@ -382,6 +382,19 @@
   <div></div>
 </div>
 
+<!-- Event details modal -->
+<div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded p-6 max-w-lg w-full relative">
+    <button id="modalCloseBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 font-bold text-xl">&times;</button>
+    <img id="modalImage" src="" alt="Event Image" class="w-full max-h-64 object-cover rounded mb-4"/>
+    <h3 id="modalTitle" class="text-xl font-bold mb-2"></h3>
+    <p id="modalDateTime" class="text-sm text-gray-600 mb-1"></p>
+    <p id="modalVenue" class="text-sm text-gray-600 mb-3"></p>
+    <p id="modalDescription" class="mb-4"></p>
+    <button id="modalDeleteBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 hidden">Delete Event</button>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 
 <!-- Facebook SDK -->
@@ -460,68 +473,82 @@
     }
   });
 
-  // Admin login with prompt
+  // Track admin login status
+  let isAdminLoggedIn = false;
+
+  // Admin login with prompt and track status
   document.getElementById('adminBtn').addEventListener('click', () => {
     const email = prompt('Enter admin email:');
     const password = prompt('Enter admin password:');
     if (email === 'admin@example.com' && password === 'adminpass') {
       alert('Admin successfully logged in!');
+      isAdminLoggedIn = true;
     } else {
       alert('Invalid admin credentials. Access denied.');
+      isAdminLoggedIn = false;
     }
   });
 
-  // Post event form submission with validation, immediate update
-  document.getElementById('postEventForm').addEventListener('submit', e => {
-    e.preventDefault();
+  // Event Modal elements
+  const eventModal = document.getElementById('eventModal');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalDateTime = document.getElementById('modalDateTime');
+  const modalVenue = document.getElementById('modalVenue');
+  const modalDescription = document.getElementById('modalDescription');
+  const modalImage = document.getElementById('modalImage');
+  const modalDeleteBtn = document.getElementById('modalDeleteBtn');
 
-    const title = document.getElementById('eventTitle').value.trim();
-    const date = document.getElementById('eventDate').value;
-    const time = document.getElementById('eventTime').value;
-    const venue = document.getElementById('eventVenue').value.trim();
-    const contact = document.getElementById('contactNumber').value.trim();
-    const description = document.getElementById('eventDescription').value.trim();
-    const images = document.getElementById('eventImages').files;
+  let currentEventSlide = null; // store current slide being viewed
 
-    if (!title || !date || !time || !venue || !contact || !description) {
-      alert('Please fill in all required fields.');
-      return;
+  // Function to open modal
+  function openEventModal(slideEl) {
+    currentEventSlide = slideEl;
+    modalTitle.textContent = slideEl.querySelector('h4').textContent;
+    modalDateTime.textContent = slideEl.querySelector('.date-time')?.textContent || '';
+    modalVenue.textContent = slideEl.querySelector('.venue')?.textContent || '';
+    modalDescription.textContent = slideEl.querySelector('.description')?.textContent || '';
+    modalImage.src = slideEl.querySelector('img')?.src || '';
+    if(isAdminLoggedIn) {
+      modalDeleteBtn.style.display = 'inline-block';
+    } else {
+      modalDeleteBtn.style.display = 'none';
     }
-    if(contact.length < 10 || contact.length > 15) {
-      alert('Please enter a valid contact number (10 to 15 digits).');
-      return;
-    }
+    eventModal.classList.remove('hidden');
+  }
 
-    // Create new slide element
-    const slide = document.createElement('div');
-    slide.className = 'swiper-slide section-card max-w-xs mx-2 flex flex-col items-center';
+  // Close modal handler
+  modalCloseBtn.addEventListener('click', () => {
+    eventModal.classList.add('hidden');
+    currentEventSlide = null;
+  });
 
-    const imgURL = images.length > 0 ? URL.createObjectURL(images[0]) : 'https://via.placeholder.com/300x150?text=New+Event';
-    slide.innerHTML = `
-      <img src="${imgURL}" alt="${title}" class="w-full rounded mb-2 object-cover max-h-40" />
-      <h4 class="text-lg font-bold mb-1 text-center">${title}</h4>
-      <p class="text-sm text-gray-700 mb-1 text-center">${date} ${time}</p>
-      <p class="text-sm text-gray-600 mb-2 text-center">${venue}</p>
-      <p class="text-sm text-gray-600 text-center">${description}</p>
-    `;
-
-    // Append new slide on top
-    const upcomingWrapper = document.getElementById('upcomingEvents');
-    upcomingWrapper.prepend(slide);
-
-    // Reset form and clear previews
-    e.target.reset();
-    document.getElementById('imagePreviewGroup').innerHTML = '';
-
-    alert('Event posted successfully and updated in Upcoming Events!');
-
-    // Update Swiper after adding slide
-    if(window.upcomingSwiperInstance) {
-      window.upcomingSwiperInstance.update();
+  // Delete event handler - admin only
+  modalDeleteBtn.addEventListener('click', () => {
+    if(isAdminLoggedIn && currentEventSlide) {
+      currentEventSlide.remove();
+      if(window.upcomingSwiperInstance) {
+        window.upcomingSwiperInstance.update();
+      }
+      modalCloseBtn.click();
     }
   });
 
-  // Swiper JS main initialization
+  // Add click listener to event slides for modal opening
+  function addClickableToSlide(slide) {
+    // Add identifying classes for easier modal population
+    if(!slide.querySelector('.date-time')) {
+      slide.querySelector('p:nth-of-type(1)').classList.add('date-time');
+      slide.querySelector('p:nth-of-type(2)').classList.add('venue');
+      slide.querySelector('p:nth-of-type(3)').classList.add('description');
+    }
+    slide.style.cursor = 'pointer';
+    slide.addEventListener('click', () => {
+      openEventModal(slide);
+    });
+  }
+
+  // On DOM loaded
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cityName').textContent = "Your city detected: Hyderabad";
 
@@ -566,6 +593,10 @@
         clickable: true,
       },
     });
+
+    // Add click listeners to existing slides (if any)
+    const upcomingWrapper = document.getElementById('upcomingEvents');
+    Array.from(upcomingWrapper.children).forEach(addClickableToSlide);
 
     new Swiper('.promoSwiper', {
       ...baseSwiperOptions,
@@ -640,6 +671,53 @@
       e.preventDefault();
       alert('Contact message sent. Implement contact form logic.');
     });
+  });
+
+  // Post event form submit handler - adds clickable slide immediately
+  document.getElementById('postEventForm').addEventListener('submit', e => {
+    e.preventDefault();
+
+    const title = document.getElementById('eventTitle').value.trim();
+    const date = document.getElementById('eventDate').value;
+    const time = document.getElementById('eventTime').value;
+    const venue = document.getElementById('eventVenue').value.trim();
+    const contact = document.getElementById('contactNumber').value.trim();
+    const description = document.getElementById('eventDescription').value.trim();
+    const images = document.getElementById('eventImages').files;
+
+    if (!title || !date || !time || !venue || !contact || !description) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+    if(contact.length < 10 || contact.length > 15) {
+      alert('Please enter a valid contact number (10 to 15 digits).');
+      return;
+    }
+
+    const slide = document.createElement('div');
+    slide.className = 'swiper-slide section-card max-w-xs mx-2 flex flex-col items-center';
+
+    const imgURL = images.length > 0 ? URL.createObjectURL(images[0]) : 'https://via.placeholder.com/300x150?text=New+Event';
+    slide.innerHTML = `
+      <img src="${imgURL}" alt="${title}" class="w-full rounded mb-2 object-cover max-h-40" />
+      <h4 class="text-lg font-bold mb-1 text-center">${title}</h4>
+      <p class="date-time text-sm text-gray-700 mb-1 text-center">${date} ${time}</p>
+      <p class="venue text-sm text-gray-600 mb-2 text-center">${venue}</p>
+      <p class="description text-sm text-gray-600 text-center">${description}</p>
+    `;
+
+    const upcomingWrapper = document.getElementById('upcomingEvents');
+    upcomingWrapper.prepend(slide);
+    addClickableToSlide(slide);
+
+    e.target.reset();
+    document.getElementById('imagePreviewGroup').innerHTML = '';
+
+    alert('Event posted successfully and updated in Upcoming Events!');
+
+    if(window.upcomingSwiperInstance) {
+      window.upcomingSwiperInstance.update();
+    }
   });
 </script>
 
