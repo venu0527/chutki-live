@@ -112,6 +112,18 @@
   </div>
 </header>
 
+<section class="section-card bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-400 text-white text-center max-w-4xl mx-auto mt-8 mb-12 shadow-2xl">
+  <h2 class="text-5xl font-extrabold mb-3 tracking-wider">Welcome to <span class="italic">Chutki</span></h2>
+  <p class="text-xl md:text-2xl font-medium mb-6">Find your favorite Events &amp; explore the city!</p>
+  <div class="flex flex-wrap justify-center gap-4 mt-3">
+    <a href="#trending" class="px-4 py-2 bg-white/20 hover:bg-white/40 rounded text-lg shadow font-bold transition">🔥 Trending</a>
+    <a href="#promo" class="px-4 py-2 bg-pink-500 hover:bg-pink-600 rounded text-lg font-bold shadow transition">🎁 Promo Events</a>
+    <a href="#partners" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 rounded text-lg font-bold shadow transition">🤝 Partners</a>
+    <a href="#postEvent" class="px-5 py-2 bg-green-500 hover:bg-green-600 rounded-full text-lg font-extrabold shadow transition">+ Post Event</a>
+    <a href="#virtualEvents" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full text-lg font-extrabold shadow transition">🎥 Virtual Events</a>
+  </div>
+</section>
+
 <section id="postEvent" class="section-card max-w-3xl mx-auto glass bg-white/90 my-12">
   <h3 class="text-2xl font-bold mb-4 text-pink-600 text-center">Post Your Event</h3>
   <div class="mb-4 p-3 rounded bg-yellow-100 text-yellow-900 border border-yellow-300 text-center font-semibold text-sm shadow">
@@ -159,8 +171,6 @@
     <button id="modalDeleteBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 hidden">Delete Event</button>
   </div>
 </div>
-
-<!-- Other page sections like Trending, Promo, Partners, Contact, Footer, etc. remain unchanged -->
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 <div id="fb-root"></div>
@@ -238,7 +248,7 @@
       alert('Admin successfully logged in!');
     } else {
       isAdminLoggedIn = false;
-      alert('Invalid admin credentials.');
+      alert('Invalid admin credentials. Access denied.');
     }
   });
 
