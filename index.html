@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
 <style>
+  /* Original CSS styles */
   body { scroll-behavior: smooth; }
   .hidden { display: none; }
   .active-fav { color: #fbbf24; font-weight: 700; }
@@ -96,7 +97,7 @@
       <a href="#partners" class="px-3 py-1 rounded bg-yellow-600 hover:bg-yellow-700 text-white transition-colors shadow">Partners</a>
       <a href="#contact" class="hover:text-indigo-100 text-white">Contact</a>
     </nav>
-    <div class="flex flex-wrap justify-end space-x-4 mt-4 md:mt-0">
+    <div class="flex items-center space-x-4 mt-4 md:mt-0">
       <div class="relative">
         <button id="notifBell" class="text-2xl text-pink-200 hover:text-white">🔔</button>
         <span id="notifCount" class="hidden absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5"></span>
@@ -104,8 +105,8 @@
           <p class="text-indigo-500 text-center">No notifications</p>
         </div>
       </div>
-      <button id="signInBtn" class="bg-gradient-to-r from-green-500 to-blue-500 px-3 py-1 rounded text-white shadow hover:from-green-400 hover:to-blue-400 transition-colors mb-2 md:mb-0">Sign In</button>
-      <button id="adminBtn" class="bg-red-600 px-3 py-1 rounded text-white hover:bg-red-700 shadow mb-2 md:mb-0">Admin</button>
+      <button id="signInBtn" class="bg-gradient-to-r from-green-500 to-blue-500 px-3 py-1 rounded text-white shadow hover:from-green-400 hover:to-blue-400 transition-colors">Sign In</button>
+      <button id="adminBtn" class="bg-red-600 px-3 py-1 rounded text-white hover:bg-red-700 shadow">Admin</button>
     </div>
   </div>
 </header>
@@ -298,18 +299,18 @@
   </div>
   
   <form id="postEventForm" class="rounded grid gap-4" enctype="multipart/form-data">
-    <input type="text" id="eventTitle" placeholder="Event Title" required class="border rounded p-2"/>
+    <input type="text" name="eventTitle" id="eventTitle" placeholder="Event Title" required class="border rounded p-2"/>
     <div class="grid md:grid-cols-2 gap-4">
-      <input type="date" id="eventDate" required class="border rounded p-2"/>
-      <input type="time" id="eventTime" required class="border rounded p-2"/>
+      <input type="date" name="eventDate" id="eventDate" required class="border rounded p-2"/>
+      <input type="time" name="eventTime" id="eventTime" required class="border rounded p-2"/>
     </div>
-    <input type="text" id="eventVenue" placeholder="Venue" required class="border rounded p-2"/>
-    <input type="tel" id="contactNumber" placeholder="Contact Number" pattern="[0-9]{10,15}" required class="border rounded p-2" title="Please enter contact number (10 to 15 digits)"/>
-    <textarea id="eventDescription" placeholder="Event Description" required class="border rounded p-2"></textarea>
-    <input type="url" id="eventURL" placeholder="Event URL (optional, e.g. https://example.com)" class="border rounded p-2" />
+    <input type="text" name="eventVenue" id="eventVenue" placeholder="Venue" required class="border rounded p-2"/>
+    <input type="tel" name="contactNumber" id="contactNumber" placeholder="Contact Number" pattern="[0-9]{10,15}" required class="border rounded p-2" title="Please enter contact number (10 to 15 digits)"/>
+    <textarea name="eventDescription" id="eventDescription" placeholder="Event Description" required class="border rounded p-2"></textarea>
+    <input type="url" name="eventURL" id="eventURL" placeholder="Event URL (optional, e.g. https://example.com)" class="border rounded p-2" />
     <div>
       <label class="block mb-1 text-gray-600">Upload Images (up to 5, max 10MB each):</label>
-      <input id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2 w-full"/>
+      <input name="eventImages" id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2 w-full"/>
       <div id="imagePreviewGroup" class="flex flex-wrap gap-2 mt-2"></div>
     </div>
     <button type="submit" class="bg-pink-600 text-white rounded px-4 py-2 font-semibold hover:bg-pink-700 transition-colors">Submit</button>
@@ -405,24 +406,23 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
-  // Hamburger toggle logic - toggle nav visibility for mobile
+  // Hamburger toggle logic
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const navMenu = document.querySelector('header nav');
   hamburgerBtn.addEventListener('click', () => {
     navMenu.classList.toggle('hidden');
   });
 
-  // Initialize FB SDK
+  // FB SDK init placeholder
   window.fbAsyncInit = function() {
     FB.init({
-      appId      : 'YOUR_FACEBOOK_APP_ID', // replace with actual Facebook app ID
+      appId      : 'YOUR_FACEBOOK_APP_ID',
       cookie     : true,
       xfbml      : true,
       version    : 'v15.0'
     });
   };
 
-  // Google client ID - replace with actual client ID
   const googleClientId = 'YOUR_GOOGLE_CLIENT_ID';
 
   function handleGoogleCredentialResponse(response) {
@@ -465,7 +465,7 @@
   document.getElementById('signInBtn').addEventListener('click', () => {
     const method = prompt('Login with:\n1. Google\n2. Facebook\nEnter 1 or 2');
     if(method === '1') {
-      google.accounts.id.prompt();
+      google.accounts.id.prompt(); 
     } else if(method === '2') {
       fbLogin();
     } else {
@@ -473,7 +473,6 @@
     }
   });
 
-  // Admin login logic
   let isAdminLoggedIn = false;
   document.getElementById('adminBtn').addEventListener('click', () => {
     const email = prompt('Enter admin email:');
@@ -519,9 +518,6 @@
       currentEventSlide.remove();
       if(window.upcomingSwiperInstance) {
         window.upcomingSwiperInstance.update();
-      }
-      if(window.promoSwiperInstance) {
-        window.promoSwiperInstance.update();
       }
       modalCloseBtn.click();
     }
@@ -626,7 +622,10 @@
       },
     });
 
-    window.promoSwiperInstance = new Swiper('.promoSwiper', {
+    const upcomingWrapper = document.getElementById('upcomingEvents');
+    Array.from(upcomingWrapper.children).forEach(addClickableToSlide);
+
+    new Swiper('.promoSwiper', {
       ...baseSwiperOptions,
       navigation: {
         nextEl: '.promoSwiper .swiper-button-next',
@@ -701,17 +700,20 @@
     });
   });
 
-  document.getElementById('postEventForm').addEventListener('submit', e => {
+  // Updated postEventForm submit handler to upload data to server endpoint
+  document.getElementById('postEventForm').addEventListener('submit', async e => {
     e.preventDefault();
 
-    const title = document.getElementById('eventTitle').value.trim();
-    const date = document.getElementById('eventDate').value;
-    const time = document.getElementById('eventTime').value;
-    const venue = document.getElementById('eventVenue').value.trim();
-    const contact = document.getElementById('contactNumber').value.trim();
-    const description = document.getElementById('eventDescription').value.trim();
-    const url = document.getElementById('eventURL').value.trim();
-    const images = document.getElementById('eventImages').files;
+    const form = e.target;
+    const formData = new FormData(form);
+
+    const title = formData.get('eventTitle').trim();
+    const date = formData.get('eventDate');
+    const time = formData.get('eventTime');
+    const venue = formData.get('eventVenue').trim();
+    const contact = formData.get('contactNumber').trim();
+    const description = formData.get('eventDescription').trim();
+    const url = formData.get('eventURL').trim();
 
     if (!title || !date || !time || !venue || !contact || !description) {
       alert('Please fill in all required fields.');
@@ -725,41 +727,24 @@
       alert('Please enter a valid URL starting with http:// or https://');
       return;
     }
-
-    const slide = document.createElement('div');
-    slide.className = 'swiper-slide section-card max-w-xs mx-2 flex flex-col items-center';
-    if(url) slide.setAttribute('data-url', url);
-
-    const imgURL = images.length > 0 ? URL.createObjectURL(images[0]) : 'https://via.placeholder.com/300x150?text=New+Event';
-    slide.innerHTML = `
-      <img src="${imgURL}" alt="${title}" class="w-full rounded mb-2 object-cover max-h-40" />
-      <h4 class="text-lg font-bold mb-1 text-center">${title}</h4>
-      <p class="date-time text-sm text-gray-700 mb-1 text-center">${date} ${time}</p>
-      <p class="venue text-sm text-gray-600 mb-2 text-center">${venue}</p>
-      <p class="description text-sm text-gray-600 text-center">${description}</p>
-    `;
-
-    // Add slide to Upcoming Events
-    const upcomingWrapper = document.getElementById('upcomingEvents');
-    upcomingWrapper.prepend(slide);
-    addClickableToSlide(slide);
-
-    // Clone slide and add slide to Promo Events
-    const promoWrapper = document.getElementById('promoEvents');
-    const promoSlide = slide.cloneNode(true);
-    promoWrapper.prepend(promoSlide);
-    addClickableToSlide(promoSlide);
-
-    e.target.reset();
-    document.getElementById('imagePreviewGroup').innerHTML = '';
-
-    alert('Event posted successfully and updated in Upcoming and Promo Events!');
-
-    if(window.upcomingSwiperInstance) {
-      window.upcomingSwiperInstance.update();
-    }
-    if(window.promoSwiperInstance) {
-      window.promoSwiperInstance.update();
+    try {
+      // Change URL to your actual server upload endpoint
+      const response = await fetch('http://localhost:3000/upload-event', {
+        method: 'POST',
+        body: formData
+      });
+      if (!response.ok) throw new Error('Network response was not OK');
+      const result = await response.json();
+      if (result.success) {
+        alert('Event posted successfully and saved on server!');
+        form.reset();
+        document.getElementById('imagePreviewGroup').innerHTML = '';
+        // Optionally update your event listings here
+      } else {
+        alert('Failed to post event: ' + result.message);
+      }
+    } catch (error) {
+      alert('Error submitting event: ' + error.message);
     }
   });
 </script>
