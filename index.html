@@ -7,7 +7,6 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
 <style>
-  /* Original CSS styles */
   body { scroll-behavior: smooth; }
   .hidden { display: none; }
   .active-fav { color: #fbbf24; font-weight: 700; }
@@ -48,7 +47,6 @@
   .share-btn:hover {
     color: #2563eb;
   }
-  /* Floating Hamburger Button Styles */
   #hamburgerBtn {
     position: fixed;
     bottom: 1rem;
@@ -118,8 +116,8 @@
     <a href="#trending" class="px-4 py-2 bg-white/20 hover:bg-white/40 rounded text-lg shadow font-bold transition">🔥 Trending</a>
     <a href="#promo" class="px-4 py-2 bg-pink-500 hover:bg-pink-600 rounded text-lg font-bold shadow transition">🎁 Promo Events</a>
     <a href="#partners" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 rounded text-lg font-bold shadow transition">🤝 Partners</a>
-    <a href="#postEvent" class="px-5 py-2 bg-green-500 hover:bg-green-600 rounded-full text-lg font-extrabold shadow transition">+ Post Event</a>
-    <a href="#virtualEvents" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full text-lg font-extrabold shadow transition">🎥 Virtual Events</a>
+    <a href="#postEvent" class="px-5 py-2 bg-green-500 hover:bg-green-600 rounded-full text-lg font-extrabold shadow transition">+ Post Event</a>
+    <a href="#virtualEvents" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full text-lg font-extrabold shadow transition">🎥 Virtual Events</a>
   </div>
 </section>
 
@@ -146,9 +144,21 @@
         <option value="tech-workshop">Workshops</option>
         <option value="tech-seminar">Seminars</option>
       </optgroup>
-      <optgroup label="🍔 Food & Drink"><option value="food-festival">Food Festivals</option><option value="drink-tastings">Tastings</option><option value="cooking-classes">Cooking Classes</option></optgroup>
-      <optgroup label="🎭 Arts & Culture"><option value="art-exhibition">Exhibitions</option><option value="theatre">Theatre</option><option value="dance">Dance</option></optgroup>
-      <optgroup label="🎉 Festivals"><option value="music-festival">Music Festivals</option><option value="cultural-festival">Cultural Festivals</option><option value="film-festival">Film Festivals</option></optgroup>
+      <optgroup label="🍔 Food & Drink">
+        <option value="food-festival">Food Festivals</option>
+        <option value="drink-tastings">Tastings</option>
+        <option value="cooking-classes">Cooking Classes</option>
+      </optgroup>
+      <optgroup label="🎭 Arts & Culture">
+        <option value="art-exhibition">Exhibitions</option>
+        <option value="theatre">Theatre</option>
+        <option value="dance">Dance</option>
+      </optgroup>
+      <optgroup label="🎉 Festivals">
+        <option value="music-festival">Music Festivals</option>
+        <option value="cultural-festival">Cultural Festivals</option>
+        <option value="film-festival">Film Festivals</option>
+      </optgroup>
       <optgroup label="🌟 Others">
         <option value="kids">Kids Events</option>
         <option value="charity">Charity</option>
@@ -299,18 +309,18 @@
   </div>
   
   <form id="postEventForm" class="rounded grid gap-4" enctype="multipart/form-data">
-    <input type="text" name="eventTitle" id="eventTitle" placeholder="Event Title" required class="border rounded p-2"/>
+    <input type="text" id="eventTitle" placeholder="Event Title" required class="border rounded p-2"/>
     <div class="grid md:grid-cols-2 gap-4">
-      <input type="date" name="eventDate" id="eventDate" required class="border rounded p-2"/>
-      <input type="time" name="eventTime" id="eventTime" required class="border rounded p-2"/>
+      <input type="date" id="eventDate" required class="border rounded p-2"/>
+      <input type="time" id="eventTime" required class="border rounded p-2"/>
     </div>
-    <input type="text" name="eventVenue" id="eventVenue" placeholder="Venue" required class="border rounded p-2"/>
-    <input type="tel" name="contactNumber" id="contactNumber" placeholder="Contact Number" pattern="[0-9]{10,15}" required class="border rounded p-2" title="Please enter contact number (10 to 15 digits)"/>
-    <textarea name="eventDescription" id="eventDescription" placeholder="Event Description" required class="border rounded p-2"></textarea>
-    <input type="url" name="eventURL" id="eventURL" placeholder="Event URL (optional, e.g. https://example.com)" class="border rounded p-2" />
+    <input type="text" id="eventVenue" placeholder="Venue" required class="border rounded p-2"/>
+    <input type="tel" id="contactNumber" placeholder="Contact Number" pattern="[0-9]{10,15}" required class="border rounded p-2" title="Please enter contact number (10 to 15 digits)"/>
+    <textarea id="eventDescription" placeholder="Event Description" required class="border rounded p-2"></textarea>
+    <input type="url" id="eventURL" placeholder="Event URL (optional, e.g. https://example.com)" class="border rounded p-2" />
     <div>
       <label class="block mb-1 text-gray-600">Upload Images (up to 5, max 10MB each):</label>
-      <input name="eventImages" id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2 w-full"/>
+      <input id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2 w-full"/>
       <div id="imagePreviewGroup" class="flex flex-wrap gap-2 mt-2"></div>
     </div>
     <button type="submit" class="bg-pink-600 text-white rounded px-4 py-2 font-semibold hover:bg-pink-700 transition-colors">Submit</button>
@@ -398,11 +408,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-
-<!-- Facebook SDK -->
 <div id="fb-root"></div>
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
-<!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
@@ -413,13 +420,13 @@
     navMenu.classList.toggle('hidden');
   });
 
-  // FB SDK init placeholder
+  // Facebook SDK initialize
   window.fbAsyncInit = function() {
     FB.init({
-      appId      : 'YOUR_FACEBOOK_APP_ID',
-      cookie     : true,
-      xfbml      : true,
-      version    : 'v15.0'
+      appId: 'YOUR_FACEBOOK_APP_ID',
+      cookie: true,
+      xfbml: true,
+      version: 'v15.0'
     });
   };
 
@@ -427,7 +434,7 @@
 
   function handleGoogleCredentialResponse(response) {
     const userObject = parseJwt(response.credential);
-    if(userObject && userObject.email) {
+    if (userObject && userObject.email) {
       document.getElementById('userEmail').textContent = `Signed in as ${userObject.email}`;
       alert('Google Sign-in successful!');
     }
@@ -436,9 +443,9 @@
   function parseJwt(token) {
     let base64Url = token.split('.')[1];
     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+    let jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
     return JSON.parse(jsonPayload);
   }
 
@@ -450,7 +457,7 @@
   };
 
   function fbLogin() {
-    FB.login(function(response) {
+    FB.login(response => {
       if (response.status === 'connected') {
         FB.api('/me', {fields: 'email,name'}, function(response) {
           document.getElementById('userEmail').textContent = `Signed in as ${response.email}`;
@@ -464,9 +471,9 @@
 
   document.getElementById('signInBtn').addEventListener('click', () => {
     const method = prompt('Login with:\n1. Google\n2. Facebook\nEnter 1 or 2');
-    if(method === '1') {
-      google.accounts.id.prompt(); 
-    } else if(method === '2') {
+    if (method === '1') {
+      google.accounts.id.prompt();
+    } else if (method === '2') {
       fbLogin();
     } else {
       alert('Invalid login option');
@@ -516,7 +523,7 @@
   modalDeleteBtn.addEventListener('click', () => {
     if (isAdminLoggedIn && currentEventSlide) {
       currentEventSlide.remove();
-      if(window.upcomingSwiperInstance) {
+      if (window.upcomingSwiperInstance) {
         window.upcomingSwiperInstance.update();
       }
       modalCloseBtn.click();
@@ -524,7 +531,7 @@
   });
 
   function addLikeShareButtons(slide) {
-    if(slide.querySelector('.like-share-group')) return;
+    if (slide.querySelector('.like-share-group')) return;
     const lsDiv = document.createElement('div');
     lsDiv.className = 'like-share-group flex space-x-4 my-2';
 
@@ -546,7 +553,7 @@
     likeBtn.addEventListener('click', () => {
       let countSpan = likeBtn.querySelector('.like-count');
       let count = parseInt(countSpan.textContent);
-      if(likeBtn.classList.contains('liked')) {
+      if (likeBtn.classList.contains('liked')) {
         count--;
         likeBtn.classList.remove('liked');
       } else {
@@ -558,7 +565,7 @@
 
     shareBtn.addEventListener('click', () => {
       const url = slide.getAttribute('data-url');
-      if(url) {
+      if (url) {
         window.open(url, '_blank');
       } else {
         alert('No URL available for this event.');
@@ -700,13 +707,13 @@
     });
   });
 
-  // Updated postEventForm submit handler to upload data to server endpoint
   document.getElementById('postEventForm').addEventListener('submit', async e => {
     e.preventDefault();
 
     const form = e.target;
     const formData = new FormData(form);
 
+    // Validation as before
     const title = formData.get('eventTitle').trim();
     const date = formData.get('eventDate');
     const time = formData.get('eventTime');
@@ -719,7 +726,7 @@
       alert('Please fill in all required fields.');
       return;
     }
-    if(contact.length < 10 || contact.length > 15) {
+    if (contact.length < 10 || contact.length > 15) {
       alert('Please enter a valid contact number (10 to 15 digits).');
       return;
     }
@@ -727,9 +734,9 @@
       alert('Please enter a valid URL starting with http:// or https://');
       return;
     }
+
     try {
-      // Server URL updated here
-      const response = await fetch('http://chutki.live:3000/upload-event', {
+      const response = await fetch('https://chutki.live/upload-event', {
         method: 'POST',
         body: formData
       });
@@ -739,7 +746,6 @@
         alert('Event posted successfully and saved on server!');
         form.reset();
         document.getElementById('imagePreviewGroup').innerHTML = '';
-        // Optionally update your event listings here
       } else {
         alert('Failed to post event: ' + result.message);
       }
