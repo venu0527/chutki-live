@@ -728,8 +728,8 @@
       return;
     }
     try {
-      // Change URL to your actual server upload endpoint
-      const response = await fetch('http://localhost:3000/upload-event', {
+      // Server URL updated here
+      const response = await fetch('http://chutki.live:3000/upload-event', {
         method: 'POST',
         body: formData
       });
