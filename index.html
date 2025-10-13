@@ -292,9 +292,7 @@
   let isAdminLoggedIn = !!localStorage.getItem('adminToken');
   let currentEventSlide = null;
 
-  // Wait swiper to load
   document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Swipers
     const trendingSwiper = new Swiper('.trendingSwiper', {
       slidesPerView: 3, spaceBetween: 20, loop: true,
       autoplay: { delay: 3000, disableOnInteraction: false },
@@ -594,11 +592,55 @@
       });
     };
 
-    document.getElementById('postEventForm').onsubmit = e => {
+    document.getElementById('postEventForm').onsubmit = async function(e) {
       e.preventDefault();
-      alert('Event submitted! (This is a demo – implement backend to save)');
-      e.target.reset();
-      imagePreviewGroup.innerHTML = '';
+
+      const formData = new FormData();
+
+      const title = this.eventTitle.value.trim();
+      const date = this.eventDate.value;
+      const time = this.eventTime.value;
+      const venue = this.eventVenue.value.trim();
+      const contactNumber = this.contactNumber.value.trim();
+      const description = this.eventDescription.value.trim();
+      const url = this.eventURL.value.trim();
+      const category = this.eventCategory.value;
+      const images = this.eventImages.files;
+
+      if(!title || !date || !time || !venue || !contactNumber || !description || !category) {
+        return alert('Please fill all required fields');
+      }
+
+      formData.append('title', title);
+      formData.append('date', date);
+      formData.append('time', time);
+      formData.append('venue', venue);
+      formData.append('contactNumber', contactNumber);
+      formData.append('description', description);
+      formData.append('url', url);
+      formData.append('category', category);
+
+      for(let i=0; i< images.length; i++) {
+        formData.append('images', images[i]);
+      }
+
+      try {
+        const response = await fetch(`${backendUrl}/api/events`, {
+          method: 'POST',
+          body: formData
+        });
+        if (!response.ok) {
+          const data = await response.json();
+          alert('Failed to post event: ' + (data.message || response.statusText));
+          return;
+        }
+        alert('Event posted successfully!');
+        this.reset();
+        imagePreviewGroup.innerHTML = '';
+        loadEvents();
+      } catch (error) {
+        alert('Error submitting event: ' + error.message);
+      }
     };
 
     document.getElementById('contactForm').onsubmit = e => {
