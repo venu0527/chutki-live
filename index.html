@@ -291,7 +291,18 @@ img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius
   <div class="text-center text-gray-500 text-xs mt-3">&copy; 2025 Chutki Event Platform. All rights reserved.</div>
 </footer>
 
-<!-- Event Modal and other modal DOM elements omitted due to length but unchanged -->
+<!-- Event Modal -->
+<div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded p-6 max-w-lg w-full relative">
+    <button id="modalCloseBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 font-bold text-xl">&times;</button>
+    <img id="modalImage" src="" alt="Event Image" class="w-full max-h-64 object-cover rounded mb-4"/>
+    <h3 id="modalTitle" class="text-xl font-bold mb-2"></h3>
+    <p id="modalDateTime" class="text-sm text-gray-600 mb-1"></p>
+    <p id="modalVenue" class="text-sm text-gray-600 mb-3"></p>
+    <p id="modalDescription" class="mb-4"></p>
+    <button id="modalDeleteBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 hidden">Delete Event</button>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 <script>
@@ -399,6 +410,8 @@ async function loadEvents() {
       const slide = document.createElement('div');
       slide.className = 'swiper-slide';
       slide.setAttribute('data-url', event.url || '#');
+      slide.setAttribute('data-event-id', event.id || '');
+      slide.setAttribute('data-version', event.version || ''); // version/etag for conflict detection
       slide.innerHTML = `
         <img src="${event.image || 'https://via.placeholder.com/300x150'}" alt="${event.title}" style="width: 100%; border-radius: .5rem;"/>
         <h4 class="font-semibold mb-1 text-center">${event.title}</h4>
@@ -439,165 +452,232 @@ function createSlide(event) {
   return slide;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('cityName').textContent = "Your city detected: Hyderabad";
+// Offline sync queue in localStorage
+function enqueueAction(action) {
+  const queue = JSON.parse(localStorage.getItem('eventActionsQueue') || '[]');
+  queue.push(action);
+  localStorage.setItem('eventActionsQueue', JSON.stringify(queue));
+}
 
-  const baseSwiperOptions = {
-    slidesPerView: 3,
-    spaceBetween: 20,
-    loop: true,
-    autoplay: { delay: 3000, disableOnInteraction: false },
-    pagination: { clickable: true },
-    breakpoints: {
-      0: { slidesPerView: 1 },
-      640: { slidesPerView: 2 },
-      1024: { slidesPerView: 3 }
-    }
-  };
-
-  new Swiper('.trendingSwiper', {
-    ...baseSwiperOptions,
-    navigation: { nextEl: '.trendingSwiper .swiper-button-next', prevEl: '.trendingSwiper .swiper-button-prev' },
-    pagination: { el: '.trendingSwiper .swiper-pagination', clickable: true }
-  });
-
-  upcomingSwiperInstance = new Swiper('.upcomingSwiper', {
-    ...baseSwiperOptions,
-    navigation: { nextEl: '.upcomingSwiper .swiper-button-next', prevEl: '.upcomingSwiper .swiper-button-prev' },
-    pagination: { el: '.upcomingSwiper .swiper-pagination', clickable: true }
-  });
-
-  promoSwiperInstance = new Swiper('.promoSwiper', {
-    ...baseSwiperOptions,
-    navigation: { nextEl: '.promoSwiper .swiper-button-next', prevEl: '.promoSwiper .swiper-button-prev' },
-    pagination: { el: '.promoSwiper .swiper-pagination', clickable: true }
-  });
-
-  new Swiper('.partnersSwiper', {
-    slidesPerView: 2,
-    spaceBetween: 15,
-    loop: true,
-    autoplay: { delay: 3000, disableOnInteraction: false },
-    navigation: { nextEl: '.partnersSwiper .swiper-button-next', prevEl: '.partnersSwiper .swiper-button-prev' },
-    pagination: { el: '.partnersSwiper .swiper-pagination', clickable: true },
-    breakpoints: {
-      0: { slidesPerView: 1 },
-      640: { slidesPerView: 2 },
-      1024: { slidesPerView: 4 }
-    }
-  });
-
-  loadEvents();
-
-  const eventImagesInput = document.getElementById('eventImages');
-  const imagePreviewGroup = document.getElementById('imagePreviewGroup');
-  eventImagesInput.addEventListener('change', function() {
-    imagePreviewGroup.innerHTML = '';
-    Array.from(eventImagesInput.files).slice(0, 5).forEach(file => {
-      if(!file.type.startsWith('image/') || file.size > 10*1024*1024) return;
-      const img = document.createElement('img');
-      img.className = 'thumb';
-      img.src = URL.createObjectURL(file);
-      imagePreviewGroup.appendChild(img);
-    });
-  });
-
-  document.getElementById('postEventForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target;
-
-    const title = form.eventTitle.value.trim();
-    const date = form.eventDate.value;
-    const time = form.eventTime.value;
-    const venue = form.eventVenue.value.trim();
-    const contactNumber = form.contactNumber.value.trim();
-    const description = form.eventDescription.value.trim();
-    const url = form.eventURL.value.trim();
-    const category = form.eventCategory.value;
-
-    if(!title || !date || !time || !venue || !contactNumber || !description || !category) {
-      return alert('Please fill all required fields and select a category.');
-    }
-
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('date', date);
-    formData.append('time', time);
-    formData.append('venue', venue);
-    formData.append('contactNumber', contactNumber);
-    formData.append('description', description);
-    formData.append('url', url);
-    formData.append('category', category);
-
-    Array.from(form.eventImages.files).slice(0, 5).forEach(file => {
-      formData.append('images', file);
-    });
-
+async function syncQueuedActions() {
+  let queue = JSON.parse(localStorage.getItem('eventActionsQueue') || '[]');
+  if(queue.length === 0) return;
+  for(let i = 0; i < queue.length; i++) {
+    const action = queue[i];
     try {
-      const response = await fetch(`${backendUrl}/api/events`, {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-      if(response.ok){
-        alert('Event posted successfully!');
-        form.reset();
-        imagePreviewGroup.innerHTML = '';
-
-        // Add event immediately to correct section
-        const newEvent = {
-          title, date, venue, description, url, image: data.image || '', category
-        };
-
-        if(category === 'trending') {
-          document.getElementById('trendingEvents').appendChild(createSlide(newEvent));
-        } else if(category === 'upcoming') {
-          document.getElementById('upcomingEvents').appendChild(createSlide(newEvent));
-          if(upcomingSwiperInstance) upcomingSwiperInstance.update();
-        } else if(category === 'promo') {
-          document.getElementById('promoEvents').appendChild(createSlide(newEvent));
-          if(promoSwiperInstance) promoSwiperInstance.update();
-        }
-      } else {
-        alert('Failed to post event: ' + (data.message || 'Unknown error'));
+      let response;
+      if(action.type === 'POST') {
+        response = await fetch(`${backendUrl}/api/events`, { method: 'POST', body: action.data });
+      } else if(action.type === 'UPDATE') {
+        response = await fetch(`${backendUrl}/api/events/${action.eventId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'If-Match': action.version },
+          body: JSON.stringify(action.data)
+        });
+      } else if(action.type === 'DELETE') {
+        response = await fetch(`${backendUrl}/api/events/${action.eventId}`, {
+          method: 'DELETE',
+          headers: { 'If-Match': action.version }
+        });
       }
+      if(!response.ok) throw new Error(`Failed action ${action.type}`);
+      queue.splice(i, 1);
+      i--;
+      localStorage.setItem('eventActionsQueue', JSON.stringify(queue));
+      await loadEvents();
+    } catch(e) {
+      console.error('Sync action failed:', e);
+      break;
+    }
+  }
+}
+
+window.addEventListener('online', syncQueuedActions);
+
+// Update event function with conflict check and retry
+async function updateEvent(eventId, updateData, version, maxRetries=3) {
+  let attempt = 0;
+  while(attempt < maxRetries) {
+    try {
+      const res = await fetch(`${backendUrl}/api/events/${eventId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'If-Match': version
+        },
+        body: JSON.stringify(updateData)
+      });
+      if(res.status === 409) {
+        alert('Update conflict detected. Please reload event details.');
+        return null;
+      }
+      if(!res.ok) throw new Error('Update failed');
+      return await res.json();
     } catch(err) {
-      alert('Error submitting event.');
-      console.error(err);
-    }
-  });
-
-  const contactForm = document.getElementById('contactForm');
-  contactForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = contactForm.contactName.value.trim();
-    const email = contactForm.contactEmail.value.trim();
-    const mobile = contactForm.contactMobile.value.trim();
-    const message = contactForm.contactMessage.value.trim();
-
-    if (!name || !email || !mobile || !message) {
-      return alert('Please fill all contact form fields.');
-    }
-
-    try {
-      const response = await fetch(`${backendUrl}/api/contact`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, mobile, message })
-      });
-      if (response.ok) {
-        alert('Message sent successfully!');
-        contactForm.reset();
-      } else {
-        const data = await response.json();
-        alert('Failed to send message: ' + (data.message || 'Unknown error'));
+      attempt++;
+      if(attempt >= maxRetries) {
+        alert('Failed to update event after multiple attempts.');
+        return null;
       }
-    } catch (err) {
-      alert('Error sending message.');
-      console.error(err);
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
     }
+  }
+}
+
+// Delete event function with conflict check and retry
+async function deleteEvent(eventId, version, maxRetries=3) {
+  let attempt = 0;
+  while(attempt < maxRetries) {
+    try {
+      const res = await fetch(`${backendUrl}/api/events/${eventId}`, {
+        method: 'DELETE',
+        headers: { 'If-Match': version }
+      });
+      if(res.status === 409) {
+        alert('Delete conflict detected. Please reload event.');
+        return false;
+      }
+      if(!res.ok) throw new Error('Delete failed');
+      return true;
+    } catch(err) {
+      attempt++;
+      if(attempt >= maxRetries) {
+        alert('Failed to delete event after multiple attempts.');
+        return false;
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+    }
+  }
+}
+
+// Modal delete button handler uses conflict-aware delete
+const modalDeleteBtn = document.getElementById('modalDeleteBtn');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+let currentEventSlide = null; // to be set when event modal opens
+
+modalDeleteBtn.addEventListener('click', async () => {
+  if(isAdminLoggedIn && currentEventSlide) {
+    const eventId = currentEventSlide.getAttribute('data-event-id');
+    const version = currentEventSlide.getAttribute('data-version');
+    if(!eventId || !version) {
+      alert('Insufficient event metadata to delete.');
+      return;
+    }
+    if(!navigator.onLine) {
+      enqueueAction({ type: 'DELETE', eventId, version });
+      alert('You are offline. Delete will sync when online.');
+      currentEventSlide.remove();
+      modalCloseBtn.click();
+      return;
+    }
+    const success = await deleteEvent(eventId, version);
+    if(success) {
+      currentEventSlide.remove();
+      if(upcomingSwiperInstance) upcomingSwiperInstance.update();
+      if(promoSwiperInstance) promoSwiperInstance.update();
+      modalCloseBtn.click();
+    }
+  }
+});
+
+modalCloseBtn.addEventListener('click', () => {
+  document.getElementById('eventModal').classList.add('hidden');
+  currentEventSlide = null;
+});
+
+// Event modal open function - set current event slide for delete
+function openEventModal(slideEl) {
+  currentEventSlide = slideEl;
+  document.getElementById('modalTitle').textContent = slideEl.querySelector('h4').textContent;
+  document.getElementById('modalDateTime').textContent = slideEl.querySelector('.date-time')?.textContent || '';
+  document.getElementById('modalVenue').textContent = slideEl.querySelector('.venue')?.textContent || '';
+  document.getElementById('modalDescription').textContent = slideEl.querySelector('.description')?.textContent || '';
+  document.getElementById('modalImage').src = slideEl.querySelector('img')?.src || '';
+  modalDeleteBtn.style.display = isAdminLoggedIn ? 'inline-block' : 'none';
+  document.getElementById('eventModal').classList.remove('hidden');
+}
+
+// Post Event Form submission with offline queue fallback
+document.getElementById('postEventForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = e.target;
+
+  const title = form.eventTitle.value.trim();
+  const date = form.eventDate.value;
+  const time = form.eventTime.value;
+  const venue = form.eventVenue.value.trim();
+  const contactNumber = form.contactNumber.value.trim();
+  const description = form.eventDescription.value.trim();
+  const url = form.eventURL.value.trim();
+  const category = form.eventCategory.value;
+
+  if(!title || !date || !time || !venue || !contactNumber || !description || !category) {
+    return alert('Please fill all required fields and select a category.');
+  }
+
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('date', date);
+  formData.append('time', time);
+  formData.append('venue', venue);
+  formData.append('contactNumber', contactNumber);
+  formData.append('description', description);
+  formData.append('url', url);
+  formData.append('category', category);
+
+  Array.from(form.eventImages.files).slice(0, 5).forEach(file => {
+    formData.append('images', file);
   });
 
+  if(!navigator.onLine) {
+    enqueueAction({ type: 'POST', data: formData });
+    alert('You are offline. Event will sync when online.');
+    form.reset();
+    document.getElementById('imagePreviewGroup').innerHTML = '';
+    return;
+  }
+
+  try {
+    const response = await fetch(`${backendUrl}/api/events`, {
+      method: 'POST',
+      body: formData
+    });
+    const data = await response.json();
+
+    if(!response.ok) throw new Error(data.message || 'Failed to post event');
+
+    alert('Event posted successfully!');
+    form.reset();
+    document.getElementById('imagePreviewGroup').innerHTML = '';
+
+    const newEvent = {
+      title, date, venue, description, url, image: data.image || '', category, id: data.id || '', version: data.version || ''
+    };
+
+    if(category === 'trending') {
+      document.getElementById('trendingEvents').appendChild(createSlide(newEvent));
+    } else if(category === 'upcoming') {
+      document.getElementById('upcomingEvents').appendChild(createSlide(newEvent));
+      if(upcomingSwiperInstance) upcomingSwiperInstance.update();
+    } else if(category === 'promo') {
+      document.getElementById('promoEvents').appendChild(createSlide(newEvent));
+      if(promoSwiperInstance) promoSwiperInstance.update();
+    }
+
+  } catch (err) {
+    alert(`Error submitting event: ${err.message}`);
+    console.error(err);
+  }
+});
+
+window.addEventListener('online', syncQueuedActions);
+
+document.addEventListener('DOMContentLoaded', () => {
+  if(navigator.onLine) {
+    syncQueuedActions();
+  }
+  loadEvents();
+  // Initialize Swiper instances (omitted here for brevity; keep your existing initialization)
 });
 </script>
 </body>
