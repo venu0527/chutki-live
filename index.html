@@ -291,16 +291,39 @@ img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius
   <div class="text-center text-gray-500 text-xs mt-3">&copy; 2025 Chutki Event Platform. All rights reserved.</div>
 </footer>
 
-<!-- Event Modal -->
 <div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-  <div class="bg-white rounded p-6 max-w-lg w-full relative">
+  <div class="bg-white rounded p-6 max-w-lg w-full relative max-h-[90vh] overflow-auto">
     <button id="modalCloseBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 font-bold text-xl">&times;</button>
-    <img id="modalImage" src="" alt="Event Image" class="w-full max-h-64 object-cover rounded mb-4"/>
-    <h3 id="modalTitle" class="text-xl font-bold mb-2"></h3>
-    <p id="modalDateTime" class="text-sm text-gray-600 mb-1"></p>
-    <p id="modalVenue" class="text-sm text-gray-600 mb-3"></p>
-    <p id="modalDescription" class="mb-4"></p>
-    <button id="modalDeleteBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 hidden">Delete Event</button>
+    <div id="modalViewContent">
+      <img id="modalImage" src="" alt="Event Image" class="w-full max-h-64 object-cover rounded mb-4"/>
+      <h3 id="modalTitle" class="text-xl font-bold mb-2"></h3>
+      <p id="modalDateTime" class="text-sm text-gray-600 mb-1"></p>
+      <p id="modalVenue" class="text-sm text-gray-600 mb-3"></p>
+      <p id="modalContact" class="text-sm text-gray-600 mb-3"></p>
+      <p id="modalDescription" class="mb-4"></p>
+      <p id="modalURL" class="text-blue-600 underline mb-4"><a href="#" target="_blank" id="modalURLLink">Event Link</a></p>
+      <button id="modalEditBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2">Edit</button>
+      <button id="modalDeleteBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete Event</button>
+    </div>
+    <form id="modalEditForm" class="hidden space-y-2" novalidate>
+      <input type="text" id="editTitle" class="border rounded p-2 w-full" placeholder="Event Title" required />
+      <input type="date" id="editDate" class="border rounded p-2 w-full" required />
+      <input type="time" id="editTime" class="border rounded p-2 w-full" required />
+      <input type="text" id="editVenue" class="border rounded p-2 w-full" placeholder="Venue" required />
+      <input type="tel" id="editContact" pattern="[0-9]{10,15}" class="border rounded p-2 w-full" placeholder="Contact Number" required title="10-15 digits" />
+      <textarea id="editDescription" class="border rounded p-2 w-full" rows="4" placeholder="Description" required></textarea>
+      <input type="url" id="editURL" class="border rounded p-2 w-full" placeholder="Event URL (optional)" />
+      <select id="editCategory" class="border rounded p-2 w-full" required>
+        <option value="">Select Category</option>
+        <option value="trending">Trending</option>
+        <option value="upcoming">Upcoming</option>
+        <option value="promo">Promo</option>
+      </select>
+      <div class="flex space-x-2 justify-end mt-3">
+        <button type="button" id="editCancelBtn" class="px-4 py-2 rounded border">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -308,6 +331,11 @@ img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius
 <script>
 let isAdminLoggedIn = !!localStorage.getItem('adminToken');
 const backendUrl = 'https://chutki-live.vercel.app';
+
+let upcomingSwiperInstance = null;
+let promoSwiperInstance = null;
+
+let currentEventSlide = null;
 
 function addLikeShareButtons(slide) {
   if(slide.querySelector('.like-share-group')) return;
@@ -393,9 +421,6 @@ document.getElementById('signInBtn').addEventListener('click', async () => {
   }
 });
 
-let upcomingSwiperInstance = null;
-let promoSwiperInstance = null;
-
 async function loadEvents() {
   try {
     const res = await fetch(`${backendUrl}/api/events`);
@@ -411,7 +436,8 @@ async function loadEvents() {
       slide.className = 'swiper-slide';
       slide.setAttribute('data-url', event.url || '#');
       slide.setAttribute('data-event-id', event.id || '');
-      slide.setAttribute('data-version', event.version || ''); // version/etag for conflict detection
+      slide.setAttribute('data-version', event.version || '');
+      slide.setAttribute('data-category', event.category || '');
       slide.innerHTML = `
         <img src="${event.image || 'https://via.placeholder.com/300x150'}" alt="${event.title}" style="width: 100%; border-radius: .5rem;"/>
         <h4 class="font-semibold mb-1 text-center">${event.title}</h4>
@@ -430,8 +456,8 @@ async function loadEvents() {
     Array.from(trendingContainer.children).forEach(addClickableToSlide);
     Array.from(upcomingContainer.children).forEach(addClickableToSlide);
     Array.from(promoContainer.children).forEach(addClickableToSlide);
-    if(upcomingSwiperInstance) upcomingSwiperInstance.update();
-    if(promoSwiperInstance) promoSwiperInstance.update();
+    if(window.upcomingSwiperInstance) window.upcomingSwiperInstance.update();
+    if(window.promoSwiperInstance) window.promoSwiperInstance.update();
   } catch(err) {
     console.error('Error loading events:', err);
   }
@@ -452,7 +478,6 @@ function createSlide(event) {
   return slide;
 }
 
-// Offline sync queue in localStorage
 function enqueueAction(action) {
   const queue = JSON.parse(localStorage.getItem('eventActionsQueue') || '[]');
   queue.push(action);
@@ -494,7 +519,6 @@ async function syncQueuedActions() {
 
 window.addEventListener('online', syncQueuedActions);
 
-// Update event function with conflict check and retry
 async function updateEvent(eventId, updateData, version, maxRetries=3) {
   let attempt = 0;
   while(attempt < maxRetries) {
@@ -524,7 +548,6 @@ async function updateEvent(eventId, updateData, version, maxRetries=3) {
   }
 }
 
-// Delete event function with conflict check and retry
 async function deleteEvent(eventId, version, maxRetries=3) {
   let attempt = 0;
   while(attempt < maxRetries) {
@@ -550,10 +573,95 @@ async function deleteEvent(eventId, version, maxRetries=3) {
   }
 }
 
-// Modal delete button handler uses conflict-aware delete
+const modalViewContent = document.getElementById('modalViewContent');
+const modalEditForm = document.getElementById('modalEditForm');
+const modalEditBtn = document.getElementById('modalEditBtn');
 const modalDeleteBtn = document.getElementById('modalDeleteBtn');
 const modalCloseBtn = document.getElementById('modalCloseBtn');
-let currentEventSlide = null; // to be set when event modal opens
+const editCancelBtn = document.getElementById('editCancelBtn');
+
+const editTitle = document.getElementById('editTitle');
+const editDate = document.getElementById('editDate');
+const editTime = document.getElementById('editTime');
+const editVenue = document.getElementById('editVenue');
+const editContact = document.getElementById('editContact');
+const editDescription = document.getElementById('editDescription');
+const editURL = document.getElementById('editURL');
+const editCategory = document.getElementById('editCategory');
+
+function fillEditFormFromSlide(slide) {
+  editTitle.value = slide.querySelector('h4').textContent || '';
+  editDate.value = slide.querySelector('.date-time')?.textContent || '';
+  editVenue.value = slide.querySelector('.venue')?.textContent || '';
+  editDescription.value = slide.querySelector('.description')?.textContent || '';
+  editContact.value = '';
+  editTime.value = '';
+  editURL.value = slide.getAttribute('data-url') || '';
+  const category = slide.getAttribute('data-category') || '';
+  editCategory.value = category;
+}
+
+modalEditBtn.addEventListener('click', () => {
+  if (!currentEventSlide) return;
+  fillEditFormFromSlide(currentEventSlide);
+  modalViewContent.classList.add('hidden');
+  modalEditForm.classList.remove('hidden');
+});
+
+editCancelBtn.addEventListener('click', () => {
+  modalEditForm.classList.add('hidden');
+  modalViewContent.classList.remove('hidden');
+});
+
+modalEditForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!currentEventSlide) return;
+
+  const eventId = currentEventSlide.getAttribute('data-event-id');
+  const version = currentEventSlide.getAttribute('data-version');
+
+  if (!eventId || !version) {
+    alert('Event data not available for editing.');
+    return;
+  }
+
+  const updateData = {
+    title: editTitle.value.trim(),
+    date: editDate.value,
+    time: editTime.value,
+    venue: editVenue.value.trim(),
+    contactNumber: editContact.value.trim(),
+    description: editDescription.value.trim(),
+    url: editURL.value.trim(),
+    category: editCategory.value
+  };
+
+  if (!updateData.title || !updateData.date || !updateData.venue || !updateData.description || !updateData.category) {
+    alert('Please fill all required fields.');
+    return;
+  }
+
+  const updatedEvent = await updateEvent(eventId, updateData, version);
+  if (updatedEvent) {
+    currentEventSlide.querySelector('h4').textContent = updatedEvent.title;
+    currentEventSlide.querySelector('.date-time').textContent = updatedEvent.date;
+    currentEventSlide.querySelector('.venue').textContent = updatedEvent.venue;
+    currentEventSlide.querySelector('.description').textContent = updatedEvent.description;
+    currentEventSlide.setAttribute('data-version', updatedEvent.version || version);
+    currentEventSlide.setAttribute('data-category', updatedEvent.category);
+
+    document.getElementById('modalTitle').textContent = updatedEvent.title;
+    document.getElementById('modalDateTime').textContent = updatedEvent.date;
+    document.getElementById('modalVenue').textContent = updatedEvent.venue;
+    document.getElementById('modalDescription').textContent = updatedEvent.description;
+    document.getElementById('modalURLLink').href = updatedEvent.url;
+
+    modalEditForm.classList.add('hidden');
+    modalViewContent.classList.remove('hidden');
+
+    alert('Event updated successfully.');
+  }
+});
 
 modalDeleteBtn.addEventListener('click', async () => {
   if(isAdminLoggedIn && currentEventSlide) {
@@ -585,100 +693,33 @@ modalCloseBtn.addEventListener('click', () => {
   currentEventSlide = null;
 });
 
-// Event modal open function - set current event slide for delete
 function openEventModal(slideEl) {
   currentEventSlide = slideEl;
   document.getElementById('modalTitle').textContent = slideEl.querySelector('h4').textContent;
   document.getElementById('modalDateTime').textContent = slideEl.querySelector('.date-time')?.textContent || '';
   document.getElementById('modalVenue').textContent = slideEl.querySelector('.venue')?.textContent || '';
   document.getElementById('modalDescription').textContent = slideEl.querySelector('.description')?.textContent || '';
+  document.getElementById('modalURLLink').href = slideEl.getAttribute('data-url') || '#';
   document.getElementById('modalImage').src = slideEl.querySelector('img')?.src || '';
   modalDeleteBtn.style.display = isAdminLoggedIn ? 'inline-block' : 'none';
+  modalEditBtn.style.display = isAdminLoggedIn ? 'inline-block' : 'none';
   document.getElementById('eventModal').classList.remove('hidden');
 }
 
-// Post Event Form submission with offline queue fallback
-document.getElementById('postEventForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const form = e.target;
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('cityName').textContent = "Your city detected: Hyderabad";
 
-  const title = form.eventTitle.value.trim();
-  const date = form.eventDate.value;
-  const time = form.eventTime.value;
-  const venue = form.eventVenue.value.trim();
-  const contactNumber = form.contactNumber.value.trim();
-  const description = form.eventDescription.value.trim();
-  const url = form.eventURL.value.trim();
-  const category = form.eventCategory.value;
-
-  if(!title || !date || !time || !venue || !contactNumber || !description || !category) {
-    return alert('Please fill all required fields and select a category.');
-  }
-
-  const formData = new FormData();
-  formData.append('title', title);
-  formData.append('date', date);
-  formData.append('time', time);
-  formData.append('venue', venue);
-  formData.append('contactNumber', contactNumber);
-  formData.append('description', description);
-  formData.append('url', url);
-  formData.append('category', category);
-
-  Array.from(form.eventImages.files).slice(0, 5).forEach(file => {
-    formData.append('images', file);
-  });
-
-  if(!navigator.onLine) {
-    enqueueAction({ type: 'POST', data: formData });
-    alert('You are offline. Event will sync when online.');
-    form.reset();
-    document.getElementById('imagePreviewGroup').innerHTML = '';
-    return;
-  }
-
-  try {
-    const response = await fetch(`${backendUrl}/api/events`, {
-      method: 'POST',
-      body: formData
-    });
-    const data = await response.json();
-
-    if(!response.ok) throw new Error(data.message || 'Failed to post event');
-
-    alert('Event posted successfully!');
-    form.reset();
-    document.getElementById('imagePreviewGroup').innerHTML = '';
-
-    const newEvent = {
-      title, date, venue, description, url, image: data.image || '', category, id: data.id || '', version: data.version || ''
-    };
-
-    if(category === 'trending') {
-      document.getElementById('trendingEvents').appendChild(createSlide(newEvent));
-    } else if(category === 'upcoming') {
-      document.getElementById('upcomingEvents').appendChild(createSlide(newEvent));
-      if(upcomingSwiperInstance) upcomingSwiperInstance.update();
-    } else if(category === 'promo') {
-      document.getElementById('promoEvents').appendChild(createSlide(newEvent));
-      if(promoSwiperInstance) promoSwiperInstance.update();
+  const baseSwiperOptions = {
+    slidesPerView: 3,
+    spaceBetween: 20,
+    loop: true,
+    autoplay: { delay: 3000, disableOnInteraction: false },
+    pagination: { clickable: true },
+    breakpoints: {
+      0: { slidesPerView: 1 },
+      640: { slidesPerView: 2 },
+      1024: { slidesPerView: 3 }
     }
+  };
 
-  } catch (err) {
-    alert(`Error submitting event: ${err.message}`);
-    console.error(err);
-  }
-});
-
-window.addEventListener('online', syncQueuedActions);
-
-document.addEventListener('DOMContentLoaded', () => {
-  if(navigator.onLine) {
-    syncQueuedActions();
-  }
-  loadEvents();
-  // Initialize Swiper instances (omitted here for brevity; keep your existing initialization)
-});
-</script>
-</body>
-</html>
+  new Swiper('.trendingSwiper
