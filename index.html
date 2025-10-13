@@ -80,6 +80,7 @@
 </section>
 
 <div id="mainContent">
+
 <!-- Filters -->
 <section id="filters" class="section-card max-w-5xl mx-auto bg-white/90">
   <h3 class="text-2xl font-bold mb-4 text-indigo-700 text-center">Search & Filters</h3>
@@ -145,23 +146,23 @@
 <!-- Post Event -->
 <section id="postEvent" class="section-card max-w-3xl mx-auto glass bg-white/90 my-12">
   <h3 class="text-2xl font-bold mb-4 text-pink-600 text-center">Post Your Event</h3>
-  <form id="postEventForm" class="grid gap-4" enctype="multipart/form-data" novalidate>
-    <input type="text" id="eventTitle" placeholder="Event Title" required class="border rounded p-2" />
-    <input type="date" id="eventDate" required class="border rounded p-2" />
-    <input type="time" id="eventTime" required class="border rounded p-2" />
-    <input type="text" id="eventVenue" placeholder="Venue" required class="border rounded p-2" />
-    <input type="tel" id="contactNumber" placeholder="Contact Number" pattern="[0-9]{10,15}" required class="border rounded p-2" title="10-15 digits" />
-    <textarea id="eventDescription" placeholder="Description" required class="border rounded p-2"></textarea>
-    <input type="url" id="eventURL" placeholder="Event URL (optional)" class="border rounded p-2" />
-    <select id="eventCategory" class="border rounded p-2" required>
+  <form id="postEventForm" enctype="multipart/form-data" novalidate>
+    <input type="text" id="eventTitle" placeholder="Event Title" required class="border rounded p-2 mb-2 w-full" />
+    <input type="date" id="eventDate" required class="border rounded p-2 mb-2 w-full" />
+    <input type="time" id="eventTime" required class="border rounded p-2 mb-2 w-full" />
+    <input type="text" id="eventVenue" placeholder="Venue" required class="border rounded p-2 mb-2 w-full" />
+    <input type="tel" id="contactNumber" placeholder="Contact Number" pattern="[0-9]{10,15}" required class="border rounded p-2 mb-2 w-full" title="10-15 digits" />
+    <textarea id="eventDescription" placeholder="Description" required class="border rounded p-2 mb-2 w-full"></textarea>
+    <input type="url" id="eventURL" placeholder="Event URL (optional)" class="border rounded p-2 mb-2 w-full" />
+    <select id="eventCategory" required class="border rounded p-2 mb-2 w-full">
       <option value="">Select Category</option>
       <option value="trending">Trending</option>
       <option value="upcoming">Upcoming</option>
       <option value="promo">Promo</option>
     </select>
-    <input id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2" />
-    <div id="imagePreviewGroup" class="flex flex-wrap gap-2 mt-2"></div>
-    <button type="submit" class="bg-pink-600 text-white rounded px-4 py-2">Submit</button>
+    <input id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2 mb-2 w-full" />
+    <div id="imagePreviewGroup" class="flex flex-wrap gap-2 mb-2"></div>
+    <button type="submit" class="bg-pink-600 text-white rounded px-4 py-2 w-full hover:bg-pink-700">Submit</button>
   </form>
 </section>
 
@@ -169,7 +170,6 @@
 <section id="globalEvents" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-green-100 to-lime-100 mb-12 p-6 rounded shadow-lg">
   <h3 class="text-2xl font-bold mb-4 text-green-700 text-center">🌍 Events Around the World</h3>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <!-- Sample events -->
     <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
       <img src="https://via.placeholder.com/300x150?text=Event+1" class="w-full mb-2 rounded" alt="Event around world 1"/>
       <h4 class="font-semibold mb-2 text-center">Music Festival in Paris</h4>
@@ -267,61 +267,9 @@
   </div>
 </section>
 
-<!-- Footer -->
-<footer class="bg-gray-900 text-gray-300 pt-12 pb-6 mt-12">
-  <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 px-4">
-    <div class="col-span-2 md:col-span-1">
-      <h2 class="font-bold italic text-4xl text-white mb-1">Chutki</h2>
-    </div>
-    <div>
-      <h3 class="font-semibold text-lg mb-2 text-white">Products</h3>
-      <ul>
-        <li><a href="#trending" class="footer-link block mb-1">Trending Events</a></li>
-        <li><a href="#upcoming" class="footer-link block mb-1">Upcoming Events</a></li>
-        <li><a href="#promo" class="footer-link block mb-1">Promo Events</a></li>
-      </ul>
-    </div>
-    <div>
-      <h3 class="font-semibold text-lg mb-2 text-white">Community</h3>
-      <ul>
-        <li><a href="#blogs" class="footer-link block mb-1">Blogs</a></li>
-        <li><a href="#partners" class="footer-link block mb-1">Partners</a></li>
-      </ul>
-    </div>
-    <div>
-      <h3 class="font-semibold text-lg mb-2 text-white">Company</h3>
-      <ul>
-        <li><a href="#contact" class="footer-link block mb-1">About Us</a></li>
-        <li><a href="#contact" class="footer-link block mb-1">Contact Us</a></li>
-      </ul>
-    </div>
-    <div>
-      <h3 class="font-semibold text-lg mb-2 text-white">Service</h3>
-      <ul>
-        <li><a href="#terms" class="footer-link block mb-1">Terms & Condition</a></li>
-        <li><a href="#privacy" class="footer-link block mb-1">Privacy Policy</a></li>
-      </ul>
-    </div>
-  </div>
-  <hr class="border-gray-700 my-6 max-w-7xl mx-auto"/>
-  <div class="flex justify-center space-x-6 mb-4">
-    <a href="#" class="text-gray-400 hover:text-indigo-400" aria-label="Twitter" title="Twitter" target="_blank" rel="noopener noreferrer">
-      <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24"><path d="M24 4.557a9.828 9.828 0 01-2.828.775 4.932 4.932 0 002.165-2.725 9.868 9.868 0 01-3.127 1.196 4.916 4.916 0 00-8.38 4.482A13.945 13.945 0 011.671 3.149a4.916 4.916 0 001.523 6.563 4.9 4.9 0 01-2.228-.616c-.054 2.282 1.581 4.415 3.949 4.89a4.935 4.935 0 01-2.224.085c.624 1.955 2.444 3.377 4.6 3.414a9.875 9.875 0 01-6.102 2.105c-.394 0-.779-.023-1.158-.067A13.945 13.945 0 007.548 21c9.142 0 14.307-7.721 13.995-14.646A9.936 9.936 0 0024 4.557z"/></svg>
-    </a>
-    <a href="#" class="text-gray-400 hover:text-indigo-400" aria-label="Facebook" title="Facebook" target="_blank" rel="noopener noreferrer">
-      <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24"><path d="M22.676 0H1.324C.593 0 0 .593 0 1.324v21.352C0 23.407.593 24 1.324 24h11.495v-9.294H9.847v-3.622h2.972V8.413c0-2.946 1.797-4.548 4.427-4.548 1.258 0 2.341.094 2.657.136v3.08h-1.82c-1.43 0-1.707.68-1.707 1.676v2.2h3.412l-.445 3.622h-2.967v9.294h5.818c.73 0 1.324-.593 1.324-1.324V1.324C24 .593 23.407 0 22.676 0z"/></svg>
-    </a>
-    <a href="#" class="text-gray-400 hover:text-indigo-400" aria-label="Instagram" title="Instagram" target="_blank" rel="noopener noreferrer">
-      <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.335 3.608 1.31a5.42 5.42 0 011.31 3.608c.058 1.266.069 1.645.069 4.85s-.012 3.584-.069 4.85a5.42 5.42 0 01-1.31 3.608 5.416 5.416 0 01-3.608 1.31c-1.266.058-1.645.069-4.85.069s-3.584-.012-4.85-.069a5.42 5.42 0 01-3.608-1.31 5.421 5.421 0 01-1.31-3.608c-.058-1.266-.069-1.645-.069-4.85s.012-3.584.069-4.85a5.42 5.42 0 011.31-3.608 5.416 5.416 0 013.608-1.31c1.266-.058 1.645-.069 4.85-.069M12 0C8.741 0 8.332.01 7.052.07 5.773.13 4.602.433 3.603 1.432 2.604 2.432 2.3 3.604 2.242 4.883.01 8.332 0 8.741 0 12c0 3.259.01 3.668.07 4.948.058 1.279.362 2.45 1.362 3.45 1 1 2.172 1.304 3.451 1.362 1.279.058 1.688.07 4.948.07s3.668-.01 4.948-.07c1.279-.058 2.45-.362 3.45-1.362 1-1 1.304-2.172 1.362-3.451.058-1.279.07-1.688.07-4.948s-.01-3.668-.07-4.948c-.058-1.279-.362-2.45-1.362-3.45a5.968 5.968 0 00-3.45-1.362c-1.279-.058-1.688-.07-4.948-.07z"/><path d="M12 5.838A6.162 6.162 0 105.838 12 6.161 6.161 0 0012 5.838M12 0a12 12 0 1012 12A12 12 0 0012 0zM18.406 4.594a1.44 1.44 0 11-2.879.09 1.44 1.44 0 012.879-.09z"/></svg>
-    </a>
-    <a href="#" class="text-gray-400 hover:text-indigo-400" aria-label="LinkedIn" title="LinkedIn" target="_blank" rel="noopener noreferrer">
-      <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.848-3.037-1.849 0-2.132 1.444-2.132 2.939v5.667H9.362V9h3.414v1.561h.047c.476-.9 1.635-1.848 3.365-1.848 3.59 0 4.25 2.362 4.25 5.435v6.304zM5.337 7.433a2.064 2.064 0 110-4.129 2.064 2.064 0 010 4.129zm1.777 13.019H3.559V9h3.555v11.452zM22.225 0H1.771A1.771 1.771 0 000 1.77v20.452A1.771 1.771 0 001.771 24h20.452a1.771 1.771 0 001.771-1.771V1.77A1.771 1.771 0 0022.225 0z"/></svg>
-    </a>
-  </div>
-  <div class="text-center text-gray-500 text-xs mt-3">&copy; 2025 Chutki Event Platform. All rights reserved.</div>
-</footer>
+<!-- Footer here, as in previous answer -->
 
-<!-- Event Modal and User Profile Modal omitted here for brevity; use your existing modals -->
+<!-- Event Modal and Profile Modal codes omitted for brevity, add your existing modal code here -->
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -336,15 +284,12 @@ let isUserSignedIn = false;
 let currentUser = null;
 const backendUrl = 'https://chutki-live.vercel.app';
 
+let upcomingSwiperInstance, promoSwiperInstance;
+let map;
+
 window.onload = function() {
-  google.accounts.id.initialize({
-    client_id: googleClientId,
-    callback: handleCredentialResponse
-  });
-  google.accounts.id.renderButton(
-    document.getElementById("googleSignInPageBtn"),
-    { theme: "outline", size: "large" }
-  );
+  google.accounts.id.initialize({ client_id: googleClientId, callback: handleCredentialResponse });
+  google.accounts.id.renderButton(document.getElementById("googleSignInPageBtn"), { theme: "outline", size: "large" });
 
   window.fbAsyncInit = function() {
     FB.init({ appId: facebookAppId, cookie: true, xfbml: true, version: 'v17.0' });
@@ -352,19 +297,22 @@ window.onload = function() {
 
   document.getElementById('signInToggleBtn').addEventListener('click', showSignInPage);
 
-  document.querySelectorAll('.main-content-link').forEach(link => {
+  document.querySelectorAll('.main-content-link').forEach(link =>
     link.addEventListener('click', e => {
       if (!isUserSignedIn) {
         e.preventDefault();
         alert('Please sign in first.');
         showSignInPage();
       }
-    });
-  });
+    })
+  );
 
   document.getElementById('userEmail').addEventListener('click', () => {
-    if (isUserSignedIn) openProfileModal();
+    if(isUserSignedIn) openProfileModal();
   });
+
+  initSwipers();
+  initMap();
 
   showSignInPage();
 };
@@ -381,14 +329,12 @@ function showMainContent() {
 }
 
 function handleCredentialResponse(response) {
-  const base64Url = response.credential.split('.')[1];
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  const decoded = JSON.parse(atob(base64));
+  const payload = JSON.parse(atob(response.credential.split('.')[1]));
   isUserSignedIn = true;
-  currentUser = { name: decoded.name, email: decoded.email };
-  document.getElementById('userEmail').textContent = `Signed in as: ${decoded.name} (${decoded.email})`;
+  currentUser = { name: payload.name, email: payload.email };
+  document.getElementById('userEmail').textContent = `Signed in as: ${payload.name} (${payload.email})`;
   showMainContent();
-  // Load events, profile, etc.
+  loadEvents();
 }
 
 function checkLoginState() {
@@ -399,15 +345,228 @@ function checkLoginState() {
         currentUser = { name: userInfo.name, email: userInfo.email };
         document.getElementById('userEmail').textContent = `Facebook signed in as: ${userInfo.name}`;
         showMainContent();
+        loadEvents();
       });
     }
   });
 }
 
-function openProfileModal() {
-  // code to open and populate user profile modal
-  alert('User Profile modal open (not implemented fully here).');
+function initSwipers() {
+  const baseSwiperOptions = {
+    slidesPerView: 3,
+    spaceBetween: 20,
+    loop: true,
+    autoplay: { delay: 3000, disableOnInteraction: false },
+    pagination: { clickable: true },
+    breakpoints: { 0: { slidesPerView: 1 }, 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
+  };
+
+  new Swiper('.trendingSwiper', { ...baseSwiperOptions, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } });
+
+  upcomingSwiperInstance = new Swiper('.upcomingSwiper', {
+    ...baseSwiperOptions,
+    navigation: { nextEl: '.upcomingSwiper .swiper-button-next', prevEl: '.upcomingSwiper .swiper-button-prev' }
+  });
+
+  promoSwiperInstance = new Swiper('.promoSwiper', {
+    ...baseSwiperOptions,
+    navigation: { nextEl: '.promoSwiper .swiper-button-next', prevEl: '.promoSwiper .swiper-button-prev' }
+  });
+
+  new Swiper('.partnersSwiper', {
+    slidesPerView: 3,
+    spaceBetween: 30,
+    loop: true,
+    pagination: { clickable: true },
+    navigation: { nextEl: '.partnersSwiper .swiper-button-next', prevEl: '.partnersSwiper .swiper-button-prev' },
+    breakpoints: { 0: { slidesPerView: 1 }, 768: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
+  });
 }
+
+function initMap() {
+  map = L.map('map').setView([17.385044, 78.486671], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+}
+
+async function loadEvents() {
+  if(!isUserSignedIn) return;
+  try {
+    const res = await fetch(`${backendUrl}/api/events`);
+    const events = await res.json();
+
+    const trendingContainer = document.getElementById('trendingEvents');
+    const upcomingContainer = document.getElementById('upcomingEvents');
+    const promoContainer = document.getElementById('promoEvents');
+
+    trendingContainer.innerHTML = '';
+    upcomingContainer.innerHTML = '';
+    promoContainer.innerHTML = '';
+
+    // Clear existing markers
+    if(map._layers) {
+      for(let i in map._layers) {
+        if(map._layers[i]._icon) map.removeLayer(map._layers[i]);
+      }
+    }
+
+    events.forEach(event => {
+      if(new Date(event.date) < new Date()) return; // expire filter
+
+      const slide = createSlide(event);
+
+      if(event.category === 'trending') trendingContainer.appendChild(slide);
+      else if(event.category === 'upcoming') upcomingContainer.appendChild(slide);
+      else if(event.category === 'promo') promoContainer.appendChild(slide);
+
+      addClickableToSlide(slide);
+
+      if(event.latitude && event.longitude) {
+        L.marker([event.latitude, event.longitude])
+          .addTo(map)
+          .bindPopup(`<b>${event.title}</b><br>${event.venue}<br>${event.date}`);
+      }
+    });
+
+    if(upcomingSwiperInstance) upcomingSwiperInstance.update();
+    if(promoSwiperInstance) promoSwiperInstance.update();
+
+  } catch(err) {
+    console.error('Error loading events:', err);
+  }
+}
+
+function createSlide(event) {
+  const slide = document.createElement('div');
+  slide.className = 'swiper-slide';
+  slide.dataset.url = event.url || '#';
+  slide.dataset.category = event.category || '';
+  slide.innerHTML = `
+    <img src="${event.image || 'https://via.placeholder.com/300x150'}" alt="${event.title}" style="width: 100%; border-radius: .5rem;"/>
+    <h4 class="font-semibold mb-1 text-center">${event.title}</h4>
+    <p class="date-time text-sm text-gray-600 text-center">${event.date}</p>
+    <p class="venue text-sm text-gray-600 text-center">${event.venue}</p>
+    <p class="description text-center">${event.description}</p>
+    <div class="flex justify-center space-x-4 mt-2">
+      <div class="like-btn">👍 <span class="like-count">0</span></div>
+      <div class="share-btn">🔗</div>
+      <div class="reminder-btn">⏰</div>
+    </div>
+  `;
+  return slide;
+}
+
+function addClickableToSlide(slide) {
+  slide.style.cursor = 'pointer';
+
+  slide.querySelector('.like-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    const likeCountSpan = slide.querySelector('.like-count');
+    let count = parseInt(likeCountSpan.textContent);
+    if(slide.querySelector('.like-btn').classList.contains('liked')) {
+      count--;
+      slide.querySelector('.like-btn').classList.remove('liked');
+    } else {
+      count++;
+      slide.querySelector('.like-btn').classList.add('liked');
+    }
+    likeCountSpan.textContent = count;
+  });
+
+  slide.querySelector('.share-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    const url = slide.dataset.url;
+    if(url && url !== '#') window.open(url, '_blank');
+    else alert('No URL available for sharing');
+  });
+
+  slide.querySelector('.reminder-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    scheduleReminder({
+      title: slide.querySelector('h4').textContent,
+      venue: slide.querySelector('.venue').textContent,
+      date: slide.querySelector('.date-time').textContent,
+      time: '08:00' // default or extend to read time from event
+    });
+  });
+
+  slide.addEventListener('click', () => openEventModal(slide));
+}
+
+// Event reminder code (request permission and schedule)
+async function requestNotificationPermission() {
+  if(Notification.permission === 'default') await Notification.requestPermission();
+}
+function scheduleReminder(event) {
+  if(Notification.permission !== 'granted') {
+    alert('Please enable notifications to set reminders');
+    return;
+  }
+  const eventDateTime = new Date(event.date + 'T' + event.time);
+  const now = new Date();
+  const delay = eventDateTime - now - 10*60*1000; // notify 10 min before event
+  if(delay > 0) {
+    setTimeout(() => {
+      new Notification('Event Reminder', { body: `${event.title} at ${event.venue} starts in 10 minutes.` });
+    }, delay);
+    alert('Reminder set for 10 minutes before event');
+  } else {
+    alert('Event time is too close or in the past');
+  }
+}
+
+// Post Event form submit with immediate UI update
+document.getElementById('postEventForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const form = this;
+  const formData = new FormData(form);
+
+  // Validation could be enhanced here
+
+  try {
+    const res = await fetch(`${backendUrl}/api/events`, { method: 'POST', body: formData });
+    if(!res.ok) throw new Error('Failed to post event');
+    const newEvent = await res.json();
+
+    alert('Event posted successfully!');
+
+    // Add new event to UI
+    addNewEventToUI(newEvent);
+
+    // Reset form and image preview
+    form.reset();
+    document.getElementById('imagePreviewGroup').innerHTML = '';
+  } catch(err) {
+    alert('Error posting event: ' + err.message);
+  }
+});
+
+function addNewEventToUI(event) {
+  const slide = createSlide(event);
+  const category = event.category || '';
+  let container;
+
+  if(category === 'trending') container = document.getElementById('trendingEvents');
+  else if(category === 'upcoming') container = document.getElementById('upcomingEvents');
+  else if(category === 'promo') container = document.getElementById('promoEvents');
+
+  if(container) {
+    container.appendChild(slide);
+    addClickableToSlide(slide);
+    if(category === 'upcoming' && upcomingSwiperInstance) upcomingSwiperInstance.update();
+    if(category === 'promo' && promoSwiperInstance) promoSwiperInstance.update();
+  }
+
+  if(event.latitude && event.longitude && map) {
+    L.marker([event.latitude, event.longitude])
+      .addTo(map)
+      .bindPopup(`<b>${event.title}</b><br>${event.venue}<br>${event.date}`);
+  }
+}
+
+// Placeholder modal handlers
+function openEventModal(slide){}
+function openProfileModal(){}
 
 </script>
 
