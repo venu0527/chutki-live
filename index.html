@@ -6,32 +6,21 @@
 <title>Chutki</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <style>
   body { scroll-behavior: smooth; }
   .hidden { display: none; }
   .active-fav { color: #fbbf24; font-weight: 700; }
-  .swiper-slide { display: flex; justify-content: center; flex-direction: column; align-items: center; }
+  .swiper-slide { display: flex; justify-content: center; }
   img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius: .5rem; margin: 0.25rem; }
   .footer-link:hover { text-decoration: underline; color: #a5b4fc; }
   .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(8px); }
   .section-card { background: rgba(255,255,255,0.95); border-radius: 1.2rem; box-shadow: 0 8px 24px rgba(110,92,139,0.18); margin-bottom: 2.5rem; padding: 2rem 1.2rem;}
   @media (min-width: 768px) { .section-card { padding: 2.5rem 3rem; } }
-  .like-btn, .share-btn, .reminder-btn { cursor: pointer; user-select: none; font-weight: 700; font-size: 1.1rem; }
+  .like-btn, .share-btn { cursor: pointer; user-select: none; font-weight: 700; font-size: 1.1rem; }
   .like-btn { color: #ca8a04; padding-left: 0.3rem; }
   .share-btn { color: #3b82f6; padding-left: 1rem; }
-  .reminder-btn { color: #2563eb; padding-left: 1rem; }
   .like-btn:hover { color: #d97706; }
   .share-btn:hover { color: #2563eb; }
-  .reminder-btn:hover { color: #1e40af; }
-  #userEmail {
-    margin-top: 0.5rem;
-    font-weight: 600;
-    color: #bbf7d0;
-    cursor: pointer;
-    user-select: none;
-  }
-  #signInModal { background: rgba(0,0,0,0.5); }
 </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-100 via-white to-purple-100 text-gray-900">
@@ -41,124 +30,171 @@
     <div>
       <h1 class="text-4xl font-extrabold italic text-white drop-shadow">Chutki</h1>
       <p class="text-indigo-100 text-sm" id="cityName">Detecting your city...</p>
-      <p id="userEmail" class="text-indigo-300 text-sm mt-1" title="Click to view profile"></p>
+      <p id="userEmail" class="text-indigo-300 text-sm mt-1"></p>
     </div>
     <nav class="md:flex space-x-6 items-center flex-wrap font-semibold">
-      <a href="#filters" class="hover:text-indigo-100 text-white main-content-link">Search</a>
-      <a href="#trending" class="hover:text-indigo-100 text-white main-content-link">Trending</a>
-      <a href="#upcoming" class="hover:text-indigo-100 text-white main-content-link">Upcoming</a>
-      <a href="#promo" class="hover:text-indigo-100 text-white main-content-link">Promo</a>
-      <a href="#postEvent" class="px-3 py-1 rounded bg-pink-600 hover:bg-pink-700 text-white transition-colors shadow main-content-link">Post Event</a>
-      <a href="#virtualEvents" class="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow main-content-link">Virtual Events</a>
-      <a href="#partners" class="px-3 py-1 rounded bg-yellow-600 hover:bg-yellow-700 text-white transition-colors shadow main-content-link">Partners</a>
-      <a href="#contact" class="hover:text-indigo-100 text-white main-content-link">Contact</a>
+      <a href="#filters" class="hover:text-indigo-100 text-white">Search</a>
+      <a href="#trending" class="hover:text-indigo-100 text-white">Trending</a>
+      <a href="#upcoming" class="hover:text-indigo-100 text-white">Upcoming</a>
+      <a href="#promo" class="hover:text-indigo-100 text-white">Promo</a>
+      <a href="#postEvent" class="px-3 py-1 rounded bg-pink-600 hover:bg-pink-700 text-white transition-colors shadow">Post Event</a>
+      <a href="#virtualEvents" class="px-3 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow">Virtual Events</a>
+      <a href="#partners" class="px-3 py-1 rounded bg-yellow-600 hover:bg-yellow-700 text-white transition-colors shadow">Partners</a>
+      <a href="#contact" class="hover:text-indigo-100 text-white">Contact</a>
     </nav>
     <div class="flex items-center space-x-4 mt-4 md:mt-0">
-      <button id="signInToggleBtn" class="bg-gradient-to-r from-green-500 to-blue-500 px-4 py-2 rounded text-white shadow hover:from-green-400 hover:to-blue-400 transition-colors">Sign In</button>
+      <div class="relative">
+        <button id="notifBell" class="text-2xl text-pink-200 hover:text-white">🔔</button>
+        <span id="notifCount" class="hidden absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5"></span>
+        <div id="notifPanel" class="hidden absolute right-0 mt-2 w-64 glass rounded-lg shadow-lg border p-3 max-h-60 overflow-auto text-sm z-50">
+          <p class="text-indigo-500 text-center">No notifications</p>
+        </div>
+      </div>
+      <button id="signInBtn" class="bg-gradient-to-r from-green-500 to-blue-500 px-3 py-1 rounded text-white shadow hover:from-green-400 hover:to-blue-400 transition-colors">Sign In</button>
       <button id="adminBtn" class="bg-red-600 px-3 py-1 rounded text-white hover:bg-red-700 shadow">Admin</button>
     </div>
   </div>
 </header>
 
-<!-- Sign-In Modal -->
-<div id="signInModal" class="fixed inset-0 flex items-center justify-center hidden z-50" style="background: rgba(0,0,0,0.5);">
-  <div class="bg-white rounded-lg p-6 w-80 relative shadow-lg">
-    <button id="signInModalCloseBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 font-bold text-xl">&times;</button>
-    <h3 class="text-xl font-bold mb-6 text-center">Sign In</h3>
-    <div id="googleSignInBtnModal" class="flex justify-center mb-6"></div>
-    <div id="fbLoginBtnModal" class="flex justify-center">
-      <fb:login-button scope="public_profile,email" onlogin="checkLoginState();" data-width="" data-size="large" data-button-type="continue_with"
-                       data-layout="default" data-auto-logout-link="false" data-use-continue-as="true"></fb:login-button>
+<section class="section-card bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-400 text-white text-center max-w-4xl mx-auto mt-8 mb-12 shadow-2xl">
+  <h2 class="text-5xl font-extrabold mb-3 tracking-wider">Welcome to <span class="italic">Chutki</span></h2>
+  <p class="text-xl md:text-2xl font-medium mb-6">Find your favorite Events & explore the city!</p>
+  <div class="flex flex-wrap justify-center gap-4 mt-3">
+    <a href="#trending" class="px-4 py-2 bg-white/20 hover:bg-white/40 rounded text-lg shadow font-bold transition">🔥 Trending</a>
+    <a href="#promo" class="px-4 py-2 bg-pink-500 hover:bg-pink-600 rounded text-lg font-bold shadow transition">🎁 Promo Events</a>
+    <a href="#partners" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 rounded text-lg font-bold shadow transition">🤝 Partners</a>
+    <a href="#postEvent" class="px-5 py-2 bg-pink-600 hover:bg-pink-700 rounded-full text-lg font-extrabold shadow transition">+ Post Event</a>
+    <a href="#virtualEvents" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full text-lg font-extrabold shadow transition">🎥 Virtual Events</a>
+  </div>
+</section>
+
+<section id="filters" class="section-card max-w-5xl mx-auto bg-white/90">
+  <h3 class="text-2xl font-bold mb-4 text-indigo-700 text-center">Search & Filters</h3>
+  <form id="filterForm" class="grid md:grid-cols-5 gap-4 p-4">
+    <select id="category" class="border rounded p-2 bg-white" aria-label="Select Category">
+      <option value="">All Categories</option>
+      <optgroup label="Music"><option value="music-concert">Concerts</option></optgroup>
+      <optgroup label="Sports"><option value="sports-football">Football</option></optgroup>
+      <optgroup label="Tech"><option value="tech-conference">Conference</option></optgroup>
+      <optgroup label="Food"><option value="food-festival">Festivals</option></optgroup>
+      <optgroup label="Other"><option value="charity">Charity</option></optgroup>
+    </select>
+    <input type="date" id="date" class="border rounded p-2 bg-white" aria-label="Select Date"/>
+    <select id="distance" class="border rounded p-2 bg-white" aria-label="Select Distance">
+      <option value="">Any Distance</option>
+      <option value="5">Within 5 km</option>
+      <option value="10">Within 10 km</option>
+    </select>
+    <button id="getLocationBtn" type="button" class="bg-indigo-600 text-white rounded p-2 hover:bg-indigo-700 shadow" aria-label="Use Your Location">📍 Use Location</button>
+    <button id="searchBtn" type="submit" class="bg-green-600 text-white rounded p-2 hover:bg-green-700 shadow">🔍 Search</button>
+  </form>
+</section>
+
+<section id="trending" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-indigo-100 to-indigo-50">
+  <h3 class="text-2xl font-bold mb-4 text-indigo-700 text-center">🔥 Trending Events</h3>
+  <div class="swiper trendingSwiper">
+    <div id="trendingEvents" class="swiper-wrapper"></div>
+    <div class="swiper-button-prev text-indigo-600"></div>
+    <div class="swiper-button-next text-indigo-600"></div>
+    <div class="swiper-pagination"></div>
+  </div>
+</section>
+
+<section id="upcoming" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-purple-100 to-indigo-100">
+  <h3 class="text-2xl font-bold mb-4 text-purple-700 text-center">📅 Upcoming Events</h3>
+  <div class="swiper upcomingSwiper">
+    <div id="upcomingEvents" class="swiper-wrapper"></div>
+    <div class="swiper-button-prev text-purple-600"></div>
+    <div class="swiper-button-next text-purple-600"></div>
+    <div class="swiper-pagination"></div>
+  </div>
+</section>
+
+<section id="promo" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-pink-100 to-yellow-50">
+  <h3 class="text-2xl font-bold mb-4 text-pink-500 text-center">🎁 Promo Events</h3>
+  <div class="swiper promoSwiper">
+    <div id="promoEvents" class="swiper-wrapper"></div>
+    <div class="swiper-button-prev text-pink-500"></div>
+    <div class="swiper-button-next text-pink-500"></div>
+    <div class="swiper-pagination"></div>
+  </div>
+</section>
+
+<section id="postEvent" class="section-card max-w-3xl mx-auto glass bg-white/90 my-12">
+  <h3 class="text-2xl font-bold mb-4 text-pink-600 text-center">Post Your Event</h3>
+  <form id="postEventForm" class="grid gap-4" enctype="multipart/form-data" novalidate>
+    <input type="text" id="eventTitle" placeholder="Event Title" required class="border rounded p-2" aria-label="Event Title" />
+    <input type="date" id="eventDate" required class="border rounded p-2" aria-label="Event Date" />
+    <input type="time" id="eventTime" required class="border rounded p-2" aria-label="Event Time" />
+    <input type="text" id="eventVenue" placeholder="Venue" required class="border rounded p-2" aria-label="Event Venue" />
+    <input type="tel" id="contactNumber" placeholder="Contact Number" pattern="[0-9]{10,15}" required class="border rounded p-2" title="10-15 digits" aria-label="Contact Number" />
+    <textarea id="eventDescription" placeholder="Description" required class="border rounded p-2" aria-label="Event Description"></textarea>
+    <input type="url" id="eventURL" placeholder="Event URL (optional)" class="border rounded p-2" aria-label="Event URL" />
+    <select id="eventCategory" class="border rounded p-2" required aria-label="Event Category">
+      <option value="">Select Category</option>
+      <option value="trending">Trending</option>
+      <option value="upcoming">Upcoming</option>
+      <option value="promo">Promo</option>
+    </select>
+    <input id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2" aria-label="Upload Event Images"/>
+    <div id="imagePreviewGroup" class="flex flex-wrap gap-2 mt-2"></div>
+    <button type="submit" class="bg-pink-600 text-white rounded px-4 py-2">Submit</button>
+  </form>
+</section>
+
+<section id="virtualEvents" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-blue-100 to-cyan-100 mb-12 p-6 rounded shadow-lg">
+  <h3 class="text-2xl font-bold mb-4 text-blue-700 text-center">🎥 Virtual Events</h3>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
+      <img src="https://via.placeholder.com/300x150?text=Virtual+Event+1" class="w-full mb-2 rounded" alt="Virtual Event 1"/>
+      <h4 class="font-semibold mb-2 text-center">Online Coding Bootcamp</h4>
+      <p class="text-sm text-center text-gray-600">Join our free online coding bootcamp to learn the basics and beyond.</p>
+    </div>
+    <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
+      <img src="https://via.placeholder.com/300x150?text=Virtual+Event+2" class="w-full mb-2 rounded" alt="Virtual Event 2"/>
+      <h4 class="font-semibold mb-2 text-center">Virtual Yoga Workshop</h4>
+      <p class="text-sm text-center text-gray-600">Relax and rejuvenate with this guided yoga session from home.</p>
+    </div>
+    <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
+      <img src="https://via.placeholder.com/300x150?text=Virtual+Event+3" class="w-full mb-2 rounded" alt="Virtual Event 3"/>
+      <h4 class="font-semibold mb-2 text-center">Global Marketing Seminar</h4>
+      <p class="text-sm text-center text-gray-600">Learn marketing strategies in a live webinar with industry experts.</p>
     </div>
   </div>
-</div>
+</section>
 
-<div id="mainContent">
-  <!-- Filters -->
-  <section id="filters" class="section-card max-w-5xl mx-auto bg-white/90">
-    <h3 class="text-2xl font-bold mb-4 text-indigo-700 text-center">Search & Filters</h3>
-    <!-- Filter form here as before -->
-  </section>
-
-  <!-- Trending Events -->
-  <section id="trending" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-indigo-100 to-indigo-50">
-    <h3 class="text-2xl font-bold mb-4 text-indigo-700 text-center">🔥 Trending Events</h3>
-    <div class="swiper trendingSwiper">
-      <div id="trendingEvents" class="swiper-wrapper"></div>
-      <div class="swiper-button-prev text-indigo-600"></div>
-      <div class="swiper-button-next text-indigo-600"></div>
-      <div class="swiper-pagination"></div>
+<section id="partners" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-gray-50 to-indigo-100">
+  <h3 class="text-2xl font-bold mb-4 text-yellow-700 text-center">🤝 Professional Partners</h3>
+  <div class="swiper partnersSwiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide bg-white p-6 rounded shadow text-center">Partner A</div>
+      <div class="swiper-slide bg-white p-6 rounded shadow text-center">Partner B</div>
+      <div class="swiper-slide bg-white p-6 rounded shadow text-center">Partner C</div>
+      <div class="swiper-slide bg-white p-6 rounded shadow text-center">Partner D</div>
     </div>
-  </section>
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-prev text-yellow-500"></div>
+    <div class="swiper-button-next text-yellow-500"></div>
+  </div>
+</section>
 
-  <!-- Upcoming Events -->
-  <section id="upcoming" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-purple-100 to-indigo-100">
-    <h3 class="text-2xl font-bold mb-4 text-purple-700 text-center">📅 Upcoming Events</h3>
-    <div class="swiper upcomingSwiper">
-      <div id="upcomingEvents" class="swiper-wrapper"></div>
-      <div class="swiper-button-prev text-purple-600"></div>
-      <div class="swiper-button-next text-purple-600"></div>
-      <div class="swiper-pagination"></div>
-    </div>
-  </section>
-
-  <!-- Promo Events -->
-  <section id="promo" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-pink-100 to-yellow-50">
-    <h3 class="text-2xl font-bold mb-4 text-pink-500 text-center">🎁 Promo Events</h3>
-    <div class="swiper promoSwiper">
-      <div id="promoEvents" class="swiper-wrapper"></div>
-      <div class="swiper-button-prev text-pink-500"></div>
-      <div class="swiper-button-next text-pink-500"></div>
-      <div class="swiper-pagination"></div>
-    </div>
-  </section>
-
-  <!-- Contact Us Section -->
-  <section id="contact" class="section-card max-w-5xl mx-auto bg-white/90 mb-12 p-6 rounded shadow-lg">
-    <h3 class="text-2xl font-bold mb-6 text-indigo-700 text-center">Contact Us</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <form id="contactForm" class="flex flex-col space-y-4" novalidate>
-        <input type="text" id="contactName" name="contactName" placeholder="Name" required class="border rounded p-2" />
-        <input type="email" id="contactEmail" name="contactEmail" placeholder="Email ID" required class="border rounded p-2" />
-        <input type="tel" id="contactMobile" name="contactMobile" placeholder="Mobile Number" pattern="[0-9]{10,15}" required class="border rounded p-2" title="10-15 digits" />
-        <textarea id="contactMessage" name="contactMessage" placeholder="Message" required class="border rounded p-2"></textarea>
-        <button type="submit" class="bg-indigo-600 text-white rounded px-4 py-2 w-full hover:bg-indigo-700 shadow">Send Message</button>
-      </form>
-      <div class="text-gray-700 text-sm space-y-2">
-        <p><strong>Address:</strong> Plot number 64, Behind church, Prashanth nagar,<br/>Chengicherla, Boduppal</p>
-        <p><strong>City Code:</strong> 500092</p>
-        <p><strong>Email ID:</strong> <a href="mailto:chutkki.2025@gmail.com" class="text-indigo-600 hover:underline">chutkki.2025@gmail.com</a></p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Post Event -->
-  <section id="postEvent" class="section-card max-w-3xl mx-auto glass bg-white/90 my-12">
-    <h3 class="text-2xl font-bold mb-4 text-pink-600 text-center">Post Your Event</h3>
-    <!--Form-->
-    <form id="postEventForm" enctype="multipart/form-data" novalidate>
-      <input type="text" id="eventTitle" placeholder="Event Title" required class="border rounded p-2 mb-2 w-full" />
-      <input type="date" id="eventDate" required class="border rounded p-2 mb-2 w-full" />
-      <input type="time" id="eventTime" required class="border rounded p-2 mb-2 w-full" />
-      <input type="text" id="eventVenue" placeholder="Venue" required class="border rounded p-2 mb-2 w-full" />
-      <input type="tel" id="contactNumber" placeholder="Contact Number" pattern="[0-9]{10,15}" required class="border rounded p-2 mb-2 w-full" title="10-15 digits" />
-      <textarea id="eventDescription" placeholder="Description" required class="border rounded p-2 mb-2 w-full"></textarea>
-      <input type="url" id="eventURL" placeholder="Event URL (optional)" class="border rounded p-2 mb-2 w-full" />
-      <select id="eventCategory" required class="border rounded p-2 mb-2 w-full">
-        <option value="">Select Category</option>
-        <option value="trending">Trending</option>
-        <option value="upcoming">Upcoming</option>
-        <option value="promo">Promo</option>
-      </select>
-      <input id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2 mb-2 w-full" />
-      <div id="imagePreviewGroup" class="flex flex-wrap gap-2 mb-2"></div>
-      <button type="submit" class="bg-pink-600 text-white rounded px-4 py-2 w-full hover:bg-pink-700">Submit</button>
+<section id="contact" class="section-card max-w-5xl mx-auto bg-white/90 mb-12 p-6 rounded shadow-lg">
+  <h3 class="text-2xl font-bold mb-6 text-indigo-700 text-center">Contact Us</h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <form id="contactForm" class="flex flex-col space-y-4" novalidate>
+      <input type="text" id="contactName" name="contactName" placeholder="Name" required class="border rounded p-2" aria-label="Name" />
+      <input type="email" id="contactEmail" name="contactEmail" placeholder="Email ID" required class="border rounded p-2" aria-label="Email" />
+      <input type="tel" id="contactMobile" name="contactMobile" placeholder="Mobile Number" pattern="[0-9]{10,15}" required class="border rounded p-2" title="10-15 digits" aria-label="Mobile Number" />
+      <textarea id="contactMessage" name="contactMessage" placeholder="Message" required class="border rounded p-2" aria-label="Message"></textarea>
+      <button type="submit" class="bg-indigo-600 text-white rounded px-4 py-2 w-full hover:bg-indigo-700 shadow">Send Message</button>
     </form>
-  </section>
-
-</div>
-
-<!-- Event Modal and Profile Modal add here from your implementations -->
+    <div class="text-gray-700 text-sm space-y-2">
+      <p><strong>Address:</strong> Plot number 64, Behind church, Prashanth nagar,<br/>Chengicherla, Boduppal</p>
+      <p><strong>City Code:</strong> 500092</p>
+      <p><strong>Email ID:</strong> <a href="mailto:chutkki.2025@gmail.com" class="text-indigo-600 hover:underline">chutkki.2025@gmail.com</a></p>
+    </div>
+  </div>
+</section>
 
 <footer class="bg-gray-900 text-gray-300 pt-12 pb-6 mt-12">
   <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 px-4">
@@ -197,222 +233,402 @@
   </div>
   <hr class="border-gray-700 my-6 max-w-7xl mx-auto"/>
   <div class="flex justify-center space-x-6 mb-4">
-    <!-- Social icons... -->
+    <a href="#" class="text-gray-400 hover:text-indigo-400" aria-label="Twitter" title="Twitter" target="_blank" rel="noopener noreferrer" >
+      <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24"><path d="M24 4.557a9.828 9.828 0 01-2.828.775 4.932 4.932 0 002.165-2.725 9.868 9.868 0 01-3.127 1.196 4.916 4.916 0 00-8.38 4.482A13.945 13.945 0 011.671 3.149a4.916 4.916 0 001.523 6.563 4.9 4.9 0 01-2.228-.616c-.054 2.282 1.581 4.415 3.949 4.89a4.935 4.935 0 01-2.224.085c.624 1.955 2.444 3.377 4.6 3.414a9.875 9.875 0 01-6.102 2.105c-.394 0-.779-.023-1.158-.067A13.945 13.945 0 007.548 21c9.142 0 14.307-7.721 13.995-14.646A9.936 9.936 0 0024 4.557z"/></svg>
+    </a>
+    <a href="#" class="text-gray-400 hover:text-indigo-400" aria-label="Facebook" title="Facebook" target="_blank" rel="noopener noreferrer" >
+      <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24"><path d="M22.676 0H1.324C.593 0 0 .593 0 1.324v21.352C0 23.407.593 24 1.324 24h11.495v-9.294H9.847v-3.622h2.972V8.413c0-2.946 1.797-4.548 4.427-4.548 1.258 0 2.341.094 2.657.136v3.08h-1.82c-1.43 0-1.707.68-1.707 1.676v2.2h3.412l-.445 3.622h-2.967v9.294h5.818c.73 0 1.324-.593 1.324-1.324V1.324C24 .593 23.407 0 22.676 0z"/></svg>
+    </a>
+    <a href="#" class="text-gray-400 hover:text-indigo-400" aria-label="Instagram" title="Instagram" target="_blank" rel="noopener noreferrer" >
+      <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.335 3.608 1.31a5.42 5.42 0 011.31 3.608c.058 1.266.069 1.645.069 4.85s-.012 3.584-.069 4.85a5.42 5.42 0 01-1.31 3.608 5.416 5.416 0 01-3.608 1.31c-1.266.058-1.645.069-4.85.069s-3.584-.012-4.85-.069a5.42 5.42 0 01-3.608-1.31 5.421 5.421 0 01-1.31-3.608c-.058-1.266-.069-1.645-.069-4.85s.012-3.584.069-4.85a5.42 5.42 0 011.31-3.608 5.416 5.416 0 013.608-1.31c1.266-.058 1.645-.069 4.85-.069M12 0C8.741 0 8.332.01 7.052.07 5.773.13 4.602.433 3.603 1.432 2.604 2.432 2.3 3.604 2.242 4.883.01 8.332 0 8.741 0 12c0 3.259.01 3.668.07 4.948.058 1.279.362 2.45 1.362 3.45 1 1 2.172 1.304 3.451 1.362 1.279.058 1.688.07 4.948.07s3.668-.01 4.948-.07c1.279-.058 2.45-.362 3.45-1.362 1-1 1.304-2.172 1.362-3.451.058-1.279.07-1.688.07-4.948s-.01-3.668-.07-4.948c-.058-1.279-.362-2.45-1.362-3.45a5.968 5.968 0 00-3.45-1.362c-1.279-.058-1.688-.07-4.948-.07z"/><path d="M12 5.838A6.162 6.162 0 105.838 12 6.161 6.161 0 0012 5.838M12 0a12 12 0 1012 12A12 12 0 0012 0zM18.406 4.594a1.44 1.44 0 11-2.879.09 1.44 1.44 0 012.879-.09z"/></svg>
+    </a>
+    <a href="#" class="text-gray-400 hover:text-indigo-400" aria-label="LinkedIn" title="LinkedIn" target="_blank" rel="noopener noreferrer" >
+      <svg class="h-6 w-6 fill-current" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.848-3.037-1.849 0-2.132 1.444-2.132 2.939v5.667H9.362V9h3.414v1.561h.047c.476-.9 1.635-1.848 3.365-1.848 3.59 0 4.25 2.362 4.25 5.435v6.304zM5.337 7.433a2.064 2.064 0 110-4.129 2.064 2.064 0 010 4.129zm1.777 13.019H3.559V9h3.555v11.452zM22.225 0H1.771A1.771 1.771 0 000 1.77v20.452A1.771 1.771 0 001.771 24h20.452a1.771 1.771 0 001.771-1.771V1.77A1.771 1.771 0 0022.225 0z"/></svg>
+    </a>
   </div>
   <div class="text-center text-gray-500 text-xs mt-3">&copy; 2025 Chutki Event Platform. All rights reserved.</div>
 </footer>
 
+<div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded p-6 max-w-lg w-full relative max-h-[90vh] overflow-auto">
+    <button id="modalCloseBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 font-bold text-xl" aria-label="Close">&times;</button>
+    <div id="modalViewContent">
+      <img id="modalImage" src="" alt="Event Image" class="w-full max-h-64 object-cover rounded mb-4"/>
+      <h3 id="modalTitle" class="text-xl font-bold mb-2"></h3>
+      <p id="modalDateTime" class="text-sm text-gray-600 mb-1"></p>
+      <p id="modalVenue" class="text-sm text-gray-600 mb-3"></p>
+      <p id="modalContact" class="text-sm text-gray-600 mb-3"></p>
+      <p id="modalDescription" class="mb-4"></p>
+      <p id="modalURL" class="text-blue-600 underline mb-4"><a href="#" target="_blank" id="modalURLLink">Event Link</a></p>
+      <button id="modalEditBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2">Edit</button>
+      <button id="modalDeleteBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete Event</button>
+    </div>
+    <form id="modalEditForm" class="hidden space-y-2" novalidate>
+      <input type="text" id="editTitle" class="border rounded p-2 w-full" placeholder="Event Title" required />
+      <input type="date" id="editDate" class="border rounded p-2 w-full" required />
+      <input type="time" id="editTime" class="border rounded p-2 w-full" required />
+      <input type="text" id="editVenue" class="border rounded p-2 w-full" placeholder="Venue" required />
+      <input type="tel" id="editContact" pattern="[0-9]{10,15}" class="border rounded p-2 w-full" placeholder="Contact Number" required title="10-15 digits" />
+      <textarea id="editDescription" class="border rounded p-2 w-full" rows="4" placeholder="Description" required></textarea>
+      <input type="url" id="editURL" class="border rounded p-2 w-full" placeholder="Event URL (optional)" />
+      <select id="editCategory" class="border rounded p-2 w-full" required>
+        <option value="">Select Category</option>
+        <option value="trending">Trending</option>
+        <option value="upcoming">Upcoming</option>
+        <option value="promo">Promo</option>
+      </select>
+      <div class="flex space-x-2 justify-end mt-3">
+        <button type="button" id="editCancelBtn" class="px-4 py-2 rounded border">Cancel</button>
+        <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-const googleClientId = 'YOUR_GOOGLE_CLIENT_ID';
-const facebookAppId = 'YOUR_FACEBOOK_APP_ID';
-const backendUrl = 'https://vercel.com/r-praveen-projects/chutki-live';
+(() => {
+  const backendUrl = 'https://chutki-live.vercel.app';
+  let isAdminLoggedIn = !!localStorage.getItem('adminToken');
+  let currentEventSlide = null;
 
-let isUserSignedIn = false;
-let currentUser = null;
-let upcomingSwiperInstance, promoSwiperInstance;
-
-window.onload = function() {
-  google.accounts.id.initialize({ client_id: googleClientId, callback: handleCredentialResponse });
-  google.accounts.id.renderButton(document.getElementById("googleSignInBtnModal"), { theme: "outline", size: "large" });
-
-  window.fbAsyncInit = function() {
-    FB.init({ appId: facebookAppId, cookie: true, xfbml: true, version: 'v17.0' });
-  };
-
-  document.getElementById('signInToggleBtn').addEventListener("click", () => {
-    document.getElementById("signInModal").classList.remove("hidden");
-  });
-
-  document.getElementById("signInModalCloseBtn").addEventListener("click", () => {
-    document.getElementById("signInModal").classList.add("hidden");
-  });
-
-  document.querySelectorAll('.main-content-link').forEach(link => {
-    link.addEventListener("click", e => {
-      if (!isUserSignedIn) {
-        e.preventDefault();
-        alert("Please sign in first.");
-        document.getElementById("signInModal").classList.remove("hidden");
-      }
-    });
-  });
-
-  document.getElementById("userEmail").addEventListener("click", () => {
-    if (isUserSignedIn) openProfileModal();
-  });
-
-  initSwipers();
-  loadEvents();
-};
-
-function handleCredentialResponse(response) {
-  const payload = JSON.parse(atob(response.credential.split('.')[1]));
-  isUserSignedIn = true;
-  currentUser = { name: payload.name, email: payload.email };
-  document.getElementById("userEmail").textContent = `Signed in as: ${payload.name} (${payload.email})`;
-  document.getElementById("signInModal").classList.add("hidden");
-  loadEvents();
-}
-
-function checkLoginState() {
-  FB.getLoginStatus(response => {
-    if (response.status === 'connected') {
-      FB.api('/me', { fields: 'name,email' }, userInfo => {
-        isUserSignedIn = true;
-        currentUser = { name: userInfo.name, email: userInfo.email };
-        document.getElementById("userEmail").textContent = `Facebook signed in as: ${userInfo.name}`;
-        document.getElementById("signInModal").classList.add("hidden");
-        loadEvents();
-      });
-    }
-  });
-}
-
-function initSwipers() {
-  const baseOpts = {
-    slidesPerView: 3,
-    spaceBetween: 20,
-    loop: true,
+  // Initialize Swipers
+  const trendingSwiper = new Swiper('.trendingSwiper', {
+    slidesPerView: 3, spaceBetween: 20, loop: true,
     autoplay: { delay: 3000, disableOnInteraction: false },
-    pagination: { clickable: true },
-    breakpoints: { 0: { slidesPerView: 1 }, 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }
-  };
-  new Swiper(".trendingSwiper", { ...baseOpts, navigation: { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" } });
-  upcomingSwiperInstance = new Swiper(".upcomingSwiper", { ...baseOpts, navigation: { nextEl: ".upcomingSwiper .swiper-button-next", prevEl: ".upcomingSwiper .swiper-button-prev" } });
-  promoSwiperInstance = new Swiper(".promoSwiper", { ...baseOpts, navigation: { nextEl: ".promoSwiper .swiper-button-next", prevEl: ".promoSwiper .swiper-button-prev" } });
-}
+    pagination: { clickable: true, el: '.trendingSwiper .swiper-pagination' },
+    navigation: { nextEl: '.trendingSwiper .swiper-button-next', prevEl: '.trendingSwiper .swiper-button-prev' },
+    breakpoints: {0: {slidesPerView: 1}, 640: {slidesPerView: 2}, 1024: {slidesPerView: 3}}
+  });
+  const upcomingSwiper = new Swiper('.upcomingSwiper', {
+    slidesPerView: 3, spaceBetween: 20, loop: true,
+    autoplay: { delay: 4000, disableOnInteraction: false },
+    pagination: { clickable: true, el: '.upcomingSwiper .swiper-pagination' },
+    navigation: { nextEl: '.upcomingSwiper .swiper-button-next', prevEl: '.upcomingSwiper .swiper-button-prev' },
+    breakpoints: {0: {slidesPerView: 1}, 640: {slidesPerView: 2}, 1024: {slidesPerView: 3}}
+  });
+  const promoSwiper = new Swiper('.promoSwiper', {
+    slidesPerView: 3, spaceBetween: 20, loop: true,
+    autoplay: { delay: 5000, disableOnInteraction: false },
+    pagination: { clickable: true, el: '.promoSwiper .swiper-pagination' },
+    navigation: { nextEl: '.promoSwiper .swiper-button-next', prevEl: '.promoSwiper .swiper-button-prev' },
+    breakpoints: {0: {slidesPerView: 1}, 640: {slidesPerView: 2}, 1024: {slidesPerView: 3}}
+  });
+  const partnersSwiper = new Swiper('.partnersSwiper', {
+    slidesPerView: 2, spaceBetween: 15, loop: true,
+    autoplay: { delay: 3500, disableOnInteraction: false },
+    pagination: { clickable: true, el: '.partnersSwiper .swiper-pagination' },
+    navigation: { nextEl: '.partnersSwiper .swiper-button-next', prevEl: '.partnersSwiper .swiper-button-prev' },
+    breakpoints: {0: {slidesPerView: 1}, 640: {slidesPerView: 2}, 1024: {slidesPerView: 4}}
+  });
 
-async function loadEvents() {
-  if (!isUserSignedIn) return;
-  try {
-    const res = await fetch(`${backendUrl}/api/events`);
-    const events = await res.json();
-    const trendingContainer = document.getElementById("trendingEvents");
-    const upcomingContainer = document.getElementById("upcomingEvents");
-    const promoContainer = document.getElementById("promoEvents");
-    trendingContainer.innerHTML = "";
-    upcomingContainer.innerHTML = "";
-    promoContainer.innerHTML = "";
-    events.forEach(event => {
-      if (new Date(event.date) < new Date()) return;
-      const slide = createSlide(event);
-      if (event.category === "trending") trendingContainer.appendChild(slide);
-      else if (event.category === "upcoming") upcomingContainer.appendChild(slide);
-      else if (event.category === "promo") promoContainer.appendChild(slide);
-      addClickableToSlide(slide);
-    });
-    if (upcomingSwiperInstance) upcomingSwiperInstance.update();
-    if (promoSwiperInstance) promoSwiperInstance.update();
-  } catch (err) {
-    console.error("Error loading events:", err);
+  // Utility: Create event slide for swiper
+  function createSlide(event){
+    const slide = document.createElement('div');
+    slide.className = 'swiper-slide cursor-pointer';
+    slide.setAttribute('data-url', event.url || '#');
+    slide.setAttribute('data-event-id', event.id || '');
+    slide.setAttribute('data-version', event.version || '');
+    slide.setAttribute('data-category', event.category || '');
+
+    slide.innerHTML = `
+      <img src="${event.image || 'https://via.placeholder.com/300x150'}" alt="${event.title}" class="rounded mb-2 w-full object-cover"/>
+      <h4 class="font-semibold mb-1 text-center">${event.title}</h4>
+      <p class="date-time text-sm text-gray-600 text-center">${event.date}</p>
+      <p class="venue text-sm text-gray-600 text-center">${event.venue}</p>
+      <p class="description text-center">${event.description}</p>
+      <div class="like-share-group flex justify-center space-x-4 mt-1">
+        <div class="like-btn text-yellow-500 font-bold select-none cursor-pointer" title="Like">👍 <span class="like-count">0</span></div>
+        <div class="share-btn text-blue-600 font-bold select-none cursor-pointer" title="Share">🔗</div>
+      </div>
+    `;
+    // Add event listeners
+    slide.querySelector('.like-btn').onclick = function(){
+      const liked = this.classList.toggle('liked');
+      const cntSpan = this.querySelector('.like-count');
+      let cnt = parseInt(cntSpan.textContent);
+      cnt = liked ? cnt+1 : cnt-1;
+      cntSpan.textContent = cnt;
+    };
+    slide.querySelector('.share-btn').onclick = function(){
+      const url = slide.getAttribute('data-url');
+      url ? window.open(url,'_blank') : alert('No URL available for this event.');
+    };
+    slide.onclick = () => openEventModal(slide);
+    return slide;
   }
-}
 
-function createSlide(event) {
-  const slide = document.createElement("div");
-  slide.className = "swiper-slide";
-  slide.dataset.url = event.url || "#";
-  slide.dataset.category = event.category || "";
-  slide.innerHTML = `
-        <img src="${event.image || "https://via.placeholder.com/300x150"}" alt="${event.title}" style="width:100%;border-radius: .5rem"/>
-        <h4 class="font-semibold mb-1 text-center">${event.title}</h4>
-        <p class="date-time text-sm text-gray-600 text-center">${event.date}</p>
-        <p class="venue text-sm text-gray-600 text-center">${event.venue}</p>
-        <p class="description text-center">${event.description}</p>
-        <div class="flex justify-center space-x-4 mt-2">
-          <div class="like-btn">👍 <span class="like-count">0</span></div>
-          <div class="share-btn">🔗</div>
-          <div class="reminder-btn">⏰</div>
-        </div>`;
-  return slide;
-}
-
-function addClickableToSlide(slide) {
-  slide.style.cursor = "pointer";
-  slide.querySelector(".like-btn").addEventListener("click", e => {
-    e.stopPropagation();
-    const span = slide.querySelector(".like-count");
-    let count = parseInt(span.textContent);
-    const liked = slide.querySelector(".like-btn").classList.toggle("liked");
-    count = liked ? count + 1 : count - 1;
-    span.textContent = count;
-  });
-  slide.querySelector(".share-btn").addEventListener("click", e => {
-    e.stopPropagation();
-    const url = slide.dataset.url;
-    if (url && url !== "#") window.open(url, "_blank");
-    else alert("No URL to share.");
-  });
-  slide.querySelector(".reminder-btn").addEventListener("click", e => {
-    e.stopPropagation();
-    scheduleReminder({
-      title: slide.querySelector("h4").textContent,
-      venue: slide.querySelector(".venue").textContent,
-      date: slide.querySelector(".date-time").textContent,
-      time: "08:00"
-    });
-  });
-  slide.addEventListener("click", () => openEventModal(slide));
-}
-async function requestNotificationPermission() {
-  if (Notification.permission === "default") await Notification.requestPermission();
-}
-function scheduleReminder(event) {
-  if (Notification.permission !== "granted") {
-    alert("Enable notifications to set reminders.");
-    return;
-  }
-  const eventDateTime = new Date(event.date + "T" + event.time);
-  const now = new Date();
-  const delay = eventDateTime - now - 10 * 60 * 1000;
-  if (delay > 0) {
-    setTimeout(() => new Notification("Event Reminder", { body: `${event.title} at ${event.venue} starts in 10 minutes.` }), delay);
-    alert("Reminder set for 10 minutes before event.");
-  } else alert("Event time is too close or has passed.");
-}
-document.getElementById("postEventForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const form = e.target;
-  const formData = new FormData(form);
-  try {
-    const res = await fetch(`${backendUrl}/api/events`, { method: "POST", body: formData });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.message || "Failed to post event");
+  // Load events from backend and display
+  async function loadEvents(){
+    try {
+      const res = await fetch(`${backendUrl}/api/events`);
+      if(!res.ok) throw new Error('Failed to fetch events');
+      const events = await res.json();
+      ['trending','upcoming','promo'].forEach(cat => {
+        const container = document.getElementById(`${cat}Events`);
+        container.innerHTML = '';
+        events.filter(e => e.category === cat).forEach(e => container.appendChild(createSlide(e)));
+      });
+      trendingSwiper.update();
+      upcomingSwiper.update();
+      promoSwiper.update();
+    } catch(e){
+      console.error(e);
     }
-    const newEvent = await res.json();
-    alert("Event posted successfully!");
-    addNewEventToUI(newEvent);
-    form.reset();
-    document.getElementById("imagePreviewGroup").innerHTML = "";
-  } catch (err) {
-    alert("Error posting event: " + err.message);
   }
-});
-function addNewEventToUI(event) {
-  const slide = createSlide(event);
-  let container;
-  if (event.category === "trending") container = document.getElementById("trendingEvents");
-  else if (event.category === "upcoming") container = document.getElementById("upcomingEvents");
-  else if (event.category === "promo") container = document.getElementById("promoEvents");
-  if (container) {
-    container.appendChild(slide);
-    addClickableToSlide(slide);
-    if (event.category === "upcoming" && upcomingSwiperInstance) upcomingSwiperInstance.update();
-    if (event.category === "promo" && promoSwiperInstance) promoSwiperInstance.update();
+
+  // Modal functions
+  const modal = document.getElementById('eventModal');
+  const modalView = document.getElementById('modalViewContent');
+  const modalEditForm = document.getElementById('modalEditForm');
+  const modalEditBtn = document.getElementById('modalEditBtn');
+  const modalDeleteBtn = document.getElementById('modalDeleteBtn');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const editCancelBtn = document.getElementById('editCancelBtn');
+
+  function openEventModal(slide){
+    currentEventSlide = slide;
+    document.getElementById('modalTitle').textContent = slide.querySelector('h4').textContent;
+    document.getElementById('modalDateTime').textContent = slide.querySelector('.date-time')?.textContent || '';
+    document.getElementById('modalVenue').textContent = slide.querySelector('.venue')?.textContent || '';
+    document.getElementById('modalDescription').textContent = slide.querySelector('.description')?.textContent || '';
+    document.getElementById('modalURLLink').href = slide.getAttribute('data-url') || '#';
+    document.getElementById('modalImage').src = slide.querySelector('img')?.src || '';
+    modalDeleteBtn.style.display = isAdminLoggedIn ? 'inline-block' : 'none';
+    modalEditBtn.style.display = isAdminLoggedIn ? 'inline-block' : 'none';
+    modalView.classList.remove('hidden');
+    modalEditForm.classList.add('hidden');
+    modal.classList.remove('hidden');
   }
-}
-function openEventModal(slide) {
-  alert("Open event details modal (implement as needed).");
-}
-function openProfileModal() {
-  alert("Open user profile modal (implement as needed).");
-}
+
+  modalCloseBtn.onclick = () => {
+    modal.classList.add('hidden');
+    currentEventSlide = null;
+  };
+
+  // Admin login
+  document.getElementById('adminBtn').onclick = () => {
+    const email = prompt('Enter admin email:');
+    const pwd = prompt('Enter admin password:');
+    if(email === 'admin@example.com' && pwd === 'adminpass'){
+      alert('Admin logged in!');
+      localStorage.setItem('adminToken', 'dummyToken');
+      isAdminLoggedIn = true;
+    } else {
+      alert('Invalid credentials');
+    }
+  };
+
+  // Sign in (non admin users)
+  document.getElementById('signInBtn').onclick = async () => {
+    const email = prompt('Enter your email:');
+    if(!email) return alert('Email is required');
+    try {
+      const response = await fetch(`${backendUrl}/api/auth/signin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({email})
+      });
+      const data = await response.json();
+      if(response.ok){
+        alert('Sign in successful');
+        document.getElementById('userEmail').textContent = `Welcome, ${email}`;
+      } else {
+        alert(`Sign in failed: ${data.message || 'Unknown error'}`);
+      }
+    } catch {
+      alert('Error connecting to backend');
+    }
+  };
+
+  // Fill edit form from current slide
+  function fillEditForm(){
+    if(!currentEventSlide) return;
+    const slide = currentEventSlide;
+    modalEditForm.editTitle.value = slide.querySelector('h4').textContent || '';
+    modalEditForm.editDate.value = slide.querySelector('.date-time')?.textContent || '';
+    modalEditForm.editVenue.value = slide.querySelector('.venue')?.textContent || '';
+    modalEditForm.editDescription.value = slide.querySelector('.description')?.textContent || '';
+    modalEditForm.editURL.value = slide.getAttribute('data-url') || '';
+    modalEditForm.editCategory.value = slide.getAttribute('data-category') || '';
+    modalEditForm.editContact.value = '';
+    modalEditForm.editTime.value = '';
+  }
+
+  modalEditBtn.onclick = () => {
+    fillEditForm();
+    modalView.classList.add('hidden');
+    modalEditForm.classList.remove('hidden');
+  };
+
+  editCancelBtn.onclick = () => {
+    modalEditForm.classList.add('hidden');
+    modalView.classList.remove('hidden');
+  };
+
+  async function updateEvent(eventId, data, version){
+    try {
+      const res = await fetch(`${backendUrl}/api/events/${eventId}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json', 'If-Match': version},
+        body: JSON.stringify(data)
+      });
+      if(res.status === 409){
+        alert('Update conflict detected, please reload event.');
+        return null;
+      }
+      if(!res.ok) throw new Error('Update failed');
+      return await res.json();
+    } catch(e){
+      alert('Failed to update event: '+e.message);
+      return null;
+    }
+  }
+
+  modalEditForm.onsubmit = async e => {
+    e.preventDefault();
+    if(!currentEventSlide) return;
+    const eventId = currentEventSlide.getAttribute('data-event-id');
+    const version = currentEventSlide.getAttribute('data-version');
+    if(!eventId || !version) return alert('Event data missing.');
+
+    const updateData = {
+      title: modalEditForm.editTitle.value.trim(),
+      date: modalEditForm.editDate.value,
+      time: modalEditForm.editTime.value,
+      venue: modalEditForm.editVenue.value.trim(),
+      contactNumber: modalEditForm.editContact.value.trim(),
+      description: modalEditForm.editDescription.value.trim(),
+      url: modalEditForm.editURL.value.trim(),
+      category: modalEditForm.editCategory.value
+    };
+    if(!updateData.title || !updateData.date || !updateData.venue || !updateData.description || !updateData.category) {
+      return alert('All required fields must be filled.');
+    }
+    const updated = await updateEvent(eventId, updateData, version);
+    if(updated){
+      currentEventSlide.querySelector('h4').textContent = updated.title;
+      currentEventSlide.querySelector('.date-time').textContent = updated.date;
+      currentEventSlide.querySelector('.venue').textContent = updated.venue;
+      currentEventSlide.querySelector('.description').textContent = updated.description;
+      currentEventSlide.setAttribute('data-version', updated.version || version);
+      currentEventSlide.setAttribute('data-category', updated.category);
+      document.getElementById('modalTitle').textContent = updated.title;
+      document.getElementById('modalDateTime').textContent = updated.date;
+      document.getElementById('modalVenue').textContent = updated.venue;
+      document.getElementById('modalDescription').textContent = updated.description;
+      document.getElementById('modalURLLink').href = updated.url;
+      modalEditForm.classList.add('hidden');
+      modalView.classList.remove('hidden');
+      alert('Event updated successfully.');
+    }
+  };
+
+  async function deleteEvent(eventId, version){
+    try {
+      const res = await fetch(`${backendUrl}/api/events/${eventId}`, {
+        method: 'DELETE',
+        headers: {'If-Match': version}
+      });
+      if(res.status === 409){
+        alert('Delete conflict detected, reload event.');
+        return false;
+      }
+      if(!res.ok) throw new Error('Delete failed');
+      return true;
+    } catch(e){
+      alert('Failed to delete event: '+e.message);
+      return false;
+    }
+  }
+
+  modalDeleteBtn.onclick = async () => {
+    if(!isAdminLoggedIn || !currentEventSlide) return;
+    const eventId = currentEventSlide.getAttribute('data-event-id');
+    const version = currentEventSlide.getAttribute('data-version');
+    if(!eventId || !version) return alert('Insufficient event metadata.');
+    if(!navigator.onLine){
+      alert('Offline: deletion will sync later.');
+      currentEventSlide.remove();
+      modalCloseBtn.click();
+      return;
+    }
+    if(await deleteEvent(eventId, version)){
+      currentEventSlide.remove();
+      trendingSwiper.update();
+      upcomingSwiper.update();
+      promoSwiper.update();
+      modalCloseBtn.click();
+    }
+  };
+
+  // Location detection and city name update
+  document.getElementById('getLocationBtn').onclick = () => {
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(pos=>{
+        const {latitude, longitude} = pos.coords;
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+          .then(res => res.json())
+          .then(data => {
+            const city = data.address.city || data.address.town || data.address.village || 'your city';
+            document.getElementById('cityName').textContent = `Your city detected: ${city}`;
+          }).catch(()=> document.getElementById('cityName').textContent = 'City detection failed');
+      }, ()=> document.getElementById('cityName').textContent = 'City detection denied');
+    } else {
+      document.getElementById('cityName').textContent = 'Geolocation not supported';
+    }
+  };
+
+  // Filter form submission
+  document.getElementById('filterForm').onsubmit = e => {
+    e.preventDefault();
+    const cat = document.getElementById('category').value;
+    const date = document.getElementById('date').value;
+    const dist = document.getElementById('distance').value;
+    alert(`Filtering events by Category: ${cat || 'All'}, Date: ${date || 'Any'}, Distance: ${dist || 'Any'}`);
+    // Implement actual filtering logic here or via API
+  };
+
+  // Image preview for post event form
+  const eventImagesInput = document.getElementById('eventImages');
+  const imagePreviewGroup = document.getElementById('imagePreviewGroup');
+  eventImagesInput.onchange = () => {
+    imagePreviewGroup.innerHTML = '';
+    Array.from(eventImagesInput.files).forEach(file => {
+      const img = document.createElement('img');
+      img.className = 'thumb';
+      img.alt = file.name;
+      img.src = URL.createObjectURL(file);
+      imagePreviewGroup.appendChild(img);
+    });
+  };
+
+  // Post event form submit (mock)
+  document.getElementById('postEventForm').onsubmit = e => {
+    e.preventDefault();
+    alert('Event submitted! (This is a demo – implement backend to save)');
+    e.target.reset();
+    imagePreviewGroup.innerHTML = '';
+  };
+
+  // Contact form submit (mock)
+  document.getElementById('contactForm').onsubmit = e => {
+    e.preventDefault();
+    alert('Message sent! (This is a demo – implement backend to send)');
+    e.target.reset();
+  };
+
+  // Notifications panel toggle
+  const notifBell = document.getElementById('notifBell');
+  const notifPanel = document.getElementById('notifPanel');
+  notifBell.onclick = () => notifPanel.classList.toggle('hidden');
+
+  // Initial execution
+  document.getElementById('cityName').textContent = "Your city detected: Hyderabad";
+  loadEvents();
+
+})();
 </script>
 
-<div id="fb-root"></div>
 </body>
 </html>
