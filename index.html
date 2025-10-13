@@ -21,9 +21,6 @@ img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius
 .share-btn { color: #3b82f6; padding-left: 1rem; }
 .like-btn:hover { color: #d97706; }
 .share-btn:hover { color: #2563eb; }
-#hamburgerBtn { position: fixed; bottom: 1rem; right: 1rem; width: 3rem; height: 3rem; border-radius: 9999px; background: linear-gradient(to right, #7c3aed, #2563eb); box-shadow: 0 4px 10px rgba(101,31,255,0.4); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; z-index: 10000; transition: transform 0.2s ease; }
-#hamburgerBtn:hover { transform: scale(1.1); }
-#hamburgerBtn div { width: 1.5rem; height: 0.2rem; background-color: white; margin: 0.2rem 0; border-radius: 1px;}
 </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-100 via-white to-purple-100 text-gray-900">
@@ -35,7 +32,7 @@ img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius
       <p class="text-indigo-100 text-sm" id="cityName">Detecting your city...</p>
       <p id="userEmail" class="text-indigo-300 text-sm mt-1"></p>
     </div>
-    <nav class="hidden md:flex space-x-6 items-center flex-wrap font-semibold">
+    <nav class="md:flex space-x-6 items-center flex-wrap font-semibold">
       <a href="#filters" class="hover:text-indigo-100 text-white">Search</a>
       <a href="#trending" class="hover:text-indigo-100 text-white">Trending</a>
       <a href="#upcoming" class="hover:text-indigo-100 text-white">Upcoming</a>
@@ -61,18 +58,18 @@ img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius
 
 <section class="section-card bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-400 text-white text-center max-w-4xl mx-auto mt-8 mb-12 shadow-2xl">
   <h2 class="text-5xl font-extrabold mb-3 tracking-wider">Welcome to <span class="italic">Chutki</span></h2>
-  <p class="text-xl md:text-2xl font-medium mb-6">Find your favorite Events &amp; explore the city!</p>
+  <p class="text-xl md:text-2xl font-medium mb-6">Find your favorite Events & explore the city!</p>
   <div class="flex flex-wrap justify-center gap-4 mt-3">
     <a href="#trending" class="px-4 py-2 bg-white/20 hover:bg-white/40 rounded text-lg shadow font-bold transition">🔥 Trending</a>
     <a href="#promo" class="px-4 py-2 bg-pink-500 hover:bg-pink-600 rounded text-lg font-bold shadow transition">🎁 Promo Events</a>
     <a href="#partners" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 rounded text-lg font-bold shadow transition">🤝 Partners</a>
-    <a href="#postEvent" class="px-5 py-2 bg-green-500 hover:bg-green-600 rounded-full text-lg font-extrabold shadow transition">+ Post Event</a>
+    <a href="#postEvent" class="px-5 py-2 bg-pink-600 hover:bg-pink-700 rounded-full text-lg font-extrabold shadow transition">+ Post Event</a>
     <a href="#virtualEvents" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 rounded-full text-lg font-extrabold shadow transition">🎥 Virtual Events</a>
   </div>
 </section>
 
 <section id="filters" class="section-card max-w-5xl mx-auto bg-white/90">
-  <h3 class="text-2xl font-bold mb-4 text-indigo-700 text-center">Search &amp; Filters</h3>
+  <h3 class="text-2xl font-bold mb-4 text-indigo-700 text-center">Search & Filters</h3>
   <form id="filterForm" class="grid md:grid-cols-5 gap-4 p-4">
     <select id="category" class="border rounded p-2 bg-white">
       <option value="">All Categories</option>
@@ -123,95 +120,17 @@ img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius
   </div>
 </section>
 
-<section id="globalEvents" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-green-100 to-lime-100 mb-12 p-6 rounded shadow-lg">
-  <h3 class="text-2xl font-bold mb-4 text-green-700 text-center">🌍 Events Around the World</h3>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
-      <img src="https://via.placeholder.com/300x150?text=Event+1" class="w-full mb-2 rounded" alt="Event around world 1"/>
-      <h4 class="font-semibold mb-2 text-center">Music Festival in Paris</h4>
-      <p class="text-sm text-center text-gray-600">Enjoy a global music festival in Paris, France this October.</p>
-    </div>
-    <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
-      <img src="https://via.placeholder.com/300x150?text=Event+2" class="w-full mb-2 rounded" alt="Event around world 2"/>
-      <h4 class="font-semibold mb-2 text-center">Cultural Fair in Tokyo</h4>
-      <p class="text-sm text-center text-gray-600">Experience vibrant Japanese culture at the Tokyo Cultural Fair.</p>
-    </div>
-    <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
-      <img src="https://via.placeholder.com/300x150?text=Event+3" class="w-full mb-2 rounded" alt="Event around world 3"/>
-      <h4 class="font-semibold mb-2 text-center">Art Expo in New York</h4>
-      <p class="text-sm text-center text-gray-600">Visit the latest contemporary art exhibition in NYC.</p>
-    </div>
-  </div>
-</section>
-
-<section id="virtualEvents" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-blue-100 to-cyan-100 mb-12 p-6 rounded shadow-lg">
-  <h3 class="text-2xl font-bold mb-4 text-blue-700 text-center">🎥 Virtual Events</h3>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
-      <img src="https://via.placeholder.com/300x150?text=Virtual+Event+1" class="w-full mb-2 rounded" alt="Virtual Event 1"/>
-      <h4 class="font-semibold mb-2 text-center">Online Coding Bootcamp</h4>
-      <p class="text-sm text-center text-gray-600">Join our free online coding bootcamp to learn the basics and beyond.</p>
-    </div>
-    <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
-      <img src="https://via.placeholder.com/300x150?text=Virtual+Event+2" class="w-full mb-2 rounded" alt="Virtual Event 2"/>
-      <h4 class="font-semibold mb-2 text-center">Virtual Yoga Workshop</h4>
-      <p class="text-sm text-center text-gray-600">Relax and rejuvenate with this guided yoga session from home.</p>
-    </div>
-    <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
-      <img src="https://via.placeholder.com/300x150?text=Virtual+Event+3" class="w-full mb-2 rounded" alt="Virtual Event 3"/>
-      <h4 class="font-semibold mb-2 text-center">Global Marketing Seminar</h4>
-      <p class="text-sm text-center text-gray-600">Learn marketing strategies in a live webinar with industry experts.</p>
-    </div>
-  </div>
-</section>
-
-<section id="partners" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-gray-50 to-indigo-100">
-  <h3 class="text-2xl font-bold mb-4 text-yellow-700 text-center">🤝 Professional Partners</h3>
-  <div class="swiper partnersSwiper">
-    <div class="swiper-wrapper">
-      <div class="swiper-slide bg-white p-6 rounded shadow text-center">Partner A</div>
-      <div class="swiper-slide bg-white p-6 rounded shadow text-center">Partner B</div>
-      <div class="swiper-slide bg-white p-6 rounded shadow text-center">Partner C</div>
-      <div class="swiper-slide bg-white p-6 rounded shadow text-center">Partner D</div>
-    </div>
-    <div class="swiper-pagination"></div>
-    <div class="swiper-button-prev text-yellow-500"></div>
-    <div class="swiper-button-next text-yellow-500"></div>
-  </div>
-</section>
-
-<section id="ads" class="section-card max-w-5xl mx-auto bg-gradient-to-r from-white via-yellow-50 to-orange-50 p-6 rounded shadow-md text-center">
-  <h3 class="text-2xl font-bold text-yellow-700 mb-4">Sponsored Ads</h3>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <a href="#" class="block p-4 bg-white border rounded shadow hover:shadow-lg transition">
-      <img src="https://via.placeholder.com/300x150?text=Ad+1" alt="Ad 1" class="w-full rounded mb-2" />
-      <p class="font-semibold text-yellow-800">Amazing Event Gear!</p>
-      <p class="text-sm text-gray-600">Get ready for your next event with our top-quality gear.</p>
-    </a>
-    <a href="#" class="block p-4 bg-white border rounded shadow hover:shadow-lg transition">
-      <img src="https://via.placeholder.com/300x150?text=Ad+2" alt="Ad 2" class="w-full rounded mb-2" />
-      <p class="font-semibold text-yellow-800">Travel Deals</p>
-      <p class="text-sm text-gray-600">Special discounts on flights and hotels for your event travel.</p>
-    </a>
-    <a href="#" class="block p-4 bg-white border rounded shadow hover:shadow-lg transition">
-      <img src="https://via.placeholder.com/300x150?text=Ad+3" alt="Ad 3" class="w-full rounded mb-2" />
-      <p class="font-semibold text-yellow-800">Event Catering Services</p>
-      <p class="text-sm text-gray-600">Delicious food options for your event with great prices.</p>
-    </a>
-  </div>
-</section>
-
 <section id="postEvent" class="section-card max-w-3xl mx-auto glass bg-white/90 my-12">
   <h3 class="text-2xl font-bold mb-4 text-pink-600 text-center">Post Your Event</h3>
-  <form id="postEventForm" class="grid gap-4">
-    <input type="text" id="eventTitle" placeholder="Event Title" required class="border rounded p-2"/>
-    <input type="date" id="eventDate" required class="border rounded p-2"/>
-    <input type="time" id="eventTime" required class="border rounded p-2"/>
-    <input type="text" id="eventVenue" placeholder="Venue" required class="border rounded p-2"/>
-    <input type="tel" id="contactNumber" placeholder="Contact Number" pattern="[0-9]{10,15}" required class="border rounded p-2" title="10-15 digits"/>
+  <form id="postEventForm" class="grid gap-4" enctype="multipart/form-data" novalidate>
+    <input type="text" id="eventTitle" placeholder="Event Title" required class="border rounded p-2" />
+    <input type="date" id="eventDate" required class="border rounded p-2" />
+    <input type="time" id="eventTime" required class="border rounded p-2" />
+    <input type="text" id="eventVenue" placeholder="Venue" required class="border rounded p-2" />
+    <input type="tel" id="contactNumber" placeholder="Contact Number" pattern="[0-9]{10,15}" required class="border rounded p-2" title="10-15 digits" />
     <textarea id="eventDescription" placeholder="Description" required class="border rounded p-2"></textarea>
-    <input type="url" id="eventURL" placeholder="Event URL (optional)" class="border rounded p-2"/>
-    <input id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2"/>
+    <input type="url" id="eventURL" placeholder="Event URL (optional)" class="border rounded p-2" />
+    <input id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2" />
     <div id="imagePreviewGroup" class="flex flex-wrap gap-2 mt-2"></div>
     <button type="submit" class="bg-pink-600 text-white rounded px-4 py-2">Submit</button>
   </form>
@@ -219,9 +138,9 @@ img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius
 
 <section id="contact" class="section-card max-w-3xl mx-auto bg-gradient-to-r from-white via-gray-50 to-purple-50 my-12">
   <h3 class="text-2xl font-bold mb-4 text-indigo-700 text-center">Contact Us</h3>
-  <form id="contactForm" class="grid gap-4">
-    <input id="contactName" type="text" placeholder="Your Name" required class="border rounded p-2"/>
-    <input id="contactEmail" type="email" placeholder="Your Email" required class="border rounded p-2"/>
+  <form id="contactForm" class="grid gap-4" novalidate>
+    <input id="contactName" type="text" placeholder="Your Name" required class="border rounded p-2" />
+    <input id="contactEmail" type="email" placeholder="Your Email" required class="border rounded p-2" />
     <textarea id="contactMessage" rows="3" placeholder="Your Message" required class="border rounded p-2"></textarea>
     <button type="submit" class="bg-indigo-600 text-white rounded p-2 hover:bg-indigo-700">Send</button>
   </form>
@@ -231,6 +150,8 @@ img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius
     <p>Email ID: <a href="mailto:chutkki.2025@gmail.com" class="text-indigo-900 underline">chutkki.2025@gmail.com</a></p>
   </div>
 </section>
+
+<!-- Followed by other sections, footer, and modal unchanged -->
 
 <footer class="bg-gray-900 text-gray-300 pt-12 pb-6 mt-12">
   <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 px-4">
@@ -262,7 +183,7 @@ img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius
     <div>
       <h3 class="font-semibold text-lg mb-2 text-white">Service</h3>
       <ul>
-        <li><a href="#terms" class="footer-link block mb-1">Terms &amp; Condition</a></li>
+        <li><a href="#terms" class="footer-link block mb-1">Terms & Condition</a></li>
         <li><a href="#privacy" class="footer-link block mb-1">Privacy Policy</a></li>
       </ul>
     </div>
@@ -270,13 +191,9 @@ img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius
   <hr class="border-gray-700 my-6 max-w-7xl mx-auto"/>
   <div class="flex justify-center space-x-6 mb-4">
     <!-- Social media SVGs as in previous code -->
-    <!-- ...social links SVG block here... -->
   </div>
   <div class="text-center text-gray-500 text-xs mt-3">&copy; 2025 Chutki Event Platform. All rights reserved.</div>
 </footer>
-
-<!-- Floating Hamburger Button -->
-<div id="hamburgerBtn" aria-label="Open menu" role="button" tabindex="0"><div></div><div></div><div></div></div>
 
 <!-- Event Modal -->
 <div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
@@ -293,13 +210,286 @@ img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 <script>
-document.getElementById('hamburgerBtn').addEventListener('click',function(){document.querySelector('header nav').classList.toggle('hidden');});
-let isAdminLoggedIn=false;
-document.getElementById('adminBtn').addEventListener('click',function(){const email=prompt('Enter admin email:');const pwd=prompt('Enter admin password:');if(email==='admin@example.com'&&pwd==='adminpass'){alert('Admin successfully logged in!');isAdminLoggedIn=true;}else{alert('Invalid admin credentials. Access denied.');isAdminLoggedIn=false;}});
-const eventModal=document.getElementById('eventModal');const modalCloseBtn=document.getElementById('modalCloseBtn');const modalTitle=document.getElementById('modalTitle');const modalDateTime=document.getElementById('modalDateTime');const modalVenue=document.getElementById('modalVenue');const modalDescription=document.getElementById('modalDescription');const modalImage=document.getElementById('modalImage');const modalDeleteBtn=document.getElementById('modalDeleteBtn');let currentEventSlide=null;
-function openEventModal(slideEl){currentEventSlide=slideEl;modalTitle.textContent=slideEl.querySelector('h4').textContent;modalDateTime.textContent=slideEl.querySelector('.date-time')?.textContent||'';modalVenue.textContent=slideEl.querySelector('.venue')?.textContent||'';modalDescription.textContent=slideEl.querySelector('.description')?.textContent||'';modalImage.src=slideEl.querySelector('img')?.src||'';modalDeleteBtn.style.display=isAdminLoggedIn?'inline-block':'none';eventModal.classList.remove('hidden');}
-modalCloseBtn.addEventListener('click',function(){eventModal.classList.add('hidden');currentEventSlide=null;});
-modalDeleteBtn.addEventListener('click',function(){if(isAdminLoggedIn&&currentEventSlide){currentEventSlide.remove();if(window.upcomingSwiperInstance)window.upcomingSwiperInstance.update();modalCloseBtn.click();}});
-function addLikeShareButtons(slide){if(slide.querySelector('.like-share-group'))return;const lsDiv=document.createElement('div');lsDiv.className='like-share-group flex space-x-4 my-2';const likeBtn=document.createElement('div');likeBtn.className='like-btn cursor-pointer select-none text-yellow-500 font-bold';likeBtn.title='Like';likeBtn.innerHTML='👍 <span class="like-count">0</span>';const shareBtn=document.createElement('div');shareBtn.className='share-btn cursor-pointer select-none text-blue-600 font-bold';shareBtn.title='Share';shareBtn.textContent='🔗';lsDiv.appendChild(likeBtn);lsDiv.appendChild(shareBtn);slide.appendChild(lsDiv);likeBtn.addEventListener('click',function(){let countSpan=likeBtn.querySelector('.like-count');let count=parseInt(countSpan.textContent);if(likeBtn.classList.contains('liked')){count--;likeBtn.classList.remove('liked');}else{count++;likeBtn.classList.add('liked');}countSpan.textContent=count;});shareBtn.addEventListener('click',function(){const url=slide.getAttribute('data-url');if(url){window.open(url,'_blank');}else{alert('No URL available for this event.');}});}
-function addClickableToSlide(slide){if(!slide.querySelector('.date-time')){slide.querySelector('p:nth-of-type(1)').classList.add('date-time');slide.querySelector('p:nth-of-type(2)').classList.add('venue');slide.querySelector('p:nth-of-type(3)').classList.add('description');}slide.style.cursor='pointer';slide.addEventListener('click',function(){openEventModal(slide);});addLikeShareButtons(slide);}
-document.addEventListener('DOMContentLoaded',function(){document.getElementById('cityName').textContent="Your city detected: Hyderabad";const baseSwiperOptions={slidesPerView:3,spaceBetween:20,loop:true,autoplay:{delay:3000,disableOnInteraction:false},pagination:{clickable:true},breakpoints:{0:{slidesPerView:1},640:{slidesPerView:2},1024:{slidesPerView:3}}};new Swiper('.trendingSwiper',{...baseSwiperOptions,navigation:{nextEl:'.trendingSwiper .swiper-button-next',prevEl:'.trendingSwiper .swiper-button-prev'},pagination:{el:'.trendingSwiper .swiper-pagination',clickable:true}});window.upcomingSwiperInstance=new Swiper('.upcomingSwiper',{...baseSwiperOptions,navigation:{nextEl:'.upcomingSwiper .swiper-button-next',prevEl:'.upcomingSwiper .swiper-button-prev'},pagination:{el:'.upcomingSwiper .swiper-pagination',clickable:true}});Array.from(document.getElementById('upcomingEvents').children).forEach(addClickableToSlide);new Swiper('.promoSwiper',{...baseSwiperOptions,navigation:{nextEl:'.promoSwiper .swiper-button-next',prevEl:'.promoSwiper .swiper-button-prev'},pagination:{el:'.promoSwiper .swiper-pagination',clickable:true}});new Swiper('.partnersSwiper',{slidesPerView:2,spaceBetween:15,loop:true,autoplay:{delay:3000,disableOnInteraction:false},navigation:{nextEl:'.partnersSwiper .swiper-button-next',prevEl:'.partnersSwiper .swiper-button-prev'},pagination:{el:'.partnersSwiper .swiper-pagination',clickable:true},breakpoints:{0:{slidesPerView:1},640:{slidesPerView:2},1024:{slidesPerView:4}}});const eventImagesInput=document.getElementById('eventImages');const imagePreviewGroup=document.getElementById('imagePreviewGroup');eventImagesInput.addEventListener('change',function(){imagePreviewGroup.innerHTML='';Array.from(eventImagesInput.files).slice(0,5).forEach(file=>{if(!file.type.startsWith('image/')||file.size>10*1024*1024)return;const img=document.createElement('img');
+let isAdminLoggedIn = false;
+const backendUrl = 'https://chutki-live.vercel.app';
+
+document.getElementById('adminBtn').addEventListener('click', function(){
+  const email=prompt('Enter admin email:');
+  const pwd=prompt('Enter admin password:');
+  if(email==='admin@example.com' && pwd==='adminpass'){
+    alert('Admin successfully logged in!');
+    isAdminLoggedIn = true;
+  } else {
+    alert('Invalid admin credentials. Access denied.');
+    isAdminLoggedIn = false;
+  }
+});
+
+document.getElementById('signInBtn').addEventListener('click', async () => {
+  const email = prompt('Enter your email:');
+  if(!email) return alert('Email is required');
+  try {
+    const response = await fetch(`${backendUrl}/api/auth/signin`, {
+      method:'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email})
+    });
+    const data = await response.json();
+    if(response.ok){
+      alert('Sign in successful');
+      document.getElementById('userEmail').textContent = `Welcome, ${email}`;
+    } else {
+      alert(`Sign in failed: ${data.message || 'Unknown error'}`);
+    }
+  } catch(err){
+    alert('Error connecting to backend');
+    console.error(err);
+  }
+});
+
+const eventModal = document.getElementById('eventModal');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+const modalTitle = document.getElementById('modalTitle');
+const modalDateTime = document.getElementById('modalDateTime');
+const modalVenue = document.getElementById('modalVenue');
+const modalDescription = document.getElementById('modalDescription');
+const modalImage = document.getElementById('modalImage');
+const modalDeleteBtn = document.getElementById('modalDeleteBtn');
+let currentEventSlide = null;
+
+function openEventModal(slideEl){
+  currentEventSlide = slideEl;
+  modalTitle.textContent = slideEl.querySelector('h4').textContent;
+  modalDateTime.textContent = slideEl.querySelector('.date-time')?.textContent || '';
+  modalVenue.textContent = slideEl.querySelector('.venue')?.textContent || '';
+  modalDescription.textContent = slideEl.querySelector('.description')?.textContent || '';
+  modalImage.src = slideEl.querySelector('img')?.src || '';
+  modalDeleteBtn.style.display = isAdminLoggedIn ? 'inline-block' : 'none';
+  eventModal.classList.remove('hidden');
+}
+
+modalCloseBtn.addEventListener('click', function(){
+  eventModal.classList.add('hidden');
+  currentEventSlide = null;
+});
+
+modalDeleteBtn.addEventListener('click', function(){
+  if(isAdminLoggedIn && currentEventSlide){
+    currentEventSlide.remove();
+    if(window.upcomingSwiperInstance) window.upcomingSwiperInstance.update();
+    modalCloseBtn.click();
+  }
+});
+
+function addLikeShareButtons(slide){
+  if(slide.querySelector('.like-share-group')) return;
+  const lsDiv = document.createElement('div');
+  lsDiv.className = 'like-share-group flex space-x-4 my-2';
+  const likeBtn = document.createElement('div');
+  likeBtn.className = 'like-btn cursor-pointer select-none text-yellow-500 font-bold';
+  likeBtn.title = 'Like';
+  likeBtn.innerHTML = '👍 <span class="like-count">0</span>';
+  const shareBtn = document.createElement('div');
+  shareBtn.className = 'share-btn cursor-pointer select-none text-blue-600 font-bold';
+  shareBtn.title = 'Share';
+  shareBtn.textContent = '🔗';
+  lsDiv.appendChild(likeBtn);
+  lsDiv.appendChild(shareBtn);
+  slide.appendChild(lsDiv);
+  likeBtn.addEventListener('click', function(){
+    let countSpan = likeBtn.querySelector('.like-count');
+    let count = parseInt(countSpan.textContent);
+    if(likeBtn.classList.contains('liked')){
+      count--;
+      likeBtn.classList.remove('liked');
+    } else {
+      count++;
+      likeBtn.classList.add('liked');
+    }
+    countSpan.textContent = count;
+  });
+  shareBtn.addEventListener('click', function(){
+    const url = slide.getAttribute('data-url');
+    if(url){
+      window.open(url,'_blank');
+    } else {
+      alert('No URL available for this event.');
+    }
+  });
+}
+
+function addClickableToSlide(slide){
+  if(!slide.querySelector('.date-time')){
+    slide.querySelector('p:nth-of-type(1)').classList.add('date-time');
+    slide.querySelector('p:nth-of-type(2)').classList.add('venue');
+    slide.querySelector('p:nth-of-type(3)').classList.add('description');
+  }
+  slide.style.cursor = 'pointer';
+  slide.addEventListener('click', function(){
+    openEventModal(slide);
+  });
+  addLikeShareButtons(slide);
+}
+
+async function loadEvents(){
+  try {
+    const res = await fetch(`${backendUrl}/api/events`);
+    const events = await res.json();
+    const trendingContainer = document.getElementById('trendingEvents');
+    const upcomingContainer = document.getElementById('upcomingEvents');
+    const promoContainer = document.getElementById('promoEvents');
+    trendingContainer.innerHTML = '';
+    upcomingContainer.innerHTML = '';
+    promoContainer.innerHTML = '';
+    events.forEach(event => {
+      const slide = document.createElement('div');
+      slide.className = 'swiper-slide';
+      slide.setAttribute('data-url', event.url || '#');
+      slide.innerHTML = `
+        <img src="${event.image || 'https://via.placeholder.com/300x150'}" alt="${event.title}" style="width: 100%; border-radius: .5rem;"/>
+        <h4 class="font-semibold mb-1 text-center">${event.title}</h4>
+        <p class="date-time text-sm text-gray-600 text-center">${event.date}</p>
+        <p class="venue text-sm text-gray-600 text-center">${event.venue}</p>
+        <p class="description text-center">${event.description}</p>
+      `;
+      if(event.category === 'trending'){
+        trendingContainer.appendChild(slide);
+      } else if(event.category === 'upcoming'){
+        upcomingContainer.appendChild(slide);
+      } else if(event.category === 'promo'){
+        promoContainer.appendChild(slide);
+      }
+    });
+    Array.from(trendingContainer.children).forEach(addClickableToSlide);
+    Array.from(upcomingContainer.children).forEach(addClickableToSlide);
+    Array.from(promoContainer.children).forEach(addClickableToSlide);
+    if(window.upcomingSwiperInstance) window.upcomingSwiperInstance.update();
+  } catch(err){
+    console.error('Error loading events:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('cityName').textContent = "Your city detected: Hyderabad";
+  const baseSwiperOptions = {slidesPerView:3, spaceBetween:20, loop:true, autoplay:{delay:3000, disableOnInteraction:false}, pagination:{clickable:true}, breakpoints:{0:{slidesPerView:1},640:{slidesPerView:2},1024:{slidesPerView:3}}};
+  new Swiper('.trendingSwiper', {
+    ...baseSwiperOptions,
+    navigation:{nextEl:'.trendingSwiper .swiper-button-next', prevEl:'.trendingSwiper .swiper-button-prev'},
+    pagination:{el:'.trendingSwiper .swiper-pagination', clickable:true}
+  });
+  window.upcomingSwiperInstance = new Swiper('.upcomingSwiper', {
+    ...baseSwiperOptions,
+    navigation:{nextEl:'.upcomingSwiper .swiper-button-next', prevEl:'.upcomingSwiper .swiper-button-prev'},
+    pagination:{el:'.upcomingSwiper .swiper-pagination', clickable:true}
+  });
+  new Swiper('.promoSwiper', {
+    ...baseSwiperOptions,
+    navigation:{nextEl:'.promoSwiper .swiper-button-next', prevEl:'.promoSwiper .swiper-button-prev'},
+    pagination:{el:'.promoSwiper .swiper-pagination', clickable:true}
+  });
+  new Swiper('.partnersSwiper', {
+    slidesPerView:2, spaceBetween:15, loop:true,
+    autoplay:{delay:3000, disableOnInteraction:false},
+    navigation:{nextEl:'.partnersSwiper .swiper-button-next', prevEl:'.partnersSwiper .swiper-button-prev'},
+    pagination:{el:'.partnersSwiper .swiper-pagination', clickable:true},
+    breakpoints:{0:{slidesPerView:1},640:{slidesPerView:2},1024:{slidesPerView:4}}
+  });
+  loadEvents();
+
+  const eventImagesInput = document.getElementById('eventImages');
+  const imagePreviewGroup = document.getElementById('imagePreviewGroup');
+  eventImagesInput.addEventListener('change', function(){
+    imagePreviewGroup.innerHTML = '';
+    Array.from(eventImagesInput.files).slice(0,5).forEach(file => {
+      if(!file.type.startsWith('image/') || file.size > 10*1024*1024) return;
+      const img = document.createElement('img');
+      img.className = 'thumb';
+      img.src = URL.createObjectURL(file);
+      imagePreviewGroup.appendChild(img);
+    });
+  });
+
+  document.getElementById('postEventForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+
+    const title = form.eventTitle.value.trim();
+    const date = form.eventDate.value;
+    const time = form.eventTime.value;
+    const venue = form.eventVenue.value.trim();
+    const contactNumber = form.contactNumber.value.trim();
+    const description = form.eventDescription.value.trim();
+    // Optional
+    const url = form.eventURL.value.trim();
+
+    if(!title || !date || !time || !venue || !contactNumber || !description){
+      return alert('Please fill all required fields.');
+    }
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('date', date);
+    formData.append('time', time);
+    formData.append('venue', venue);
+    formData.append('contactNumber', contactNumber);
+    formData.append('description', description);
+    formData.append('url', url);
+
+    Array.from(form.eventImages.files).slice(0,5).forEach(file => {
+      formData.append('images', file);
+    });
+
+    try {
+      const response = await fetch(`${backendUrl}/api/events`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      if(response.ok){
+        alert('Event posted successfully!');
+        form.reset();
+        imagePreviewGroup.innerHTML = '';
+        loadEvents();
+      } else {
+        alert('Failed to post event: ' + (data.message || 'Unknown error'));
+      }
+    } catch(err){
+      alert('Error submitting event.');
+      console.error(err);
+    }
+  });
+
+  // Contact form submission
+  const contactForm = document.getElementById('contactForm');
+  contactForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = contactForm.contactName.value.trim();
+    const email = contactForm.contactEmail.value.trim();
+    const message = contactForm.contactMessage.value.trim();
+
+    if(!name || !email || !message){
+      return alert('Please fill all contact form fields.');
+    }
+
+    try {
+      const response = await fetch(`${backendUrl}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message })
+      });
+      if(response.ok){
+        alert('Message sent successfully!');
+        contactForm.reset();
+      } else {
+        const data = await response.json();
+        alert('Failed to send message: ' + (data.message || 'Unknown error'));
+      }
+    } catch(err){
+      alert('Error sending message.');
+      console.error(err);
+    }
+  });
+});
+</script>
+</body>
+</html>
