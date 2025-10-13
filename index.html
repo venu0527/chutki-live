@@ -2,25 +2,73 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Chutki</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
 <style>
-  body { scroll-behavior: smooth; }
-  .hidden { display: none !important; }
-  .active-fav { color: #fbbf24; font-weight: 700; }
-  .swiper-slide { display: flex; justify-content: center; }
-  img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius: .5rem; margin: 0.25rem; }
-  .footer-link:hover { text-decoration: underline; color: #a5b4fc; }
-  .glass { background: rgba(255,255,255,0.8); backdrop-filter: blur(8px); }
-  .section-card { background: rgba(255,255,255,0.95); border-radius: 1.2rem; box-shadow: 0 8px 24px rgba(110,92,139,0.18); margin-bottom: 2.5rem; padding: 2rem 1.2rem;}
-  @media (min-width: 768px) { .section-card { padding: 2.5rem 3rem; } }
-  .like-btn, .share-btn { cursor: pointer; user-select: none; font-weight: 700; font-size: 1.1rem; }
-  .like-btn { color: #ca8a04; padding-left: 0.3rem; }
-  .share-btn { color: #3b82f6; padding-left: 1rem; }
-  .like-btn:hover { color: #d97706; }
-  .share-btn:hover { color: #2563eb; }
+  body {
+    scroll-behavior: smooth;
+  }
+  .hidden {
+    display: none !important;
+  }
+  .active-fav {
+    color: #fbbf24;
+    font-weight: 700;
+  }
+  .swiper-slide {
+    display: flex;
+    justify-content: center;
+  }
+  img.thumb {
+    max-height: 90px;
+    max-width: 120px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    margin: 0.25rem;
+  }
+  .footer-link:hover {
+    text-decoration: underline;
+    color: #a5b4fc;
+  }
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+  }
+  .section-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 1.2rem;
+    box-shadow: 0 8px 24px rgba(110, 92, 139, 0.18);
+    margin-bottom: 2.5rem;
+    padding: 2rem 1.2rem;
+  }
+  @media (min-width: 768px) {
+    .section-card {
+      padding: 2.5rem 3rem;
+    }
+  }
+  .like-btn,
+  .share-btn {
+    cursor: pointer;
+    user-select: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  .like-btn {
+    color: #ca8a04;
+    padding-left: 0.3rem;
+  }
+  .share-btn {
+    color: #3b82f6;
+    padding-left: 1rem;
+  }
+  .like-btn:hover {
+    color: #d97706;
+  }
+  .share-btn:hover {
+    color: #2563eb;
+  }
 </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-100 via-white to-purple-100 text-gray-900">
@@ -44,7 +92,7 @@
     </nav>
     <div class="flex items-center space-x-4 mt-4 md:mt-0">
       <div class="relative">
-        <button id="notifBell" class="text-2xl text-pink-200 hover:text-white">🔔</button>
+        <button id="notifBell" class="text-2xl text-pink-200 hover:text-white" aria-label="Notifications">🔔</button>
         <span id="notifCount" class="hidden absolute -top-1 -right-2 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5"></span>
         <div id="notifPanel" class="hidden absolute right-0 mt-2 w-64 glass rounded-lg shadow-lg border p-3 max-h-60 overflow-auto text-sm z-50">
           <p class="text-indigo-500 text-center">No notifications</p>
@@ -70,16 +118,26 @@
 
 <section id="filters" class="section-card max-w-5xl mx-auto bg-white/90">
   <h3 class="text-2xl font-bold mb-4 text-indigo-700 text-center">Search & Filters</h3>
-  <form id="filterForm" class="grid md:grid-cols-5 gap-4 p-4">
+  <form id="filterForm" class="grid md:grid-cols-5 gap-4 p-4" aria-label="Event Search & Filters">
     <select id="category" class="border rounded p-2 bg-white" aria-label="Select Category">
       <option value="">All Categories</option>
-      <optgroup label="Music"><option value="music-concert">Concerts</option></optgroup>
-      <optgroup label="Sports"><option value="sports-football">Football</option></optgroup>
-      <optgroup label="Tech"><option value="tech-conference">Conference</option></optgroup>
-      <optgroup label="Food"><option value="food-festival">Festivals</option></optgroup>
-      <optgroup label="Other"><option value="charity">Charity</option></optgroup>
+      <optgroup label="Music">
+        <option value="music-concert">Concerts</option>
+      </optgroup>
+      <optgroup label="Sports">
+        <option value="sports-football">Football</option>
+      </optgroup>
+      <optgroup label="Tech">
+        <option value="tech-conference">Conference</option>
+      </optgroup>
+      <optgroup label="Food">
+        <option value="food-festival">Festivals</option>
+      </optgroup>
+      <optgroup label="Other">
+        <option value="charity">Charity</option>
+      </optgroup>
     </select>
-    <input type="date" id="date" class="border rounded p-2 bg-white" aria-label="Select Date"/>
+    <input type="date" id="date" class="border rounded p-2 bg-white" aria-label="Select Date" />
     <select id="distance" class="border rounded p-2 bg-white" aria-label="Select Distance">
       <option value="">Any Distance</option>
       <option value="5">Within 5 km</option>
@@ -122,7 +180,7 @@
 
 <section id="postEvent" class="section-card max-w-3xl mx-auto glass bg-white/90 my-12">
   <h3 class="text-2xl font-bold mb-4 text-pink-600 text-center">Post Your Event</h3>
-  <form id="postEventForm" class="grid gap-4" enctype="multipart/form-data" novalidate>
+  <form id="postEventForm" class="grid gap-4" enctype="multipart/form-data" novalidate aria-label="Post Event Form">
     <input type="text" id="eventTitle" placeholder="Event Title" required class="border rounded p-2" aria-label="Event Title" />
     <input type="date" id="eventDate" required class="border rounded p-2" aria-label="Event Date" />
     <input type="time" id="eventTime" required class="border rounded p-2" aria-label="Event Time" />
@@ -136,8 +194,8 @@
       <option value="upcoming">Upcoming</option>
       <option value="promo">Promo</option>
     </select>
-    <input id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2" aria-label="Upload Event Images"/>
-    <div id="imagePreviewGroup" class="flex flex-wrap gap-2 mt-2"></div>
+    <input id="eventImages" type="file" accept="image/*" multiple class="border rounded p-2" aria-label="Upload Event Images" />
+    <div id="imagePreviewGroup" class="flex flex-wrap gap-2 mt-2" aria-live="polite"></div>
     <button type="submit" class="bg-pink-600 text-white rounded px-4 py-2">Submit</button>
   </form>
 </section>
@@ -146,17 +204,17 @@
   <h3 class="text-2xl font-bold mb-4 text-blue-700 text-center">🎥 Virtual Events</h3>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
-      <img src="https://via.placeholder.com/300x150?text=Virtual+Event+1" class="w-full mb-2 rounded" alt="Virtual Event 1"/>
+      <img src="https://via.placeholder.com/300x150?text=Virtual+Event+1" class="w-full mb-2 rounded" alt="Virtual Event 1" loading="lazy" decoding="async" />
       <h4 class="font-semibold mb-2 text-center">Online Coding Bootcamp</h4>
       <p class="text-sm text-center text-gray-600">Join our free online coding bootcamp to learn the basics and beyond.</p>
     </div>
     <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
-      <img src="https://via.placeholder.com/300x150?text=Virtual+Event+2" class="w-full mb-2 rounded" alt="Virtual Event 2"/>
+      <img src="https://via.placeholder.com/300x150?text=Virtual+Event+2" class="w-full mb-2 rounded" alt="Virtual Event 2" loading="lazy" decoding="async" />
       <h4 class="font-semibold mb-2 text-center">Virtual Yoga Workshop</h4>
       <p class="text-sm text-center text-gray-600">Relax and rejuvenate with this guided yoga session from home.</p>
     </div>
     <div class="bg-white p-4 rounded shadow hover:shadow-xl transition">
-      <img src="https://via.placeholder.com/300x150?text=Virtual+Event+3" class="w-full mb-2 rounded" alt="Virtual Event 3"/>
+      <img src="https://via.placeholder.com/300x150?text=Virtual+Event+3" class="w-full mb-2 rounded" alt="Virtual Event 3" loading="lazy" decoding="async" />
       <h4 class="font-semibold mb-2 text-center">Global Marketing Seminar</h4>
       <p class="text-sm text-center text-gray-600">Learn marketing strategies in a live webinar with industry experts.</p>
     </div>
@@ -181,15 +239,15 @@
 <section id="contact" class="section-card max-w-5xl mx-auto bg-white/90 mb-12 p-6 rounded shadow-lg">
   <h3 class="text-2xl font-bold mb-6 text-indigo-700 text-center">Contact Us</h3>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <form id="contactForm" class="flex flex-col space-y-4" novalidate>
+    <form id="contactForm" class="flex flex-col space-y-4" novalidate aria-label="Contact Form">
       <input type="text" id="contactName" name="contactName" placeholder="Name" required class="border rounded p-2" aria-label="Name" />
       <input type="email" id="contactEmail" name="contactEmail" placeholder="Email ID" required class="border rounded p-2" aria-label="Email" />
       <input type="tel" id="contactMobile" name="contactMobile" placeholder="Mobile Number" pattern="[0-9]{10,15}" required class="border rounded p-2" title="10-15 digits" aria-label="Mobile Number" />
       <textarea id="contactMessage" name="contactMessage" placeholder="Message" required class="border rounded p-2" aria-label="Message"></textarea>
       <button type="submit" class="bg-indigo-600 text-white rounded px-4 py-2 w-full hover:bg-indigo-700 shadow">Send Message</button>
     </form>
-    <div class="text-gray-700 text-sm space-y-2">
-      <p><strong>Address:</strong> Plot number 64, Behind church, Prashanth nagar,<br/>Chengicherla, Boduppal</p>
+    <div class="text-gray-700 text-sm space-y-2" aria-label="Contact Information">
+      <p><strong>Address:</strong> Plot number 64, Behind church, Prashanth nagar,<br />Chengicherla, Boduppal</p>
       <p><strong>City Code:</strong> 500092</p>
       <p><strong>Email ID:</strong> <a href="mailto:chutkki.2025@gmail.com" class="text-indigo-600 hover:underline">chutkki.2025@gmail.com</a></p>
     </div>
@@ -231,18 +289,18 @@
       </ul>
     </div>
   </div>
-  <hr class="border-gray-700 my-6 max-w-7xl mx-auto"/>
-  <div class="flex justify-center space-x-6 mb-4">
-    <!-- Social icons omitted for brevity, included in earlier code -->
+  <hr class="border-gray-700 my-6 max-w-7xl mx-auto" />
+  <div class="flex justify-center space-x-6 mb-4" aria-label="Social Media Links">
+    <!-- Placeholder for social icons -->
   </div>
   <div class="text-center text-gray-500 text-xs mt-3">&copy; 2025 Chutki Event Platform. All rights reserved.</div>
 </footer>
 
-<div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+<div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="bg-white rounded p-6 max-w-lg w-full relative max-h-[90vh] overflow-auto">
-    <button id="modalCloseBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 font-bold text-xl" aria-label="Close">&times;</button>
+    <button id="modalCloseBtn" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 font-bold text-xl" aria-label="Close Modal">&times;</button>
     <div id="modalViewContent">
-      <img id="modalImage" src="" alt="Event Image" class="w-full max-h-64 object-cover rounded mb-4"/>
+      <img id="modalImage" src="" alt="Event Image" class="w-full max-h-64 object-cover rounded mb-4" loading="lazy" decoding="async" />
       <h3 id="modalTitle" class="text-xl font-bold mb-2"></h3>
       <p id="modalDateTime" class="text-sm text-gray-600 mb-1"></p>
       <p id="modalVenue" class="text-sm text-gray-600 mb-3"></p>
@@ -252,7 +310,7 @@
       <button id="modalEditBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2">Edit</button>
       <button id="modalDeleteBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete Event</button>
     </div>
-    <form id="modalEditForm" class="hidden space-y-2" novalidate>
+    <form id="modalEditForm" class="hidden space-y-2" novalidate aria-label="Edit Event Form">
       <input type="text" id="editTitle" class="border rounded p-2 w-full" placeholder="Event Title" required />
       <input type="date" id="editDate" class="border rounded p-2 w-full" required />
       <input type="time" id="editTime" class="border rounded p-2 w-full" required />
@@ -281,14 +339,216 @@
   let isAdminLoggedIn = !!localStorage.getItem('adminToken');
   let currentEventSlide = null;
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Swiper instances for trending, upcoming, promo, partners
-    // ... (identical to previous scripts, including loadEvents, modal controls, etc.)
-    
-    // Event posting form submit handler (with images, multipart/form-data)
-    document.getElementById('postEventForm').onsubmit = async function(e) {
-      e.preventDefault();
+  function createEventCard(event) {
+    const baseImage = event.images && event.images.length ? event.images[0] : 'https://via.placeholder.com/300x150?text=No+Image';
+    const imgSrc = baseImage.includes('?') ? baseImage + '&auto=format&fit=crop&w=300&h=150' : baseImage + '?auto=format&fit=crop&w=300&h=150';
+    const date = new Date(event.date + 'T' + event.time);
+    const dateStr = date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    const timeStr = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    return `
+      <div class="swiper-slide max-w-xs bg-white rounded shadow p-4 flex flex-col cursor-pointer" tabindex="0" role="button" aria-pressed="false" aria-label="View event details: ${event.title}">
+        <img src="${imgSrc}" alt="${event.title} image" class="mb-3 rounded object-cover w-full h-36" loading="lazy" decoding="async" />
+        <h4 class="font-bold text-lg mb-1">${event.title}</h4>
+        <p class="text-sm text-gray-600 mb-1">${dateStr}, ${timeStr}</p>
+        <p class="text-sm text-gray-600 mb-3">${event.venue}</p>
+        <button class="like-btn" aria-label="Like event">&#9733;</button>
+        <button class="share-btn" aria-label="Share event">&#x1f517;</button>
+      </div>
+    `;
+  }
 
+  async function loadEvents() {
+    try {
+      const [trendingData, upcomingData, promoData] = await Promise.all([
+        fetch(`${backendUrl}/api/events?category=trending`).then(r => r.json()),
+        fetch(`${backendUrl}/api/events?category=upcoming`).then(r => r.json()),
+        fetch(`${backendUrl}/api/events?category=promo`).then(r => r.json()),
+      ]);
+
+      populateSwiper('#trendingEvents', trendingData);
+      populateSwiper('#upcomingEvents', upcomingData);
+      populateSwiper('#promoEvents', promoData);
+
+      initSwipers();
+    } catch (err) {
+      console.error('Error loading events:', err);
+    }
+  }
+
+  function populateSwiper(containerSelector, events) {
+    const container = document.querySelector(containerSelector);
+    container.innerHTML = events.map(createEventCard).join('');
+    container.querySelectorAll('.swiper-slide').forEach((slide, idx) => {
+      slide.onclick = () => openEventModal(events[idx]);
+      slide.onkeydown = e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openEventModal(events[idx]);
+        }
+      };
+    });
+  }
+
+  function initSwipers() {
+    new Swiper('.trendingSwiper', {
+      slidesPerView: 1,
+      spaceBetween: 15,
+      centeredSlides: true,
+      loop: true,
+      navigation: { nextEl: '.trendingSwiper .swiper-button-next', prevEl: '.trendingSwiper .swiper-button-prev' },
+      pagination: { el: '.trendingSwiper .swiper-pagination', clickable: true },
+      breakpoints: {
+        640: { slidesPerView: 2 },
+        1024: { slidesPerView: 3 },
+      },
+    });
+    new Swiper('.upcomingSwiper', {
+      slidesPerView: 1,
+      spaceBetween: 15,
+      centeredSlides: false,
+      loop: false,
+      navigation: { nextEl: '.upcomingSwiper .swiper-button-next', prevEl: '.upcomingSwiper .swiper-button-prev' },
+      pagination: { el: '.upcomingSwiper .swiper-pagination', clickable: true },
+      breakpoints: {
+        640: { slidesPerView: 2 },
+        1024: { slidesPerView: 3 },
+      },
+    });
+    new Swiper('.promoSwiper', {
+      slidesPerView: 1,
+      spaceBetween: 15,
+      centeredSlides: true,
+      loop: true,
+      navigation: { nextEl: '.promoSwiper .swiper-button-next', prevEl: '.promoSwiper .swiper-button-prev' },
+      pagination: { el: '.promoSwiper .swiper-pagination', clickable: true },
+      breakpoints: {
+        640: { slidesPerView: 2 },
+        1024: { slidesPerView: 3 },
+      },
+    });
+    new Swiper('.partnersSwiper', {
+      slidesPerView: 2,
+      spaceBetween: 20,
+      loop: true,
+      navigation: { nextEl: '.partnersSwiper .swiper-button-next', prevEl: '.partnersSwiper .swiper-button-prev' },
+      pagination: { el: '.partnersSwiper .swiper-pagination', clickable: true },
+      breakpoints: {
+        640: { slidesPerView: 3 },
+        1024: { slidesPerView: 4 },
+      },
+      autoplay: { delay: 3000, disableOnInteraction: false },
+    });
+  }
+
+  function openEventModal(event) {
+    currentEventSlide = event;
+    const modal = document.getElementById('eventModal');
+    document.getElementById('modalImage').src = event.images && event.images.length ? event.images[0] : 'https://via.placeholder.com/300x150?text=No+Image';
+    document.getElementById('modalTitle').textContent = event.title;
+    document.getElementById('modalDateTime').textContent = `${event.date} ${event.time}`;
+    document.getElementById('modalVenue').textContent = event.venue;
+    document.getElementById('modalContact').textContent = event.contactNumber || '';
+    document.getElementById('modalDescription').textContent = event.description;
+    const urlLink = document.getElementById('modalURLLink');
+    if (event.url) {
+      urlLink.href = event.url;
+      urlLink.parentElement.style.display = 'block';
+    } else {
+      urlLink.parentElement.style.display = 'none';
+    }
+    document.getElementById('modalViewContent').classList.remove('hidden');
+    document.getElementById('modalEditForm').classList.add('hidden');
+    modal.classList.remove('hidden');
+  }
+
+  function closeModal() {
+    currentEventSlide = null;
+    document.getElementById('eventModal').classList.add('hidden');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadEvents();
+
+    document.getElementById('modalCloseBtn').onclick = closeModal;
+
+    document.getElementById('modalEditBtn').onclick = () => {
+      if (!isAdminLoggedIn) {
+        alert('Admin login required to edit events.');
+        return;
+      }
+      fillEditForm(currentEventSlide);
+      document.getElementById('modalViewContent').classList.add('hidden');
+      document.getElementById('modalEditForm').classList.remove('hidden');
+    };
+
+    document.getElementById('editCancelBtn').onclick = () => {
+      document.getElementById('modalViewContent').classList.remove('hidden');
+      document.getElementById('modalEditForm').classList.add('hidden');
+    };
+
+    document.getElementById('modalDeleteBtn').onclick = async () => {
+      if (!isAdminLoggedIn) {
+        alert('Admin login required to delete events.');
+        return;
+      }
+      if (!currentEventSlide || !currentEventSlide.id) return;
+
+      if (confirm(`Delete event "${currentEventSlide.title}"? This action cannot be undone.`)) {
+        try {
+          const res = await fetch(`${backendUrl}/api/events/${currentEventSlide.id}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${localStorage.getItem('adminToken')}` },
+          });
+          if (!res.ok) throw new Error('Delete failed');
+          alert('Event deleted');
+          closeModal();
+          loadEvents();
+        } catch (e) {
+          alert('Error deleting event: ' + e.message);
+        }
+      }
+    };
+
+    document.getElementById('modalEditForm').onsubmit = async (e) => {
+      e.preventDefault();
+      if (!currentEventSlide || !currentEventSlide.id) return;
+
+      const updatedEvent = {
+        title: e.target.editTitle.value.trim(),
+        date: e.target.editDate.value,
+        time: e.target.editTime.value,
+        venue: e.target.editVenue.value.trim(),
+        contactNumber: e.target.editContact.value.trim(),
+        description: e.target.editDescription.value.trim(),
+        url: e.target.editURL.value.trim(),
+        category: e.target.editCategory.value,
+      };
+
+      if (!updatedEvent.title || !updatedEvent.date || !updatedEvent.time || !updatedEvent.venue || !updatedEvent.contactNumber || !updatedEvent.description || !updatedEvent.category) {
+        alert('Please fill all required fields');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${backendUrl}/api/events/${currentEventSlide.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('adminToken')}`,
+          },
+          body: JSON.stringify(updatedEvent),
+        });
+        if (!res.ok) throw new Error('Update failed');
+        alert('Event updated');
+        closeModal();
+        loadEvents();
+      } catch (e) {
+        alert('Error updating event: ' + e.message);
+      }
+    };
+
+    document.getElementById('postEventForm').onsubmit = async function (e) {
+      e.preventDefault();
       const formData = new FormData();
       const title = this.eventTitle.value.trim();
       const date = this.eventDate.value;
@@ -314,14 +574,14 @@
       if (urlVal) formData.append('url', urlVal);
       formData.append('category', category);
 
-      for (let i=0; i<images.length; i++) {
+      for (let i = 0; i < images.length; i++) {
         formData.append('images', images[i]);
       }
 
       try {
         const response = await fetch(`${backendUrl}/api/events`, {
           method: 'POST',
-          body: formData
+          body: formData,
         });
         if (!response.ok) {
           const data = await response.json();
@@ -337,11 +597,88 @@
       }
     };
 
-    // Other event handlers like admin sign-in, modal edits, deletes, location detection...
-    
-    // Initial city display and loading events
-    document.getElementById('cityName').textContent = "Your city detected: Hyderabad";
-    loadEvents();
+    const imageInput = document.getElementById('eventImages');
+    const previewContainer = document.getElementById('imagePreviewGroup');
+    imageInput.addEventListener('change', () => {
+      previewContainer.innerHTML = '';
+      Array.from(imageInput.files).forEach((file) => {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.className = 'thumb';
+        img.alt = 'Preview Image';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        previewContainer.appendChild(img);
+      });
+    });
+
+    document.getElementById('filterForm').onsubmit = (e) => {
+      e.preventDefault();
+      const category = document.getElementById('category').value;
+      const date = document.getElementById('date').value;
+      const distance = document.getElementById('distance').value;
+      alert(`Search filters:\nCategory: ${category || 'Any'}\nDate: ${date || 'Any'}\nDistance: ${distance || 'Any'}`);
+    };
+
+    document.getElementById('getLocationBtn').onclick = () => {
+      if (!navigator.geolocation) {
+        alert('Geolocation not supported');
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => alert(`Your location is: Latitude: ${pos.coords.latitude} Longitude: ${pos.coords.longitude}`),
+        () => alert('Unable to get location')
+      );
+    };
+
+    document.getElementById('signInBtn').onclick = () => {
+      const email = prompt('Enter admin email:');
+      const password = prompt('Enter admin password:');
+      if (email === 'admin@chutki.com' && password === 'admin123') {
+        localStorage.setItem('adminToken', 'fake-jwt-token');
+        alert('Admin signed in');
+        isAdminLoggedIn = true;
+      } else {
+        alert('Invalid admin credentials');
+      }
+    };
+
+    document.getElementById('adminBtn').onclick = () => {
+      if (isAdminLoggedIn) {
+        if (confirm('Logout admin?')) {
+          localStorage.removeItem('adminToken');
+          isAdminLoggedIn = false;
+          alert('Admin logged out');
+        }
+      } else {
+        alert('Not logged in as admin');
+      }
+    };
+
+    const notifBell = document.getElementById('notifBell');
+    const notifPanel = document.getElementById('notifPanel');
+    notifBell.onclick = () => {
+      notifPanel.classList.toggle('hidden');
+    };
+
+    document.getElementById('cityName').textContent = 'Your city detected: Hyderabad';
+
+    document.getElementById('eventModal').onclick = (e) => {
+      if (e.target === e.currentTarget) closeModal();
+    };
+
+    function fillEditForm(event) {
+      if (!event) return;
+      const form = document.getElementById('modalEditForm');
+      form.editTitle.value = event.title || '';
+      form.editDate.value = event.date || '';
+      form.editTime.value = event.time || '';
+      form.editVenue.value = event.venue || '';
+      form.editContact.value = event.contactNumber || '';
+      form.editDescription.value = event.description || '';
+      form.editURL.value = event.url || '';
+      form.editCategory.value = event.category || '';
+    }
   });
 })();
 </script>
