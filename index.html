@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
 <style>
   body { scroll-behavior: smooth; }
-  .hidden { display: none; }
+  .hidden { display: none !important; }
   .active-fav { color: #fbbf24; font-weight: 700; }
   .swiper-slide { display: flex; justify-content: center; }
   img.thumb { max-height: 90px; max-width: 120px; object-fit: cover; border-radius: .5rem; margin: 0.25rem; }
@@ -259,7 +259,7 @@
       <p id="modalVenue" class="text-sm text-gray-600 mb-3"></p>
       <p id="modalContact" class="text-sm text-gray-600 mb-3"></p>
       <p id="modalDescription" class="mb-4"></p>
-      <p id="modalURL" class="text-blue-600 underline mb-4"><a href="#" target="_blank" id="modalURLLink">Event Link</a></p>
+      <p id="modalURL" class="text-blue-600 underline mb-4"><a href="#" target="_blank" id="modalURLLink" rel="noopener noreferrer">Event Link</a></p>
       <button id="modalEditBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mr-2">Edit</button>
       <button id="modalDeleteBtn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Delete Event</button>
     </div>
@@ -285,348 +285,335 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-<script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js" defer></script>
+<script defer>
 (() => {
-  const backendUrl = 'https://chutki-live.vercel.app';
+  const backendUrl = 'https://vercel.com/r-praveens-projects/chutki-live';
   let isAdminLoggedIn = !!localStorage.getItem('adminToken');
   let currentEventSlide = null;
 
-  // Initialize Swipers
-  const trendingSwiper = new Swiper('.trendingSwiper', {
-    slidesPerView: 3, spaceBetween: 20, loop: true,
-    autoplay: { delay: 3000, disableOnInteraction: false },
-    pagination: { clickable: true, el: '.trendingSwiper .swiper-pagination' },
-    navigation: { nextEl: '.trendingSwiper .swiper-button-next', prevEl: '.trendingSwiper .swiper-button-prev' },
-    breakpoints: {0: {slidesPerView: 1}, 640: {slidesPerView: 2}, 1024: {slidesPerView: 3}}
-  });
-  const upcomingSwiper = new Swiper('.upcomingSwiper', {
-    slidesPerView: 3, spaceBetween: 20, loop: true,
-    autoplay: { delay: 4000, disableOnInteraction: false },
-    pagination: { clickable: true, el: '.upcomingSwiper .swiper-pagination' },
-    navigation: { nextEl: '.upcomingSwiper .swiper-button-next', prevEl: '.upcomingSwiper .swiper-button-prev' },
-    breakpoints: {0: {slidesPerView: 1}, 640: {slidesPerView: 2}, 1024: {slidesPerView: 3}}
-  });
-  const promoSwiper = new Swiper('.promoSwiper', {
-    slidesPerView: 3, spaceBetween: 20, loop: true,
-    autoplay: { delay: 5000, disableOnInteraction: false },
-    pagination: { clickable: true, el: '.promoSwiper .swiper-pagination' },
-    navigation: { nextEl: '.promoSwiper .swiper-button-next', prevEl: '.promoSwiper .swiper-button-prev' },
-    breakpoints: {0: {slidesPerView: 1}, 640: {slidesPerView: 2}, 1024: {slidesPerView: 3}}
-  });
-  const partnersSwiper = new Swiper('.partnersSwiper', {
-    slidesPerView: 2, spaceBetween: 15, loop: true,
-    autoplay: { delay: 3500, disableOnInteraction: false },
-    pagination: { clickable: true, el: '.partnersSwiper .swiper-pagination' },
-    navigation: { nextEl: '.partnersSwiper .swiper-button-next', prevEl: '.partnersSwiper .swiper-button-prev' },
-    breakpoints: {0: {slidesPerView: 1}, 640: {slidesPerView: 2}, 1024: {slidesPerView: 4}}
-  });
+  // Wait swiper to load
+  document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Swipers
+    const trendingSwiper = new Swiper('.trendingSwiper', {
+      slidesPerView: 3, spaceBetween: 20, loop: true,
+      autoplay: { delay: 3000, disableOnInteraction: false },
+      pagination: { clickable: true, el: '.trendingSwiper .swiper-pagination' },
+      navigation: { nextEl: '.trendingSwiper .swiper-button-next', prevEl: '.trendingSwiper .swiper-button-prev' },
+      breakpoints: {0: {slidesPerView: 1}, 640: {slidesPerView: 2}, 1024: {slidesPerView: 3}}
+    });
+    const upcomingSwiper = new Swiper('.upcomingSwiper', {
+      slidesPerView: 3, spaceBetween: 20, loop: true,
+      autoplay: { delay: 4000, disableOnInteraction: false },
+      pagination: { clickable: true, el: '.upcomingSwiper .swiper-pagination' },
+      navigation: { nextEl: '.upcomingSwiper .swiper-button-next', prevEl: '.upcomingSwiper .swiper-button-prev' },
+      breakpoints: {0: {slidesPerView: 1}, 640: {slidesPerView: 2}, 1024: {slidesPerView: 3}}
+    });
+    const promoSwiper = new Swiper('.promoSwiper', {
+      slidesPerView: 3, spaceBetween: 20, loop: true,
+      autoplay: { delay: 5000, disableOnInteraction: false },
+      pagination: { clickable: true, el: '.promoSwiper .swiper-pagination' },
+      navigation: { nextEl: '.promoSwiper .swiper-button-next', prevEl: '.promoSwiper .swiper-button-prev' },
+      breakpoints: {0: {slidesPerView: 1}, 640: {slidesPerView: 2}, 1024: {slidesPerView: 3}}
+    });
+    const partnersSwiper = new Swiper('.partnersSwiper', {
+      slidesPerView: 2, spaceBetween: 15, loop: true,
+      autoplay: { delay: 3500, disableOnInteraction: false },
+      pagination: { clickable: true, el: '.partnersSwiper .swiper-pagination' },
+      navigation: { nextEl: '.partnersSwiper .swiper-button-next', prevEl: '.partnersSwiper .swiper-button-prev' },
+      breakpoints: {0: {slidesPerView: 1}, 640: {slidesPerView: 2}, 1024: {slidesPerView: 4}}
+    });
 
-  // Utility: Create event slide for swiper
-  function createSlide(event){
-    const slide = document.createElement('div');
-    slide.className = 'swiper-slide cursor-pointer';
-    slide.setAttribute('data-url', event.url || '#');
-    slide.setAttribute('data-event-id', event.id || '');
-    slide.setAttribute('data-version', event.version || '');
-    slide.setAttribute('data-category', event.category || '');
+    function createSlide(event){
+      const slide = document.createElement('div');
+      slide.className = 'swiper-slide cursor-pointer';
+      slide.setAttribute('data-url', event.url || '#');
+      slide.setAttribute('data-event-id', event.id || '');
+      slide.setAttribute('data-version', event.version || '');
+      slide.setAttribute('data-category', event.category || '');
 
-    slide.innerHTML = `
-      <img src="${event.image || 'https://via.placeholder.com/300x150'}" alt="${event.title}" class="rounded mb-2 w-full object-cover"/>
-      <h4 class="font-semibold mb-1 text-center">${event.title}</h4>
-      <p class="date-time text-sm text-gray-600 text-center">${event.date}</p>
-      <p class="venue text-sm text-gray-600 text-center">${event.venue}</p>
-      <p class="description text-center">${event.description}</p>
-      <div class="like-share-group flex justify-center space-x-4 mt-1">
-        <div class="like-btn text-yellow-500 font-bold select-none cursor-pointer" title="Like">👍 <span class="like-count">0</span></div>
-        <div class="share-btn text-blue-600 font-bold select-none cursor-pointer" title="Share">🔗</div>
-      </div>
-    `;
-    // Add event listeners
-    slide.querySelector('.like-btn').onclick = function(){
-      const liked = this.classList.toggle('liked');
-      const cntSpan = this.querySelector('.like-count');
-      let cnt = parseInt(cntSpan.textContent);
-      cnt = liked ? cnt+1 : cnt-1;
-      cntSpan.textContent = cnt;
-    };
-    slide.querySelector('.share-btn').onclick = function(){
-      const url = slide.getAttribute('data-url');
-      url ? window.open(url,'_blank') : alert('No URL available for this event.');
-    };
-    slide.onclick = () => openEventModal(slide);
-    return slide;
-  }
-
-  // Load events from backend and display
-  async function loadEvents(){
-    try {
-      const res = await fetch(`${backendUrl}/api/events`);
-      if(!res.ok) throw new Error('Failed to fetch events');
-      const events = await res.json();
-      ['trending','upcoming','promo'].forEach(cat => {
-        const container = document.getElementById(`${cat}Events`);
-        container.innerHTML = '';
-        events.filter(e => e.category === cat).forEach(e => container.appendChild(createSlide(e)));
-      });
-      trendingSwiper.update();
-      upcomingSwiper.update();
-      promoSwiper.update();
-    } catch(e){
-      console.error(e);
+      slide.innerHTML = `
+        <img src="${event.image || 'https://via.placeholder.com/300x150'}" alt="${event.title}" class="rounded mb-2 w-full object-cover"/>
+        <h4 class="font-semibold mb-1 text-center">${event.title}</h4>
+        <p class="date-time text-sm text-gray-600 text-center">${event.date}</p>
+        <p class="venue text-sm text-gray-600 text-center">${event.venue}</p>
+        <p class="description text-center">${event.description}</p>
+        <div class="like-share-group flex justify-center space-x-4 mt-1" aria-label="Like and Share buttons">
+          <div role="button" class="like-btn text-yellow-500 font-bold select-none cursor-pointer" title="Like">👍 <span class="like-count">0</span></div>
+          <div role="button" class="share-btn text-blue-600 font-bold select-none cursor-pointer" title="Share">🔗</div>
+        </div>
+      `;
+      slide.querySelector('.like-btn').onclick = function(){
+        const liked = this.classList.toggle('liked');
+        const cntSpan = this.querySelector('.like-count');
+        let cnt = parseInt(cntSpan.textContent);
+        cnt = liked ? cnt+1 : cnt-1;
+        cntSpan.textContent = cnt;
+      };
+      slide.querySelector('.share-btn').onclick = function(){
+        const url = slide.getAttribute('data-url');
+        url ? window.open(url,'_blank','noopener') : alert('No URL available for this event.');
+      };
+      slide.onclick = () => openEventModal(slide);
+      return slide;
     }
-  }
 
-  // Modal functions
-  const modal = document.getElementById('eventModal');
-  const modalView = document.getElementById('modalViewContent');
-  const modalEditForm = document.getElementById('modalEditForm');
-  const modalEditBtn = document.getElementById('modalEditBtn');
-  const modalDeleteBtn = document.getElementById('modalDeleteBtn');
-  const modalCloseBtn = document.getElementById('modalCloseBtn');
-  const editCancelBtn = document.getElementById('editCancelBtn');
-
-  function openEventModal(slide){
-    currentEventSlide = slide;
-    document.getElementById('modalTitle').textContent = slide.querySelector('h4').textContent;
-    document.getElementById('modalDateTime').textContent = slide.querySelector('.date-time')?.textContent || '';
-    document.getElementById('modalVenue').textContent = slide.querySelector('.venue')?.textContent || '';
-    document.getElementById('modalDescription').textContent = slide.querySelector('.description')?.textContent || '';
-    document.getElementById('modalURLLink').href = slide.getAttribute('data-url') || '#';
-    document.getElementById('modalImage').src = slide.querySelector('img')?.src || '';
-    modalDeleteBtn.style.display = isAdminLoggedIn ? 'inline-block' : 'none';
-    modalEditBtn.style.display = isAdminLoggedIn ? 'inline-block' : 'none';
-    modalView.classList.remove('hidden');
-    modalEditForm.classList.add('hidden');
-    modal.classList.remove('hidden');
-  }
-
-  modalCloseBtn.onclick = () => {
-    modal.classList.add('hidden');
-    currentEventSlide = null;
-  };
-
-  // Admin login
-  document.getElementById('adminBtn').onclick = () => {
-    const email = prompt('Enter admin email:');
-    const pwd = prompt('Enter admin password:');
-    if(email === 'admin@example.com' && pwd === 'adminpass'){
-      alert('Admin logged in!');
-      localStorage.setItem('adminToken', 'dummyToken');
-      isAdminLoggedIn = true;
-    } else {
-      alert('Invalid credentials');
+    async function loadEvents(){
+      try {
+        const res = await fetch(`${backendUrl}/api/events`);
+        if(!res.ok) throw new Error('Failed to fetch events');
+        const events = await res.json();
+        ['trending','upcoming','promo'].forEach(cat => {
+          const container = document.getElementById(`${cat}Events`);
+          container.innerHTML = '';
+          events.filter(e => e.category === cat).forEach(e => container.appendChild(createSlide(e)));
+        });
+        trendingSwiper.update();
+        upcomingSwiper.update();
+        promoSwiper.update();
+      } catch(e){
+        console.error(e);
+      }
     }
-  };
 
-  // Sign in (non admin users)
-  document.getElementById('signInBtn').onclick = async () => {
-    const email = prompt('Enter your email:');
-    if(!email) return alert('Email is required');
-    try {
-      const response = await fetch(`${backendUrl}/api/auth/signin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({email})
-      });
-      const data = await response.json();
-      if(response.ok){
-        alert('Sign in successful');
-        document.getElementById('userEmail').textContent = `Welcome, ${email}`;
+    const modal = document.getElementById('eventModal');
+    const modalView = document.getElementById('modalViewContent');
+    const modalEditForm = document.getElementById('modalEditForm');
+    const modalEditBtn = document.getElementById('modalEditBtn');
+    const modalDeleteBtn = document.getElementById('modalDeleteBtn');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+    const editCancelBtn = document.getElementById('editCancelBtn');
+
+    function openEventModal(slide){
+      currentEventSlide = slide;
+      document.getElementById('modalTitle').textContent = slide.querySelector('h4').textContent;
+      document.getElementById('modalDateTime').textContent = slide.querySelector('.date-time')?.textContent || '';
+      document.getElementById('modalVenue').textContent = slide.querySelector('.venue')?.textContent || '';
+      document.getElementById('modalDescription').textContent = slide.querySelector('.description')?.textContent || '';
+      document.getElementById('modalURLLink').href = slide.getAttribute('data-url') || '#';
+      document.getElementById('modalImage').src = slide.querySelector('img')?.src || '';
+      modalDeleteBtn.style.display = isAdminLoggedIn ? 'inline-block' : 'none';
+      modalEditBtn.style.display = isAdminLoggedIn ? 'inline-block' : 'none';
+      modalView.classList.remove('hidden');
+      modalEditForm.classList.add('hidden');
+      modal.classList.remove('hidden');
+    }
+
+    modalCloseBtn.onclick = () => {
+      modal.classList.add('hidden');
+      currentEventSlide = null;
+    };
+
+    document.getElementById('adminBtn').onclick = () => {
+      const email = prompt('Enter admin email:');
+      const pwd = prompt('Enter admin password:');
+      if(email === 'admin@example.com' && pwd === 'adminpass'){
+        alert('Admin logged in!');
+        localStorage.setItem('adminToken', 'dummyToken');
+        isAdminLoggedIn = true;
       } else {
-        alert(`Sign in failed: ${data.message || 'Unknown error'}`);
+        alert('Invalid credentials');
       }
-    } catch {
-      alert('Error connecting to backend');
-    }
-  };
-
-  // Fill edit form from current slide
-  function fillEditForm(){
-    if(!currentEventSlide) return;
-    const slide = currentEventSlide;
-    modalEditForm.editTitle.value = slide.querySelector('h4').textContent || '';
-    modalEditForm.editDate.value = slide.querySelector('.date-time')?.textContent || '';
-    modalEditForm.editVenue.value = slide.querySelector('.venue')?.textContent || '';
-    modalEditForm.editDescription.value = slide.querySelector('.description')?.textContent || '';
-    modalEditForm.editURL.value = slide.getAttribute('data-url') || '';
-    modalEditForm.editCategory.value = slide.getAttribute('data-category') || '';
-    modalEditForm.editContact.value = '';
-    modalEditForm.editTime.value = '';
-  }
-
-  modalEditBtn.onclick = () => {
-    fillEditForm();
-    modalView.classList.add('hidden');
-    modalEditForm.classList.remove('hidden');
-  };
-
-  editCancelBtn.onclick = () => {
-    modalEditForm.classList.add('hidden');
-    modalView.classList.remove('hidden');
-  };
-
-  async function updateEvent(eventId, data, version){
-    try {
-      const res = await fetch(`${backendUrl}/api/events/${eventId}`, {
-        method: 'PUT',
-        headers: {'Content-Type':'application/json', 'If-Match': version},
-        body: JSON.stringify(data)
-      });
-      if(res.status === 409){
-        alert('Update conflict detected, please reload event.');
-        return null;
-      }
-      if(!res.ok) throw new Error('Update failed');
-      return await res.json();
-    } catch(e){
-      alert('Failed to update event: '+e.message);
-      return null;
-    }
-  }
-
-  modalEditForm.onsubmit = async e => {
-    e.preventDefault();
-    if(!currentEventSlide) return;
-    const eventId = currentEventSlide.getAttribute('data-event-id');
-    const version = currentEventSlide.getAttribute('data-version');
-    if(!eventId || !version) return alert('Event data missing.');
-
-    const updateData = {
-      title: modalEditForm.editTitle.value.trim(),
-      date: modalEditForm.editDate.value,
-      time: modalEditForm.editTime.value,
-      venue: modalEditForm.editVenue.value.trim(),
-      contactNumber: modalEditForm.editContact.value.trim(),
-      description: modalEditForm.editDescription.value.trim(),
-      url: modalEditForm.editURL.value.trim(),
-      category: modalEditForm.editCategory.value
     };
-    if(!updateData.title || !updateData.date || !updateData.venue || !updateData.description || !updateData.category) {
-      return alert('All required fields must be filled.');
+
+    document.getElementById('signInBtn').onclick = async () => {
+      const email = prompt('Enter your email:');
+      if(!email) return alert('Email is required');
+      try {
+        const response = await fetch(`${backendUrl}/api/auth/signin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({email})
+        });
+        const data = await response.json();
+        if(response.ok){
+          alert('Sign in successful');
+          document.getElementById('userEmail').textContent = `Welcome, ${email}`;
+        } else {
+          alert(`Sign in failed: ${data.message || 'Unknown error'}`);
+        }
+      } catch {
+        alert('Error connecting to backend');
+      }
+    };
+
+    function fillEditForm(){
+      if(!currentEventSlide) return;
+      const slide = currentEventSlide;
+      modalEditForm.editTitle.value = slide.querySelector('h4').textContent || '';
+      modalEditForm.editDate.value = slide.querySelector('.date-time')?.textContent || '';
+      modalEditForm.editVenue.value = slide.querySelector('.venue')?.textContent || '';
+      modalEditForm.editDescription.value = slide.querySelector('.description')?.textContent || '';
+      modalEditForm.editURL.value = slide.getAttribute('data-url') || '';
+      modalEditForm.editCategory.value = slide.getAttribute('data-category') || '';
+      modalEditForm.editContact.value = '';
+      modalEditForm.editTime.value = '';
     }
-    const updated = await updateEvent(eventId, updateData, version);
-    if(updated){
-      currentEventSlide.querySelector('h4').textContent = updated.title;
-      currentEventSlide.querySelector('.date-time').textContent = updated.date;
-      currentEventSlide.querySelector('.venue').textContent = updated.venue;
-      currentEventSlide.querySelector('.description').textContent = updated.description;
-      currentEventSlide.setAttribute('data-version', updated.version || version);
-      currentEventSlide.setAttribute('data-category', updated.category);
-      document.getElementById('modalTitle').textContent = updated.title;
-      document.getElementById('modalDateTime').textContent = updated.date;
-      document.getElementById('modalVenue').textContent = updated.venue;
-      document.getElementById('modalDescription').textContent = updated.description;
-      document.getElementById('modalURLLink').href = updated.url;
+
+    modalEditBtn.onclick = () => {
+      fillEditForm();
+      modalView.classList.add('hidden');
+      modalEditForm.classList.remove('hidden');
+    };
+
+    editCancelBtn.onclick = () => {
       modalEditForm.classList.add('hidden');
       modalView.classList.remove('hidden');
-      alert('Event updated successfully.');
-    }
-  };
+    };
 
-  async function deleteEvent(eventId, version){
-    try {
-      const res = await fetch(`${backendUrl}/api/events/${eventId}`, {
-        method: 'DELETE',
-        headers: {'If-Match': version}
-      });
-      if(res.status === 409){
-        alert('Delete conflict detected, reload event.');
+    async function updateEvent(eventId, data, version){
+      try {
+        const res = await fetch(`${backendUrl}/api/events/${eventId}`, {
+          method: 'PUT',
+          headers: {'Content-Type':'application/json', 'If-Match': version},
+          body: JSON.stringify(data)
+        });
+        if(res.status === 409){
+          alert('Update conflict detected, please reload event.');
+          return null;
+        }
+        if(!res.ok) throw new Error('Update failed');
+        return await res.json();
+      } catch(e){
+        alert('Failed to update event: '+e.message);
+        return null;
+      }
+    }
+
+    modalEditForm.onsubmit = async e => {
+      e.preventDefault();
+      if(!currentEventSlide) return;
+      const eventId = currentEventSlide.getAttribute('data-event-id');
+      const version = currentEventSlide.getAttribute('data-version');
+      if(!eventId || !version) return alert('Event data missing.');
+
+      const updateData = {
+        title: modalEditForm.editTitle.value.trim(),
+        date: modalEditForm.editDate.value,
+        time: modalEditForm.editTime.value,
+        venue: modalEditForm.editVenue.value.trim(),
+        contactNumber: modalEditForm.editContact.value.trim(),
+        description: modalEditForm.editDescription.value.trim(),
+        url: modalEditForm.editURL.value.trim(),
+        category: modalEditForm.editCategory.value
+      };
+      if(!updateData.title || !updateData.date || !updateData.venue || !updateData.description || !updateData.category) {
+        return alert('All required fields must be filled.');
+      }
+      const updated = await updateEvent(eventId, updateData, version);
+      if(updated){
+        currentEventSlide.querySelector('h4').textContent = updated.title;
+        currentEventSlide.querySelector('.date-time').textContent = updated.date;
+        currentEventSlide.querySelector('.venue').textContent = updated.venue;
+        currentEventSlide.querySelector('.description').textContent = updated.description;
+        currentEventSlide.setAttribute('data-version', updated.version || version);
+        currentEventSlide.setAttribute('data-category', updated.category);
+        document.getElementById('modalTitle').textContent = updated.title;
+        document.getElementById('modalDateTime').textContent = updated.date;
+        document.getElementById('modalVenue').textContent = updated.venue;
+        document.getElementById('modalDescription').textContent = updated.description;
+        document.getElementById('modalURLLink').href = updated.url;
+        modalEditForm.classList.add('hidden');
+        modalView.classList.remove('hidden');
+        alert('Event updated successfully.');
+      }
+    };
+
+    async function deleteEvent(eventId, version){
+      try {
+        const res = await fetch(`${backendUrl}/api/events/${eventId}`, {
+          method: 'DELETE',
+          headers: {'If-Match': version}
+        });
+        if(res.status === 409){
+          alert('Delete conflict detected, reload event.');
+          return false;
+        }
+        if(!res.ok) throw new Error('Delete failed');
+        return true;
+      } catch(e){
+        alert('Failed to delete event: '+e.message);
         return false;
       }
-      if(!res.ok) throw new Error('Delete failed');
-      return true;
-    } catch(e){
-      alert('Failed to delete event: '+e.message);
-      return false;
     }
-  }
 
-  modalDeleteBtn.onclick = async () => {
-    if(!isAdminLoggedIn || !currentEventSlide) return;
-    const eventId = currentEventSlide.getAttribute('data-event-id');
-    const version = currentEventSlide.getAttribute('data-version');
-    if(!eventId || !version) return alert('Insufficient event metadata.');
-    if(!navigator.onLine){
-      alert('Offline: deletion will sync later.');
-      currentEventSlide.remove();
-      modalCloseBtn.click();
-      return;
-    }
-    if(await deleteEvent(eventId, version)){
-      currentEventSlide.remove();
-      trendingSwiper.update();
-      upcomingSwiper.update();
-      promoSwiper.update();
-      modalCloseBtn.click();
-    }
-  };
+    modalDeleteBtn.onclick = async () => {
+      if(!isAdminLoggedIn || !currentEventSlide) return;
+      const eventId = currentEventSlide.getAttribute('data-event-id');
+      const version = currentEventSlide.getAttribute('data-version');
+      if(!eventId || !version) return alert('Insufficient event metadata.');
+      if(!navigator.onLine){
+        alert('Offline: deletion will sync later.');
+        currentEventSlide.remove();
+        modalCloseBtn.click();
+        return;
+      }
+      if(await deleteEvent(eventId, version)){
+        currentEventSlide.remove();
+        trendingSwiper.update();
+        upcomingSwiper.update();
+        promoSwiper.update();
+        modalCloseBtn.click();
+      }
+    };
 
-  // Location detection and city name update
-  document.getElementById('getLocationBtn').onclick = () => {
-    if(navigator.geolocation){
-      navigator.geolocation.getCurrentPosition(pos=>{
-        const {latitude, longitude} = pos.coords;
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
-          .then(res => res.json())
-          .then(data => {
-            const city = data.address.city || data.address.town || data.address.village || 'your city';
-            document.getElementById('cityName').textContent = `Your city detected: ${city}`;
-          }).catch(()=> document.getElementById('cityName').textContent = 'City detection failed');
-      }, ()=> document.getElementById('cityName').textContent = 'City detection denied');
-    } else {
-      document.getElementById('cityName').textContent = 'Geolocation not supported';
-    }
-  };
+    document.getElementById('getLocationBtn').onclick = () => {
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(pos=>{
+          const {latitude, longitude} = pos.coords;
+          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+            .then(res => res.json())
+            .then(data => {
+              const city = data.address.city || data.address.town || data.address.village || 'your city';
+              document.getElementById('cityName').textContent = `Your city detected: ${city}`;
+            }).catch(()=> document.getElementById('cityName').textContent = 'City detection failed');
+        }, ()=> document.getElementById('cityName').textContent = 'City detection denied');
+      } else {
+        document.getElementById('cityName').textContent = 'Geolocation not supported';
+      }
+    };
 
-  // Filter form submission
-  document.getElementById('filterForm').onsubmit = e => {
-    e.preventDefault();
-    const cat = document.getElementById('category').value;
-    const date = document.getElementById('date').value;
-    const dist = document.getElementById('distance').value;
-    alert(`Filtering events by Category: ${cat || 'All'}, Date: ${date || 'Any'}, Distance: ${dist || 'Any'}`);
-    // Implement actual filtering logic here or via API
-  };
+    document.getElementById('filterForm').onsubmit = e => {
+      e.preventDefault();
+      const cat = document.getElementById('category').value;
+      const date = document.getElementById('date').value;
+      const dist = document.getElementById('distance').value;
+      alert(`Filtering events by Category: ${cat || 'All'}, Date: ${date || 'Any'}, Distance: ${dist || 'Any'}`);
+    };
 
-  // Image preview for post event form
-  const eventImagesInput = document.getElementById('eventImages');
-  const imagePreviewGroup = document.getElementById('imagePreviewGroup');
-  eventImagesInput.onchange = () => {
-    imagePreviewGroup.innerHTML = '';
-    Array.from(eventImagesInput.files).forEach(file => {
-      const img = document.createElement('img');
-      img.className = 'thumb';
-      img.alt = file.name;
-      img.src = URL.createObjectURL(file);
-      imagePreviewGroup.appendChild(img);
-    });
-  };
+    const eventImagesInput = document.getElementById('eventImages');
+    const imagePreviewGroup = document.getElementById('imagePreviewGroup');
+    eventImagesInput.onchange = () => {
+      imagePreviewGroup.innerHTML = '';
+      Array.from(eventImagesInput.files).forEach(file => {
+        const img = document.createElement('img');
+        img.className = 'thumb';
+        img.alt = file.name;
+        img.src = URL.createObjectURL(file);
+        imagePreviewGroup.appendChild(img);
+      });
+    };
 
-  // Post event form submit (mock)
-  document.getElementById('postEventForm').onsubmit = e => {
-    e.preventDefault();
-    alert('Event submitted! (This is a demo – implement backend to save)');
-    e.target.reset();
-    imagePreviewGroup.innerHTML = '';
-  };
+    document.getElementById('postEventForm').onsubmit = e => {
+      e.preventDefault();
+      alert('Event submitted! (This is a demo – implement backend to save)');
+      e.target.reset();
+      imagePreviewGroup.innerHTML = '';
+    };
 
-  // Contact form submit (mock)
-  document.getElementById('contactForm').onsubmit = e => {
-    e.preventDefault();
-    alert('Message sent! (This is a demo – implement backend to send)');
-    e.target.reset();
-  };
+    document.getElementById('contactForm').onsubmit = e => {
+      e.preventDefault();
+      alert('Message sent! (This is a demo – implement backend to send)');
+      e.target.reset();
+    };
 
-  // Notifications panel toggle
-  const notifBell = document.getElementById('notifBell');
-  const notifPanel = document.getElementById('notifPanel');
-  notifBell.onclick = () => notifPanel.classList.toggle('hidden');
+    const notifBell = document.getElementById('notifBell');
+    const notifPanel = document.getElementById('notifPanel');
+    notifBell.onclick = () => notifPanel.classList.toggle('hidden');
 
-  // Initial execution
-  document.getElementById('cityName').textContent = "Your city detected: Hyderabad";
-  loadEvents();
-
+    document.getElementById('cityName').textContent = "Your city detected: Hyderabad";
+    loadEvents();
+  });
 })();
 </script>
 
