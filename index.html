@@ -1,737 +1,161 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Chutki — Event Finder (Single-file)</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <!-- Tailwind CDN for quick styles -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chutki Live – Global Event Finder</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS v2 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.35.0/dist/supabase.min.js"></script>
-  <!-- Leaflet for maps -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+  <script src="https://unpkg.com/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
   <style>
-    body { background: linear-gradient(180deg,#071029 0%, #071528 100%); color: #e6eef6; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; }
-    .card { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.03); }
-    .section-row { display:flex; gap:12px; overflow-x:auto; padding-bottom:8px; scroll-behavior:smooth; }
-    .section-card { min-width:260px; flex:0 0 auto; background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01)); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.02); }
-    .event-image { width:100%; height:140px; object-fit:cover; border-radius:8px; margin-bottom:8px; }
-    .small { color:#9aa4b2; font-size:13px; }
-    #map { height: 320px; border-radius:10px; }
-    /* hide small scrollbars */
-    .section-row::-webkit-scrollbar { height: 8px; }
-    .muted { color:#9aa4b2; }
-    .tag { display:inline-block; padding:4px 8px; border-radius:999px; font-weight:600; font-size:12px; color:#071528; }
+    html { scroll-behavior: smooth; }
+    .scroll-x { display: flex; overflow-x: auto; gap: 1rem; scroll-snap-type: x mandatory; }
+    .scroll-x::-webkit-scrollbar { display: none; }
+    .event-card { flex: 0 0 auto; scroll-snap-align: start; min-width: 250px; }
+    .modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); }
+    @keyframes scrollX { 0% {transform: translateX(0);} 100% {transform: translateX(-50%);} }
   </style>
 </head>
-<body>
+<body class="bg-gradient-to-b from-purple-50 to-white text-gray-800">
 
-<div class="max-w-6xl mx-auto p-6">
-  <div class="flex justify-between items-center mb-6">
-    <div class="flex items-center gap-4">
-      <div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#14b8a6,#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:800;color:#022">EF</div>
-      <div>
-        <h1 style="font-weight:800;font-size:20px">Chutki — Event Finder</h1>
-        <div class="small">Discover events worldwide — trending, virtual & more</div>
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-white/70 backdrop-blur-md shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-3xl font-extrabold text-purple-600 tracking-tight">🎉 Chutki Live</h1>
+      <div class="space-x-3">
+        <button id="signinBtn" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-xl shadow-md">Sign In</button>
+        <button id="adminBtn" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-xl shadow-md">Admin</button>
       </div>
     </div>
+  </header>
 
-    <div id="authControls" class="flex items-center gap-3">
-      <!-- login/signup buttons will be injected -->
-    </div>
-  </div>
+  <!-- Hero -->
+  <section class="text-center py-12 bg-gradient-to-r from-purple-100 to-pink-100">
+    <h2 class="text-5xl font-bold mb-3">Discover & Share Events Worldwide 🌍</h2>
+    <p class="text-lg text-gray-700 mb-6">Trending, upcoming, and virtual events — all in one place.</p>
+    <button id="addEventBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl shadow-lg">Post Your Event</button>
+  </section>
 
-  <!-- Quick actions: search, category, date, GPS -->
-  <div class="card mb-6">
-    <div class="flex flex-col md:flex-row md:items-center gap-3">
-      <input id="searchInput" class="p-2 rounded-md bg-transparent border border-white/5 flex-1" placeholder="Search events, location or description..." />
-      <select id="categoryFilter" class="p-2 rounded-md bg-transparent border border-white/5">
-        <option value="">All categories</option>
-        <option>Trending</option>
-        <option>Upcoming</option>
-        <option>Promo</option>
-        <option>World</option>
-        <option>Virtual</option>
+  <!-- Search -->
+  <section class="max-w-5xl mx-auto px-4 py-8">
+    <div class="grid md:grid-cols-4 gap-3">
+      <input id="searchInput" type="text" placeholder="🔍 Search events..." class="p-3 border rounded-xl w-full">
+      <select id="categoryFilter" class="p-3 border rounded-xl">
+        <option value="">All Categories</option>
+        <option>Music</option><option>Sports</option><option>Tech</option><option>Business</option>
       </select>
-      <input id="dateFilter" type="date" class="p-2 rounded-md bg-transparent border border-white/5" />
-      <input id="distanceFilter" placeholder="Distance km (optional)" type="number" min="1" class="p-2 rounded-md bg-transparent border border-white/5 w-36" />
-      <button id="gpsBtn" class="px-3 py-2 rounded-md bg-gradient-to-r from-teal-400 to-indigo-600">Use GPS</button>
-      <button id="searchBtn" class="px-3 py-2 rounded-md bg-white/5">Search</button>
+      <input id="dateFilter" type="date" class="p-3 border rounded-xl">
+      <button id="gpsBtn" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-xl">📍 Near Me</button>
+    </div>
+  </section>
+
+  <!-- Event Sections -->
+  <main class="max-w-6xl mx-auto px-4 space-y-10">
+    <div><h3 class="text-2xl font-semibold mb-3">🔥 Trending Events</h3><div id="trending" class="scroll-x"></div></div>
+    <div><h3 class="text-2xl font-semibold mb-3">🗓️ Upcoming Events</h3><div id="upcoming" class="scroll-x"></div></div>
+    <div><h3 class="text-2xl font-semibold mb-3">🎬 Promo Events</h3><div id="promo" class="scroll-x"></div></div>
+    <div><h3 class="text-2xl font-semibold mb-3">💻 Virtual Events</h3><div id="virtual" class="scroll-x"></div></div>
+    <div><h3 class="text-2xl font-semibold mb-3">🌎 Events Around the World</h3><div id="global" class="scroll-x"></div></div>
+  </main>
+
+  <!-- Contact -->
+  <section class="max-w-4xl mx-auto px-4 py-12">
+    <h3 class="text-3xl font-bold mb-4 text-center">📬 Contact Us</h3>
+    <form id="contactForm" class="space-y-3 bg-white p-6 rounded-2xl shadow-lg">
+      <input name="name" placeholder="Your Name" class="w-full p-3 border rounded-xl" required>
+      <input name="email" type="email" placeholder="Your Email" class="w-full p-3 border rounded-xl" required>
+      <textarea name="message" rows="4" placeholder="Your Message" class="w-full p-3 border rounded-xl" required></textarea>
+      <button class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-xl w-full">Send</button>
+    </form>
+  </section>
+
+  <footer class="text-center py-6 bg-gray-100 text-gray-500">
+    © 2025 Chutki Live — All Rights Reserved.
+  </footer>
+
+  <!-- Modal -->
+  <div id="eventModal" class="modal hidden">
+    <div class="bg-white p-6 rounded-2xl shadow-xl w-11/12 md:w-1/2 relative">
+      <button id="closeModal" class="absolute top-2 right-3 text-gray-500 text-2xl">&times;</button>
+      <h3 class="text-2xl font-bold mb-4 text-purple-700">📝 Post a New Event</h3>
+      <form id="eventForm" class="space-y-3">
+        <input name="title" placeholder="Event Title" class="w-full p-3 border rounded-xl" required>
+        <input name="category" placeholder="Category (Music, Tech...)" class="w-full p-3 border rounded-xl" required>
+        <input name="location" placeholder="Location (or 'Virtual')" class="w-full p-3 border rounded-xl">
+        <input name="date" type="date" class="w-full p-3 border rounded-xl" required>
+        <textarea name="description" rows="3" placeholder="Event Description" class="w-full p-3 border rounded-xl"></textarea>
+        <button class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-xl w-full">Submit Event</button>
+      </form>
     </div>
   </div>
 
-  <!-- Sections -->
-  <div id="sections">
-    <!-- Trending -->
-    <div class="card mb-6">
-      <div class="flex justify-between items-center mb-3">
-        <h2 style="font-weight:700">Trending</h2>
-        <div class="small">Auto scroll</div>
-      </div>
-      <div id="trendingRow" class="section-row"></div>
-    </div>
+  <script>
+  const SUPABASE_URL = "https://rbnkhubtltjybaykdrgf.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJibmtodWJ0bHRqeWJheWtkcmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1Njg2MTAsImV4cCI6MjA3NjE0NDYxMH0.EqBPx2aShr5MTsLd7nDuvmsuFYAQhNAKIrtLrX_VYfQ";
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    <!-- Promo carousel -->
-    <div class="card mb-6">
-      <div class="flex justify-between items-center mb-3">
-        <h2 style="font-weight:700">Promotions</h2>
-        <div class="small">Carousel</div>
-      </div>
-      <div style="overflow:hidden">
-        <div id="promoTrack" style="display:flex; gap:12px; transition: transform 0.6s ease;"></div>
-      </div>
-    </div>
+  const trending = document.getElementById("trending");
+  const upcoming = document.getElementById("upcoming");
+  const virtual = document.getElementById("virtual");
+  const promo = document.getElementById("promo");
+  const global = document.getElementById("global");
 
-    <!-- Upcoming + Map -->
-    <div class="card mb-6">
-      <div class="flex justify-between items-center mb-3">
-        <h2 style="font-weight:700">Upcoming</h2>
-        <div class="small">Soon</div>
-      </div>
-      <div class="grid md:grid-cols-2 gap-4">
-        <div id="upcomingList"></div>
-        <div>
-          <div id="map" class="card"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- World (continuous) -->
-    <div class="card mb-6">
-      <div class="flex justify-between items-center mb-3">
-        <h2 style="font-weight:700">Events Around The World</h2>
-        <div class="small">Auto scroll</div>
-      </div>
-      <div id="worldRow" class="section-row"></div>
-    </div>
-
-    <!-- Virtual carousel -->
-    <div class="card mb-6">
-      <div class="flex justify-between items-center mb-3">
-        <h2 style="font-weight:700">Virtual Events</h2>
-        <div class="small">Carousel</div>
-      </div>
-      <div style="overflow:hidden">
-        <div id="virtualTrack" style="display:flex; gap:12px; transition: transform 0.6s ease;"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Post Event Card -->
-  <div class="card mb-6">
-    <h3 style="font-weight:700">Create Event</h3>
-    <div class="grid md:grid-cols-2 gap-3 mt-3">
-      <input id="evTitle" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Title" />
-      <input id="evCategory" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Category (Trending/Upcoming/Promo/World/Virtual)" />
-      <input id="evDate" type="datetime-local" class="p-2 rounded-md bg-transparent border border-white/5" />
-      <input id="evImage" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Image URL (optional)" />
-      <input id="evLocation" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Location (city / online)" />
-      <div class="flex gap-2">
-        <input id="evLat" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Latitude" />
-        <input id="evLng" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Longitude" />
-      </div>
-      <textarea id="evDesc" rows="3" class="p-2 rounded-md bg-transparent border border-white/5 md:col-span-2" placeholder="Description"></textarea>
-      <div class="md:col-span-2 flex gap-2">
-        <button id="postEventBtn" class="px-4 py-2 rounded-md bg-gradient-to-r from-indigo-500 to-teal-400">Post Event</button>
-        <button id="useGpsEvent" class="px-4 py-2 rounded-md border border-white/5">Use my GPS for Lat/Lng</button>
-      </div>
-    </div>
-    <div id="postMsg" class="mt-3 small muted"></div>
-  </div>
-
-  <!-- My Events & Admin Panels -->
-  <div class="grid md:grid-cols-2 gap-4">
-    <div class="card">
-      <h3 style="font-weight:700">My Events</h3>
-      <div id="myEventsList" class="mt-3"></div>
-    </div>
-
-    <div class="card" id="adminPanelCard" style="display:none;">
-      <h3 style="font-weight:700">Admin — Pending Events</h3>
-      <div id="pendingList" class="mt-3"></div>
-    </div>
-  </div>
-
-  <!-- Contact form -->
-  <div class="card mt-6">
-    <h3 style="font-weight:700">Contact Us</h3>
-    <div class="grid md:grid-cols-3 gap-3 mt-3">
-      <input id="contactName" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Your name" />
-      <input id="contactEmail" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Your email" />
-      <input id="contactSubject" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Subject (optional)" />
-      <textarea id="contactMessage" rows="4" class="p-2 rounded-md bg-transparent border border-white/5 md:col-span-3" placeholder="Message"></textarea>
-      <div class="md:col-span-3 flex gap-3">
-        <button id="contactSend" class="px-4 py-2 rounded-md bg-gradient-to-r from-indigo-500 to-teal-400">Send Message</button>
-        <div id="contactStatus" class="small muted"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="small muted mt-6">Note: email notifications require server-side integration (Edge Function / SMTP). See instructions below.</div>
-</div>
-
-<!-- ---------- Inline script: app logic ---------- -->
-<script>
-/*
-  Single-file SPA using Supabase client.
-  - Uses your Supabase project URL + anon key (provided by you).
-  - IMPORTANT: Do NOT place service_role keys here. This page uses the anon public key only.
-  - For email notifications or sending from server, create a Supabase Edge Function or a small server that uses your private keys.
-
-  Supabase setup notes (server-side you should set):
-  - Tables expected:
-    - users (id uuid primary key, full_name text, email text unique, is_admin boolean default false)
-    - events (id uuid primary key, title, description, category, image_url, location, latitude double, longitude double, date timestamptz, user_id uuid references users(id), is_approved boolean default false, created_at timestamptz default now())
-    - contact_messages (id uuid primary key, name text, email text, message text, created_at timestamptz default now())
-  - Row level security: for admin client operations, create RLS policies to allow users with is_admin = true to update/delete events.
-*/
-
-/* ---------- CONFIG: your Supabase project (already provided) ---------- */
-const SUPABASE_URL = 'https://rbnkhubtltjybaykdrgf.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJibmtodWJ0bHRqeWJheWtkcmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1Njg2MTAsImV4cCI6MjA3NjE0NDYxMH0.EqBPx2aShr5MTsLd7nDuvmsuFYAQhNAKIrtLrX_VYfQ';
-
-/* initialize supabase client */
-const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: true }
-});
-
-/* UI elements */
-const authControls = document.getElementById('authControls');
-const searchInput = document.getElementById('searchInput');
-const categoryFilter = document.getElementById('categoryFilter');
-const dateFilter = document.getElementById('dateFilter');
-const distanceFilter = document.getElementById('distanceFilter');
-const gpsBtn = document.getElementById('gpsBtn');
-const searchBtn = document.getElementById('searchBtn');
-
-const trendingRow = document.getElementById('trendingRow');
-const promoTrack = document.getElementById('promoTrack');
-const upcomingList = document.getElementById('upcomingList');
-const worldRow = document.getElementById('worldRow');
-const virtualTrack = document.getElementById('virtualTrack');
-const mapDiv = document.getElementById('map');
-
-const evTitle = document.getElementById('evTitle');
-const evCategory = document.getElementById('evCategory');
-const evDate = document.getElementById('evDate');
-const evImage = document.getElementById('evImage');
-const evLocation = document.getElementById('evLocation');
-const evLat = document.getElementById('evLat');
-const evLng = document.getElementById('evLng');
-const evDesc = document.getElementById('evDesc');
-const postEventBtn = document.getElementById('postEventBtn');
-const useGpsEvent = document.getElementById('useGpsEvent');
-const postMsg = document.getElementById('postMsg');
-
-const myEventsList = document.getElementById('myEventsList');
-const adminPanelCard = document.getElementById('adminPanelCard');
-const pendingList = document.getElementById('pendingList');
-
-const contactName = document.getElementById('contactName');
-const contactEmail = document.getElementById('contactEmail');
-const contactSubject = document.getElementById('contactSubject');
-const contactMessage = document.getElementById('contactMessage');
-const contactSend = document.getElementById('contactSend');
-const contactStatus = document.getElementById('contactStatus');
-
-/* state */
-let currentUser = null;
-let userProfile = null;
-let latLngSearch = null;
-let leafletMap = null;
-
-/* helper: format date */
-function fmt(d) {
-  try { return new Date(d).toLocaleString(); } catch { return d || ''; }
-}
-
-/* Haversine formula (km) */
-function haversine(lat1, lon1, lat2, lon2) {
-  const toRad = v => v * Math.PI / 180;
-  const R = 6371;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
-  return R * 2 * Math.asin(Math.sqrt(a));
-}
-
-/* ---------- AUTH UI & flows ---------- */
-
-async function renderAuthControls() {
-  const session = supabase.auth.getSession ? (await supabase.auth.getSession()).data.session : null;
-  currentUser = session ? session.user : null;
-  // if supabase.auth.getUser exists, use it. Else use onAuthStateChange listener.
-  authControls.innerHTML = '';
-  if (currentUser) {
-    // ensure profile exists in 'users' table
-    await upsertProfile(currentUser);
-    // fetch profile row
-    const { data } = await supabase.from('users').select('*').eq('id', currentUser.id).single().catch(()=>({data:null}));
-    userProfile = data || null;
-    // show user and actions
-    const name = userProfile?.full_name || currentUser.email || 'User';
-    const span = document.createElement('span'); span.className = 'small'; span.textContent = name;
-    const logoutBtn = document.createElement('button'); logoutBtn.textContent = 'Logout'; logoutBtn.className = 'px-3 py-1 rounded-md border'; logoutBtn.onclick = signOut;
-    const myEventsBtn = document.createElement('button'); myEventsBtn.textContent = 'My Events'; myEventsBtn.className = 'px-3 py-1 rounded-md border ml-2'; myEventsBtn.onclick = showMyEvents;
-    authControls.appendChild(span); authControls.appendChild(myEventsBtn); authControls.appendChild(logoutBtn);
-    // if admin show admin panel
-    if (userProfile?.is_admin) adminPanelCard.style.display = 'block';
-    else adminPanelCard.style.display = 'none';
-  } else {
-    // show login/signup/oauth
-    const loginBtn = document.createElement('button'); loginBtn.textContent = 'Login'; loginBtn.className = 'px-3 py-1 rounded-md border'; loginBtn.onclick = signInPrompt;
-    const signupBtn = document.createElement('button'); signupBtn.textContent = 'Signup'; signupBtn.className = 'px-3 py-1 rounded-md bg-white/5 ml-2'; signupBtn.onclick = signUpPrompt;
-    const gBtn = document.createElement('button'); gBtn.textContent = 'Google'; gBtn.className = 'px-3 py-1 rounded-md oauth ml-2'; gBtn.onclick = ()=> oauthLogin('google');
-    const fBtn = document.createElement('button'); fBtn.textContent = 'Facebook'; fBtn.className = 'px-3 py-1 rounded-md oauth ml-2'; fBtn.onclick = ()=> oauthLogin('facebook');
-    authControls.appendChild(loginBtn); authControls.appendChild(signupBtn); authControls.appendChild(gBtn); authControls.appendChild(fBtn);
-    adminPanelCard.style.display = 'none';
-  }
-}
-
-async function upsertProfile(user) {
-  if (!user) return;
-  const profile = {
-    id: user.id,
-    email: user.email,
-    full_name: user.user_metadata?.full_name || user.user_metadata?.name || null
-  };
-  await supabase.from('users').upsert(profile).catch(()=>null);
-}
-
-async function signUpPrompt() {
-  const name = prompt('Full name (optional)');
-  const email = prompt('Email');
-  const password = prompt('Password');
-  if (!email || !password) return alert('Email & password required');
-  const { data, error } = await supabase.auth.signUp({ email, password }, { data: { name } }).catch(e=>({error:e}));
-  if (error) return alert('Signup error: ' + error.message);
-  alert('Signup initiated. Check your email to confirm (if enabled).');
-  await renderAuthControls();
-}
-
-async function signInPrompt() {
-  const email = prompt('Email');
-  const password = prompt('Password');
-  if (!email || !password) return;
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password }).catch(e=>({error:e}));
-  if (error) return alert('Login error: ' + error.message);
-  await renderAuthControls();
-  await loadAllSections();
-}
-
-async function signOut() {
-  await supabase.auth.signOut();
-  currentUser = null;
-  userProfile = null;
-  await renderAuthControls();
-  await loadAllSections();
-}
-
-function oauthLogin(provider) {
-  // this will redirect to Supabase + provider
-  supabase.auth.signInWithOAuth({ provider, options: { redirectTo: location.origin } });
-}
-
-/* handle onAuthStateChange to pick up OAuth callback */
-if (supabase.auth.onAuthStateChange) {
-  supabase.auth.onAuthStateChange((event, session) => {
-    // update UI
-    renderAuthControls();
-    loadAllSections();
-  });
-}
-
-/* ---------- DATA FETCH & UI render ---------- */
-
-async function fetchEventsRaw(section='', filters = {}) {
-  // section: trending, upcoming, promo, world, virtual or empty
-  // filters: {q, category, date_from, date_to}
-  let q = supabase.from('events').select('*, users(full_name)').order('date', { ascending: true }).limit(200);
-  // default: only approved visible
-  q = q.eq('is_approved', true);
-
-  if (section === 'trending') q = q.order('created_at', { ascending: false }).limit(30);
-  else if (section === 'upcoming') q = q.gte('date', new Date().toISOString()).order('date', { ascending: true }).limit(40);
-  else if (section === 'promo') q = q.or('category.eq.Promo,title.ilike.%promo%').order('created_at', { ascending: false }).limit(20);
-  else if (section === 'world') q = q.not('latitude','is',null).not('longitude','is',null).order('created_at', { ascending: false }).limit(60);
-  else if (section === 'virtual') q = q.or('category.eq.Virtual,description.ilike.%virtual%,title.ilike.%virtual%').order('created_at', { ascending: false }).limit(30);
-  else {
-    if (filters.q) q = q.ilike('title', `%${filters.q}%`).or(`description.ilike.%${filters.q}%`);
-    if (filters.category) q = q.eq('category', filters.category);
-    if (filters.date_from) q = q.gte('date', filters.date_from);
-    if (filters.date_to) q = q.lte('date', filters.date_to);
-  }
-
-  const res = await q.catch(e=>({error:e}));
-  if (res.error) { console.error('fetchEvents error', res.error); return []; }
-  return res.data || [];
-}
-
-function createEventCard(item) {
-  const card = document.createElement('div');
-  card.className = 'section-card';
-  const img = document.createElement('img');
-  img.className = 'event-image';
-  img.src = item.image_url || `https://picsum.photos/seed/${item.id || Math.random()}/600/300`;
-  card.appendChild(img);
-  const title = document.createElement('div');
-  title.style.fontWeight = '700';
-  title.textContent = item.title;
-  card.appendChild(title);
-  const meta = document.createElement('div');
-  meta.className = 'small muted';
-  meta.textContent = `${item.category || '—'} • ${fmt(item.date)}`;
-  card.appendChild(meta);
-  const desc = document.createElement('div');
-  desc.style.marginTop = '8px';
-  desc.textContent = (item.description || '').slice(0,200);
-  card.appendChild(desc);
-  if (item.latitude && item.longitude) {
-    const loc = document.createElement('div'); loc.className='small'; loc.textContent = `📍 ${item.location || `${item.latitude}, ${item.longitude}`}`; card.appendChild(loc);
-  }
-  return card;
-}
-
-async function loadAllSections(filters = {}) {
-  // fetch each section and render
-  trendingRow.innerHTML = '';
-  promoTrack.innerHTML = '';
-  upcomingList.innerHTML = '';
-  worldRow.innerHTML = '';
-  virtualTrack.innerHTML = '';
-
-  const [trending, upcoming, promo, world, virtuals] = await Promise.all([
-    fetchEventsRaw('trending', filters),
-    fetchEventsRaw('upcoming', filters),
-    fetchEventsRaw('promo', filters),
-    fetchEventsRaw('world', filters),
-    fetchEventsRaw('virtual', filters)
-  ]);
-
-  // Trending continuous
-  trending.forEach(it => trendingRow.appendChild(createEventCard(it)));
-  // Duplicate children for smooth loop (client-side)
-  setTimeout(()=> {
-    if (!trendingRow.dataset.looped) {
-      trendingRow.dataset.looped = '1';
-      const children = Array.from(trendingRow.children);
-      children.forEach(ch => trendingRow.appendChild(ch.cloneNode(true)));
-    }
-  }, 300);
-
-  // Promo carousel (snap)
-  promo.forEach(it => {
-    const card = createEventCard(it);
-    card.style.minWidth = '300px';
-    promoTrack.appendChild(card);
-  });
-
-  // Upcoming list
-  upcoming.forEach(it => {
-    const wrap = document.createElement('div'); wrap.className = 'section-card mb-3';
-    wrap.innerHTML = `<div style="font-weight:700">${it.title}</div><div class="small muted">${fmt(it.date)} • ${it.location || 'Online'}</div><div style="margin-top:6px;color:#cfe7f0">${(it.description||'').slice(0,200)}</div>`;
-    upcomingList.appendChild(wrap);
-  });
-
-  // World continuous
-  world.forEach(it => worldRow.appendChild(createEventCard(it)));
-  setTimeout(()=> {
-    if (!worldRow.dataset.looped) {
-      worldRow.dataset.looped = '1';
-      const children = Array.from(worldRow.children);
-      children.forEach(ch => worldRow.appendChild(ch.cloneNode(true)));
-    }
-  }, 300);
-
-  // Virtual carousel
-  virtuals.forEach(it => {
-    const card = createEventCard(it);
-    card.style.minWidth = '300px';
-    virtualTrack.appendChild(card);
-  });
-
-  // Init / update map with world events
-  setTimeout(()=> {
-    initMap(world);
-  }, 300);
-
-  // update my events & admin if logged-in
-  if (currentUser) {
-    loadMyEvents();
-    if (userProfile?.is_admin) loadPendingEvents();
-  }
-}
-
-/* ---------- Map (Leaflet) ---------- */
-function initMap(items) {
-  try {
-    if (!mapDiv) return;
-    if (!leafletMap) {
-      leafletMap = L.map(mapDiv).setView([20, 0], 2);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(leafletMap);
-    }
-    // remove existing markers
-    if (leafletMap._layers) {
-      Object.keys(leafletMap._layers).forEach(k => {
-        const layer = leafletMap._layers[k];
-        if (layer instanceof L.Marker) leafletMap.removeLayer(layer);
-      });
-    }
-    const markers = [];
-    (items || []).forEach(it => {
-      if (it.latitude && it.longitude) {
-        const m = L.marker([it.latitude, it.longitude]).addTo(leafletMap).bindPopup(`<b>${it.title}</b><div class="small">${it.location || ''}</div>`);
-        markers.push(m);
-      }
+  async function loadEvents() {
+    const { data, error } = await client.from("events").select("*").eq("status","approved").order("date",{ascending:true});
+    if (error) return console.error(error);
+    [trending, upcoming, virtual, promo, global].forEach(s => s.innerHTML="");
+    data.forEach(ev=>{
+      const card = `<div class="event-card bg-white rounded-2xl p-4 shadow hover:shadow-lg transition">
+        <h4 class="font-bold text-lg mb-2">${ev.title}</h4>
+        <p class="text-sm text-gray-600">${ev.category} • ${new Date(ev.date).toLocaleDateString()}</p>
+        <p class="mt-2 text-gray-700">${ev.location||'Virtual'}</p>
+      </div>`;
+      if(ev.category.toLowerCase().includes("promo")) promo.innerHTML+=card;
+      else if(ev.category.toLowerCase().includes("virtual")) virtual.innerHTML+=card;
+      else if(new Date(ev.date)>new Date()) upcoming.innerHTML+=card;
+      else if(ev.category.toLowerCase().includes("world")) global.innerHTML+=card;
+      else trending.innerHTML+=card;
     });
-    if (markers.length) {
-      const group = L.featureGroup(markers);
-      leafletMap.fitBounds(group.getBounds().pad(0.2));
-    }
-  } catch (e) {
-    console.error('map error', e);
+    autoScroll([trending, upcoming, virtual, promo, global]);
   }
-}
 
-/* ---------- Search & filters ---------- */
-searchBtn.onclick = async () => {
-  const q = searchInput.value.trim();
-  const cat = categoryFilter.value;
-  const date = dateFilter.value;
-  const filters = { q, category: cat || null, date_from: date || null };
-  // if GPS set and distance filter set, we'll do client-side filtering after fetch
-  await loadAllSections(filters);
-  if (latLngSearch && distanceFilter.value) {
-    applyDistanceFilter(Number(distanceFilter.value));
-  }
-};
-
-gpsBtn.onclick = () => {
-  if (!navigator.geolocation) return alert('GPS not supported'); 
-  navigator.geolocation.getCurrentPosition(p => {
-    latLngSearch = { lat: p.coords.latitude, lng: p.coords.longitude };
-    alert(`Location set: ${latLngSearch.lat.toFixed(4)}, ${latLngSearch.lng.toFixed(4)} — now press Search`);
-  }, e => alert('GPS error: ' + e.message));
-};
-
-function applyDistanceFilter(maxKm) {
-  if (!latLngSearch) return alert('Set your GPS location first');
-  // filter displayed sections by distance: find elements with metadata? easier: re-fetch world/upcoming and filter.
-  // We'll fetch all visible events and filter client-side (for simplicity)
-  Promise.all([
-    fetchEventsRaw('trending'),
-    fetchEventsRaw('upcoming'),
-    fetchEventsRaw('promo'),
-    fetchEventsRaw('world'),
-    fetchEventsRaw('virtual')
-  ]).then(([tr, up, pr, wo, vi])=>{
-    const all = {tr, up, pr, wo, vi};
-    // helper filter
-    const filterByD = arr => arr.filter(it => it.latitude && it.longitude && haversine(latLngSearch.lat, latLngSearch.lng, Number(it.latitude), Number(it.longitude)) <= maxKm);
-    trendingRow.innerHTML = ''; filterByD(tr).forEach(it=>trendingRow.appendChild(createEventCard(it)));
-    upcomingList.innerHTML = ''; filterByD(up).forEach(it=>{
-      const wrap = document.createElement('div'); wrap.className = 'section-card mb-3';
-      wrap.innerHTML = `<div style="font-weight:700">${it.title}</div><div class="small muted">${fmt(it.date)} • ${it.location || 'Online'}</div><div style="margin-top:6px;color:#cfe7f0">${(it.description||'').slice(0,200)}</div>`;
-      upcomingList.appendChild(wrap);
+  function autoScroll(sections){
+    sections.forEach(sec=>{
+      let scrollAmount=0;
+      setInterval(()=>{sec.scrollLeft+=1;scrollAmount++;if(scrollAmount>=sec.scrollWidth/2){sec.scrollLeft=0;scrollAmount=0;}},30);
     });
-    promoTrack.innerHTML = ''; filterByD(pr).forEach(it => { const c = createEventCard(it); c.style.minWidth='300px'; promoTrack.appendChild(c) });
-    worldRow.innerHTML = ''; filterByD(wo).forEach(it=>worldRow.appendChild(createEventCard(it)));
-    virtualTrack.innerHTML = ''; filterByD(vi).forEach(it=>{ const c = createEventCard(it); c.style.minWidth='300px'; virtualTrack.appendChild(c); });
-    initMap(filterByD(wo));
-  });
-}
-
-/* ---------- Post Event ---------- */
-postEventBtn.onclick = async () => {
-  if (!currentUser) return alert('Please login to post events');
-  const title = evTitle.value.trim();
-  const category = evCategory.value.trim() || 'Upcoming';
-  const date = evDate.value;
-  if (!title || !date) return postMsg.textContent = 'Title & date required';
-  const payload = {
-    title, category, description: evDesc.value.trim() || null, image_url: evImage.value.trim() || null,
-    location: evLocation.value.trim() || null,
-    latitude: evLat.value ? Number(evLat.value) : null, longitude: evLng.value ? Number(evLng.value) : null,
-    date: new Date(date).toISOString()
-  };
-  postMsg.textContent = 'Posting...';
-  const { data, error } = await supabase.from('events').insert([{ ...payload, user_id: currentUser.id, is_approved: false }]).select().single().catch(e=>({error:e}));
-  if (error) { postMsg.textContent = 'Post failed: ' + (error.message || error); return; }
-  postMsg.textContent = 'Event posted and pending approval';
-  // clear form
-  evTitle.value=''; evCategory.value=''; evDate.value=''; evImage.value=''; evLocation.value=''; evLat.value=''; evLng.value=''; evDesc.value='';
-  // update UI
-  await loadAllSections();
-};
-
-useGpsEvent.onclick = () => {
-  if (!navigator.geolocation) return alert('GPS not supported');
-  navigator.geolocation.getCurrentPosition(p => {
-    evLat.value = p.coords.latitude.toFixed(6);
-    evLng.value = p.coords.longitude.toFixed(6);
-  }, e => alert('GPS error: ' + e.message));
-};
-
-/* ---------- My Events (user) ---------- */
-async function loadMyEvents() {
-  myEventsList.innerHTML = '';
-  if (!currentUser) { myEventsList.innerHTML = '<div class="small muted">Login to manage your events</div>'; return; }
-  // fetch events for current user
-  const { data, error } = await supabase.from('events').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).catch(e=>({error:e}));
-  if (error) { myEventsList.innerHTML = 'Error loading your events'; return; }
-  (data || []).forEach(ev => {
-    const wrapper = document.createElement('div'); wrapper.className = 'section-card mb-3';
-    wrapper.innerHTML = `<div style="font-weight:700">${ev.title}</div><div class="small muted">${fmt(ev.date)} • ${ev.category || ''}</div><div style="margin-top:6px;color:#cfe7f0">${(ev.description||'').slice(0,160)}</div>`;
-    const actions = document.createElement('div'); actions.style.marginTop='8px';
-    const editBtn = document.createElement('button'); editBtn.textContent = 'Edit'; editBtn.className = 'px-3 py-1 rounded-md border mr-2'; editBtn.onclick = ()=> editMyEvent(ev);
-    const delBtn = document.createElement('button'); delBtn.textContent = 'Delete'; delBtn.className = 'px-3 py-1 rounded-md border'; delBtn.onclick = ()=> deleteMyEvent(ev.id);
-    actions.appendChild(editBtn); actions.appendChild(delBtn);
-    wrapper.appendChild(actions);
-    myEventsList.appendChild(wrapper);
-  });
-}
-
-function editMyEvent(ev) {
-  const newTitle = prompt('Title', ev.title); if (newTitle === null) return;
-  const newDesc = prompt('Description', ev.description || '');
-  supabase.from('events').update({ title: newTitle, description: newDesc }).eq('id', ev.id).then(()=>loadMyEvents()).catch(e=>alert('Edit failed'));
-}
-
-async function deleteMyEvent(id) {
-  if (!confirm('Delete this event?')) return;
-  const { error } = await supabase.from('events').delete().eq('id', id).catch(e=>({error:e}));
-  if (error) return alert('Delete failed');
-  await loadMyEvents();
-  await loadAllSections();
-}
-
-/* ---------- Admin: pending events ---------- */
-async function loadPendingEvents() {
-  pendingList.innerHTML = '';
-  const { data, error } = await supabase.from('events').select('*, users(full_name)').eq('is_approved', false).order('created_at', { ascending: false }).catch(e=>({error:e}));
-  if (error) { pendingList.innerHTML = 'Error loading pending'; return; }
-  (data || []).forEach(ev => {
-    const w = document.createElement('div'); w.className = 'section-card mb-3';
-    w.innerHTML = `<div style="font-weight:700">${ev.title}</div><div class="small muted">${ev.category} • ${fmt(ev.created_at)}</div><div style="margin-top:6px">${(ev.description||'').slice(0,120)}</div>`;
-    const act = document.createElement('div'); act.style.marginTop='8px';
-    const approveBtn = document.createElement('button'); approveBtn.textContent='Approve'; approveBtn.className='px-3 py-1 rounded-md mr-2'; approveBtn.onclick = async ()=> {
-      const { error } = await supabase.from('events').update({ is_approved: true }).eq('id', ev.id).catch(e=>({error:e}));
-      if (error) return alert('Approve failed');
-      await loadPendingEvents(); await loadAllSections();
-    };
-    const delBtn = document.createElement('button'); delBtn.textContent='Delete'; delBtn.className='px-3 py-1 rounded-md'; delBtn.onclick = async ()=> {
-      if (!confirm('Delete?')) return;
-      const { error } = await supabase.from('events').delete().eq('id', ev.id).catch(e=>({error:e}));
-      if (error) return alert('Delete failed');
-      await loadPendingEvents(); await loadAllSections();
-    };
-    act.appendChild(approveBtn); act.appendChild(delBtn); w.appendChild(act); pendingList.appendChild(w);
-  });
-}
-
-/* ---------- Contact form ---------- */
-contactSend.onclick = async () => {
-  const name = contactName.value.trim(); const email = contactEmail.value.trim(); const message = contactMessage.value.trim();
-  if (!name || !email || !message) return contactStatus.textContent = 'All fields required';
-  contactStatus.textContent = 'Sending...';
-  const { data, error } = await supabase.from('contact_messages').insert([{ name, email, message }]).select().single().catch(e=>({error:e}));
-  if (error) { contactStatus.textContent = 'Send failed'; return; }
-  contactStatus.textContent = 'Thanks — we received your message.';
-  // clear
-  contactName.value=''; contactEmail.value=''; contactMessage.value='';
-  // NOTE: to send email alerts to admin, configure a Supabase Edge Function or Postgres trigger that sends email (secure).
-};
-
-/* ---------- Auto-scrollers & carousels ---------- */
-(function initAutoScrolls(){
-  // continuous scroll for trending
-  let tPos = 0;
-  const tEl = trendingRow;
-  function tStep(){ if (!tEl) return; tPos+=0.45; if (tPos >= (tEl.scrollWidth/2)) tPos = 0; tEl.scrollLeft = tPos; requestAnimationFrame(tStep); }
-  requestAnimationFrame(tStep);
-
-  // continuous for world
-  let wPos = 0; const wEl = worldRow;
-  function wStep(){ if (!wEl) return; wPos+=0.35; if (wPos >= (wEl.scrollWidth/2)) wPos = 0; wEl.scrollLeft = wPos; requestAnimationFrame(wStep); }
-  requestAnimationFrame(wStep);
-
-  // promo carousel snap every 3.5s
-  let promoIdx = 0;
-  setInterval(()=> {
-    const track = promoTrack;
-    if (!track || !track.children.length) return;
-    const w = track.children[0].offsetWidth + 12;
-    promoIdx = (promoIdx + 1) % track.children.length;
-    track.style.transform = `translateX(${-promoIdx * w}px)`;
-  }, 3500);
-
-  // virtual carousel
-  let virtIdx = 0;
-  setInterval(()=> {
-    const track = virtualTrack;
-    if (!track || !track.children.length) return;
-    const w = track.children[0].offsetWidth + 12;
-    virtIdx = (virtIdx + 1) % track.children.length;
-    track.style.transform = `translateX(${-virtIdx * w}px)`;
-  }, 3200);
-})();
-
-/* ---------- Initial load ---------- */
-async function init() {
-  // check session
-  const sessResp = await supabase.auth.getSession().catch(()=>null);
-  currentUser = sessResp?.data?.session?.user || null;
-  if (currentUser) await upsertProfile(currentUser);
-  // fetch profile row if logged in
-  if (currentUser) {
-    const { data } = await supabase.from('users').select('*').eq('id', currentUser.id).single().catch(()=>({data:null}));
-    userProfile = data || null;
   }
-  await renderAuthControls();
-  await loadAllSections();
-  if (currentUser) { await loadMyEvents(); if (userProfile?.is_admin) await loadPendingEvents(); }
-}
 
-/* listen to auth changes (works for OAuth redirect) */
-if (supabase.auth.onAuthStateChange) {
-  supabase.auth.onAuthStateChange(async (event, session) => {
-    currentUser = session?.user || null;
-    if (currentUser) { await upsertProfile(currentUser); const { data } = await supabase.from('users').select('*').eq('id', currentUser.id).single().catch(()=>({data:null})); userProfile = data || null; }
-    await renderAuthControls();
-    await loadAllSections();
-    if (currentUser) { await loadMyEvents(); if (userProfile?.is_admin) await loadPendingEvents(); }
+  loadEvents();
+
+  // Contact form
+  document.getElementById("contactForm").addEventListener("submit",async(e)=>{
+    e.preventDefault();
+    const f=e.target;
+    const {error}=await client.from("contact_messages").insert([{name:f.name.value,email:f.email.value,message:f.message.value}]);
+    alert(error?"Error sending message.":"Message sent successfully!");
+    if(!error)f.reset();
   });
-}
 
-/* kick off */
-init();
+  // Modal
+  const modal=document.getElementById("eventModal");
+  document.getElementById("addEventBtn").onclick=()=>modal.classList.remove("hidden");
+  document.getElementById("closeModal").onclick=()=>modal.classList.add("hidden");
 
-</script>
+  // Event submit
+  document.getElementById("eventForm").addEventListener("submit",async(e)=>{
+    e.preventDefault();
+    const f=e.target;
+    const {error}=await client.from("events").insert([{title:f.title.value,category:f.category.value,location:f.location.value,date:f.date.value,description:f.description.value,status:"pending"}]);
+    alert(error?"Failed to submit event.":"Event submitted successfully! Pending admin approval.");
+    if(!error){f.reset();modal.classList.add("hidden");}
+  });
 
-<!-- ---------- Server-side email note ---------- -->
-<!--
-  EMAIL NOTIFICATIONS (recommended server-side)
-  ---------------------------------------------
-  To send emails when contact form is submitted or when a new event is posted, do NOT put email API keys in client code.
-  Instead, create one of the following:
-
-  1) Supabase Edge Function (recommended)
-     - Create an Edge Function that receives a POST with new contact/event data and uses your Resend/Sendgrid API key (server-only)
-     - Call this Edge Function from client after successful insert into contact_messages or events
-     - Example pseudo:
-       await fetch('/.netlify/functions/emailNotify', { method: 'POST', body: JSON.stringify({ type:'contact', payload }) });
-
-  2) Postgres trigger + webhook:
-     - Create a Postgres trigger in Supabase that posts to a secure webhook (Edge Function)
-     - Edge Function sends email
-
-  3) Small server (Vercel Serverless Function)
-     - Same idea: store keys in Vercel env and call from a function
-
-  If you want, I can generate an Edge Function file for Resend (Node) and instructions to deploy it.
--->
-
+  // Auth + Admin
+  document.getElementById("signinBtn").onclick=async()=>{
+    const {error}=await client.auth.signInWithOAuth({provider:"google"});
+    if(error)alert(error.message);
+  };
+  document.getElementById("adminBtn").onclick=()=>window.open("https://chutki-live.vercel.app/admin","_blank");
+  </script>
 </body>
 </html>
