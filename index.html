@@ -2,641 +2,736 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <title>Chutki — Event Finder (Single-file)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Chutki — Event Finder (All-in-one)</title>
-
-  <!-- Tailwind CDN (for styling) -->
+  <!-- Tailwind CDN for quick styles -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Supabase JS client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
-
-  <!-- React / ReactDOM (UMD builds) -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-
-  <!-- Leaflet (maps) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Supabase JS v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.35.0/dist/supabase.min.js"></script>
+  <!-- Leaflet for maps -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    :root { --muted: #9aa4b2; --bg1: #071029; --bg2: #071528; }
-    html,body,#root { height:100%; margin:0; }
-    body { font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial; background:linear-gradient(180deg,var(--bg1),var(--bg2)); color:#e6eef6; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
-    .card { background: rgba(255,255,255,0.03); border-radius:12px; padding:14px; border:1px solid rgba(255,255,255,0.03); box-shadow: 0 8px 30px rgba(2,6,23,0.6); }
-    .section-row { display:flex; gap:12px; overflow-x:auto; padding-bottom:6px; scroll-behavior:smooth; }
+    body { background: linear-gradient(180deg,#071029 0%, #071528 100%); color: #e6eef6; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; }
+    .card { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 12px; border: 1px solid rgba(255,255,255,0.03); }
+    .section-row { display:flex; gap:12px; overflow-x:auto; padding-bottom:8px; scroll-behavior:smooth; }
     .section-card { min-width:260px; flex:0 0 auto; background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01)); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.02); }
     .event-image { width:100%; height:140px; object-fit:cover; border-radius:8px; margin-bottom:8px; }
-    .small { font-size:13px; color:var(--muted); }
-    .tag { display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700; color:#fff; }
-    #map { height:320px; border-radius:8px; margin-bottom:10px; }
+    .small { color:#9aa4b2; font-size:13px; }
+    #map { height: 320px; border-radius:10px; }
     /* hide small scrollbars */
-    .section-row::-webkit-scrollbar { height:8px; } .section-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius:8px; }
-    .fade-in { opacity:0; transform:translateY(6px); animation:fadeIn 0.6s forwards; }
-    @keyframes fadeIn { to { opacity:1; transform:none; } }
-    .carousel { display:flex; gap:12px; overflow:hidden; }
-    .carousel-track { display:flex; transition:transform 0.6s ease; }
+    .section-row::-webkit-scrollbar { height: 8px; }
+    .muted { color:#9aa4b2; }
+    .tag { display:inline-block; padding:4px 8px; border-radius:999px; font-weight:600; font-size:12px; color:#071528; }
   </style>
 </head>
 <body>
-  <div id="root"></div>
 
-  <script>
-  (function(){
-    const e = React.createElement;
-    const { useState, useEffect, useRef } = React;
+<div class="max-w-6xl mx-auto p-6">
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex items-center gap-4">
+      <div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#14b8a6,#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:800;color:#022">EF</div>
+      <div>
+        <h1 style="font-weight:800;font-size:20px">Chutki — Event Finder</h1>
+        <div class="small">Discover events worldwide — trending, virtual & more</div>
+      </div>
+    </div>
 
-    // ---------------------------
-    // CONFIG — replace if needed
-    // ---------------------------
-    const SUPABASE_URL = "https://rbnkhubtltjybaykdrgf.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJibmtodWJ0bHRqeWJheWtkcmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1Njg2MTAsImV4cCI6MjA3NjE0NDYxMH0.EqBPx2aShr5MTsLd7nDuvmsuFYAQhNAKIrtLrX_VYfQ";
+    <div id="authControls" class="flex items-center gap-3">
+      <!-- login/signup buttons will be injected -->
+    </div>
+  </div>
 
-    // Admin notification email (for reference)
-    const ADMIN_EMAIL = "chutkki.2025@gmail.com";
+  <!-- Quick actions: search, category, date, GPS -->
+  <div class="card mb-6">
+    <div class="flex flex-col md:flex-row md:items-center gap-3">
+      <input id="searchInput" class="p-2 rounded-md bg-transparent border border-white/5 flex-1" placeholder="Search events, location or description..." />
+      <select id="categoryFilter" class="p-2 rounded-md bg-transparent border border-white/5">
+        <option value="">All categories</option>
+        <option>Trending</option>
+        <option>Upcoming</option>
+        <option>Promo</option>
+        <option>World</option>
+        <option>Virtual</option>
+      </select>
+      <input id="dateFilter" type="date" class="p-2 rounded-md bg-transparent border border-white/5" />
+      <input id="distanceFilter" placeholder="Distance km (optional)" type="number" min="1" class="p-2 rounded-md bg-transparent border border-white/5 w-36" />
+      <button id="gpsBtn" class="px-3 py-2 rounded-md bg-gradient-to-r from-teal-400 to-indigo-600">Use GPS</button>
+      <button id="searchBtn" class="px-3 py-2 rounded-md bg-white/5">Search</button>
+    </div>
+  </div>
 
-    // Initialize Supabase client
-    const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: true } });
+  <!-- Sections -->
+  <div id="sections">
+    <!-- Trending -->
+    <div class="card mb-6">
+      <div class="flex justify-between items-center mb-3">
+        <h2 style="font-weight:700">Trending</h2>
+        <div class="small">Auto scroll</div>
+      </div>
+      <div id="trendingRow" class="section-row"></div>
+    </div>
 
-    // ---------------------------
-    // Utility helpers
-    // ---------------------------
-    const categoryColors = {
-      Trending: 'linear-gradient(90deg,#f97316,#fb7185)',
-      Upcoming: 'linear-gradient(90deg,#06b6d4,#7c3aed)',
-      Promo: 'linear-gradient(90deg,#f59e0b,#ef4444)',
-      World: 'linear-gradient(90deg,#34d399,#60a5fa)',
-      Virtual: 'linear-gradient(90deg,#8b5cf6,#06b6d4)'
+    <!-- Promo carousel -->
+    <div class="card mb-6">
+      <div class="flex justify-between items-center mb-3">
+        <h2 style="font-weight:700">Promotions</h2>
+        <div class="small">Carousel</div>
+      </div>
+      <div style="overflow:hidden">
+        <div id="promoTrack" style="display:flex; gap:12px; transition: transform 0.6s ease;"></div>
+      </div>
+    </div>
+
+    <!-- Upcoming + Map -->
+    <div class="card mb-6">
+      <div class="flex justify-between items-center mb-3">
+        <h2 style="font-weight:700">Upcoming</h2>
+        <div class="small">Soon</div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div id="upcomingList"></div>
+        <div>
+          <div id="map" class="card"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- World (continuous) -->
+    <div class="card mb-6">
+      <div class="flex justify-between items-center mb-3">
+        <h2 style="font-weight:700">Events Around The World</h2>
+        <div class="small">Auto scroll</div>
+      </div>
+      <div id="worldRow" class="section-row"></div>
+    </div>
+
+    <!-- Virtual carousel -->
+    <div class="card mb-6">
+      <div class="flex justify-between items-center mb-3">
+        <h2 style="font-weight:700">Virtual Events</h2>
+        <div class="small">Carousel</div>
+      </div>
+      <div style="overflow:hidden">
+        <div id="virtualTrack" style="display:flex; gap:12px; transition: transform 0.6s ease;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Event Card -->
+  <div class="card mb-6">
+    <h3 style="font-weight:700">Create Event</h3>
+    <div class="grid md:grid-cols-2 gap-3 mt-3">
+      <input id="evTitle" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Title" />
+      <input id="evCategory" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Category (Trending/Upcoming/Promo/World/Virtual)" />
+      <input id="evDate" type="datetime-local" class="p-2 rounded-md bg-transparent border border-white/5" />
+      <input id="evImage" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Image URL (optional)" />
+      <input id="evLocation" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Location (city / online)" />
+      <div class="flex gap-2">
+        <input id="evLat" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Latitude" />
+        <input id="evLng" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Longitude" />
+      </div>
+      <textarea id="evDesc" rows="3" class="p-2 rounded-md bg-transparent border border-white/5 md:col-span-2" placeholder="Description"></textarea>
+      <div class="md:col-span-2 flex gap-2">
+        <button id="postEventBtn" class="px-4 py-2 rounded-md bg-gradient-to-r from-indigo-500 to-teal-400">Post Event</button>
+        <button id="useGpsEvent" class="px-4 py-2 rounded-md border border-white/5">Use my GPS for Lat/Lng</button>
+      </div>
+    </div>
+    <div id="postMsg" class="mt-3 small muted"></div>
+  </div>
+
+  <!-- My Events & Admin Panels -->
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="card">
+      <h3 style="font-weight:700">My Events</h3>
+      <div id="myEventsList" class="mt-3"></div>
+    </div>
+
+    <div class="card" id="adminPanelCard" style="display:none;">
+      <h3 style="font-weight:700">Admin — Pending Events</h3>
+      <div id="pendingList" class="mt-3"></div>
+    </div>
+  </div>
+
+  <!-- Contact form -->
+  <div class="card mt-6">
+    <h3 style="font-weight:700">Contact Us</h3>
+    <div class="grid md:grid-cols-3 gap-3 mt-3">
+      <input id="contactName" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Your name" />
+      <input id="contactEmail" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Your email" />
+      <input id="contactSubject" class="p-2 rounded-md bg-transparent border border-white/5" placeholder="Subject (optional)" />
+      <textarea id="contactMessage" rows="4" class="p-2 rounded-md bg-transparent border border-white/5 md:col-span-3" placeholder="Message"></textarea>
+      <div class="md:col-span-3 flex gap-3">
+        <button id="contactSend" class="px-4 py-2 rounded-md bg-gradient-to-r from-indigo-500 to-teal-400">Send Message</button>
+        <div id="contactStatus" class="small muted"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="small muted mt-6">Note: email notifications require server-side integration (Edge Function / SMTP). See instructions below.</div>
+</div>
+
+<!-- ---------- Inline script: app logic ---------- -->
+<script>
+/*
+  Single-file SPA using Supabase client.
+  - Uses your Supabase project URL + anon key (provided by you).
+  - IMPORTANT: Do NOT place service_role keys here. This page uses the anon public key only.
+  - For email notifications or sending from server, create a Supabase Edge Function or a small server that uses your private keys.
+
+  Supabase setup notes (server-side you should set):
+  - Tables expected:
+    - users (id uuid primary key, full_name text, email text unique, is_admin boolean default false)
+    - events (id uuid primary key, title, description, category, image_url, location, latitude double, longitude double, date timestamptz, user_id uuid references users(id), is_approved boolean default false, created_at timestamptz default now())
+    - contact_messages (id uuid primary key, name text, email text, message text, created_at timestamptz default now())
+  - Row level security: for admin client operations, create RLS policies to allow users with is_admin = true to update/delete events.
+*/
+
+/* ---------- CONFIG: your Supabase project (already provided) ---------- */
+const SUPABASE_URL = 'https://rbnkhubtltjybaykdrgf.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJibmtodWJ0bHRqeWJheWtkcmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1Njg2MTAsImV4cCI6MjA3NjE0NDYxMH0.EqBPx2aShr5MTsLd7nDuvmsuFYAQhNAKIrtLrX_VYfQ';
+
+/* initialize supabase client */
+const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: true }
+});
+
+/* UI elements */
+const authControls = document.getElementById('authControls');
+const searchInput = document.getElementById('searchInput');
+const categoryFilter = document.getElementById('categoryFilter');
+const dateFilter = document.getElementById('dateFilter');
+const distanceFilter = document.getElementById('distanceFilter');
+const gpsBtn = document.getElementById('gpsBtn');
+const searchBtn = document.getElementById('searchBtn');
+
+const trendingRow = document.getElementById('trendingRow');
+const promoTrack = document.getElementById('promoTrack');
+const upcomingList = document.getElementById('upcomingList');
+const worldRow = document.getElementById('worldRow');
+const virtualTrack = document.getElementById('virtualTrack');
+const mapDiv = document.getElementById('map');
+
+const evTitle = document.getElementById('evTitle');
+const evCategory = document.getElementById('evCategory');
+const evDate = document.getElementById('evDate');
+const evImage = document.getElementById('evImage');
+const evLocation = document.getElementById('evLocation');
+const evLat = document.getElementById('evLat');
+const evLng = document.getElementById('evLng');
+const evDesc = document.getElementById('evDesc');
+const postEventBtn = document.getElementById('postEventBtn');
+const useGpsEvent = document.getElementById('useGpsEvent');
+const postMsg = document.getElementById('postMsg');
+
+const myEventsList = document.getElementById('myEventsList');
+const adminPanelCard = document.getElementById('adminPanelCard');
+const pendingList = document.getElementById('pendingList');
+
+const contactName = document.getElementById('contactName');
+const contactEmail = document.getElementById('contactEmail');
+const contactSubject = document.getElementById('contactSubject');
+const contactMessage = document.getElementById('contactMessage');
+const contactSend = document.getElementById('contactSend');
+const contactStatus = document.getElementById('contactStatus');
+
+/* state */
+let currentUser = null;
+let userProfile = null;
+let latLngSearch = null;
+let leafletMap = null;
+
+/* helper: format date */
+function fmt(d) {
+  try { return new Date(d).toLocaleString(); } catch { return d || ''; }
+}
+
+/* Haversine formula (km) */
+function haversine(lat1, lon1, lat2, lon2) {
+  const toRad = v => v * Math.PI / 180;
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
+  return R * 2 * Math.asin(Math.sqrt(a));
+}
+
+/* ---------- AUTH UI & flows ---------- */
+
+async function renderAuthControls() {
+  const session = supabase.auth.getSession ? (await supabase.auth.getSession()).data.session : null;
+  currentUser = session ? session.user : null;
+  // if supabase.auth.getUser exists, use it. Else use onAuthStateChange listener.
+  authControls.innerHTML = '';
+  if (currentUser) {
+    // ensure profile exists in 'users' table
+    await upsertProfile(currentUser);
+    // fetch profile row
+    const { data } = await supabase.from('users').select('*').eq('id', currentUser.id).single().catch(()=>({data:null}));
+    userProfile = data || null;
+    // show user and actions
+    const name = userProfile?.full_name || currentUser.email || 'User';
+    const span = document.createElement('span'); span.className = 'small'; span.textContent = name;
+    const logoutBtn = document.createElement('button'); logoutBtn.textContent = 'Logout'; logoutBtn.className = 'px-3 py-1 rounded-md border'; logoutBtn.onclick = signOut;
+    const myEventsBtn = document.createElement('button'); myEventsBtn.textContent = 'My Events'; myEventsBtn.className = 'px-3 py-1 rounded-md border ml-2'; myEventsBtn.onclick = showMyEvents;
+    authControls.appendChild(span); authControls.appendChild(myEventsBtn); authControls.appendChild(logoutBtn);
+    // if admin show admin panel
+    if (userProfile?.is_admin) adminPanelCard.style.display = 'block';
+    else adminPanelCard.style.display = 'none';
+  } else {
+    // show login/signup/oauth
+    const loginBtn = document.createElement('button'); loginBtn.textContent = 'Login'; loginBtn.className = 'px-3 py-1 rounded-md border'; loginBtn.onclick = signInPrompt;
+    const signupBtn = document.createElement('button'); signupBtn.textContent = 'Signup'; signupBtn.className = 'px-3 py-1 rounded-md bg-white/5 ml-2'; signupBtn.onclick = signUpPrompt;
+    const gBtn = document.createElement('button'); gBtn.textContent = 'Google'; gBtn.className = 'px-3 py-1 rounded-md oauth ml-2'; gBtn.onclick = ()=> oauthLogin('google');
+    const fBtn = document.createElement('button'); fBtn.textContent = 'Facebook'; fBtn.className = 'px-3 py-1 rounded-md oauth ml-2'; fBtn.onclick = ()=> oauthLogin('facebook');
+    authControls.appendChild(loginBtn); authControls.appendChild(signupBtn); authControls.appendChild(gBtn); authControls.appendChild(fBtn);
+    adminPanelCard.style.display = 'none';
+  }
+}
+
+async function upsertProfile(user) {
+  if (!user) return;
+  const profile = {
+    id: user.id,
+    email: user.email,
+    full_name: user.user_metadata?.full_name || user.user_metadata?.name || null
+  };
+  await supabase.from('users').upsert(profile).catch(()=>null);
+}
+
+async function signUpPrompt() {
+  const name = prompt('Full name (optional)');
+  const email = prompt('Email');
+  const password = prompt('Password');
+  if (!email || !password) return alert('Email & password required');
+  const { data, error } = await supabase.auth.signUp({ email, password }, { data: { name } }).catch(e=>({error:e}));
+  if (error) return alert('Signup error: ' + error.message);
+  alert('Signup initiated. Check your email to confirm (if enabled).');
+  await renderAuthControls();
+}
+
+async function signInPrompt() {
+  const email = prompt('Email');
+  const password = prompt('Password');
+  if (!email || !password) return;
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password }).catch(e=>({error:e}));
+  if (error) return alert('Login error: ' + error.message);
+  await renderAuthControls();
+  await loadAllSections();
+}
+
+async function signOut() {
+  await supabase.auth.signOut();
+  currentUser = null;
+  userProfile = null;
+  await renderAuthControls();
+  await loadAllSections();
+}
+
+function oauthLogin(provider) {
+  // this will redirect to Supabase + provider
+  supabase.auth.signInWithOAuth({ provider, options: { redirectTo: location.origin } });
+}
+
+/* handle onAuthStateChange to pick up OAuth callback */
+if (supabase.auth.onAuthStateChange) {
+  supabase.auth.onAuthStateChange((event, session) => {
+    // update UI
+    renderAuthControls();
+    loadAllSections();
+  });
+}
+
+/* ---------- DATA FETCH & UI render ---------- */
+
+async function fetchEventsRaw(section='', filters = {}) {
+  // section: trending, upcoming, promo, world, virtual or empty
+  // filters: {q, category, date_from, date_to}
+  let q = supabase.from('events').select('*, users(full_name)').order('date', { ascending: true }).limit(200);
+  // default: only approved visible
+  q = q.eq('is_approved', true);
+
+  if (section === 'trending') q = q.order('created_at', { ascending: false }).limit(30);
+  else if (section === 'upcoming') q = q.gte('date', new Date().toISOString()).order('date', { ascending: true }).limit(40);
+  else if (section === 'promo') q = q.or('category.eq.Promo,title.ilike.%promo%').order('created_at', { ascending: false }).limit(20);
+  else if (section === 'world') q = q.not('latitude','is',null).not('longitude','is',null).order('created_at', { ascending: false }).limit(60);
+  else if (section === 'virtual') q = q.or('category.eq.Virtual,description.ilike.%virtual%,title.ilike.%virtual%').order('created_at', { ascending: false }).limit(30);
+  else {
+    if (filters.q) q = q.ilike('title', `%${filters.q}%`).or(`description.ilike.%${filters.q}%`);
+    if (filters.category) q = q.eq('category', filters.category);
+    if (filters.date_from) q = q.gte('date', filters.date_from);
+    if (filters.date_to) q = q.lte('date', filters.date_to);
+  }
+
+  const res = await q.catch(e=>({error:e}));
+  if (res.error) { console.error('fetchEvents error', res.error); return []; }
+  return res.data || [];
+}
+
+function createEventCard(item) {
+  const card = document.createElement('div');
+  card.className = 'section-card';
+  const img = document.createElement('img');
+  img.className = 'event-image';
+  img.src = item.image_url || `https://picsum.photos/seed/${item.id || Math.random()}/600/300`;
+  card.appendChild(img);
+  const title = document.createElement('div');
+  title.style.fontWeight = '700';
+  title.textContent = item.title;
+  card.appendChild(title);
+  const meta = document.createElement('div');
+  meta.className = 'small muted';
+  meta.textContent = `${item.category || '—'} • ${fmt(item.date)}`;
+  card.appendChild(meta);
+  const desc = document.createElement('div');
+  desc.style.marginTop = '8px';
+  desc.textContent = (item.description || '').slice(0,200);
+  card.appendChild(desc);
+  if (item.latitude && item.longitude) {
+    const loc = document.createElement('div'); loc.className='small'; loc.textContent = `📍 ${item.location || `${item.latitude}, ${item.longitude}`}`; card.appendChild(loc);
+  }
+  return card;
+}
+
+async function loadAllSections(filters = {}) {
+  // fetch each section and render
+  trendingRow.innerHTML = '';
+  promoTrack.innerHTML = '';
+  upcomingList.innerHTML = '';
+  worldRow.innerHTML = '';
+  virtualTrack.innerHTML = '';
+
+  const [trending, upcoming, promo, world, virtuals] = await Promise.all([
+    fetchEventsRaw('trending', filters),
+    fetchEventsRaw('upcoming', filters),
+    fetchEventsRaw('promo', filters),
+    fetchEventsRaw('world', filters),
+    fetchEventsRaw('virtual', filters)
+  ]);
+
+  // Trending continuous
+  trending.forEach(it => trendingRow.appendChild(createEventCard(it)));
+  // Duplicate children for smooth loop (client-side)
+  setTimeout(()=> {
+    if (!trendingRow.dataset.looped) {
+      trendingRow.dataset.looped = '1';
+      const children = Array.from(trendingRow.children);
+      children.forEach(ch => trendingRow.appendChild(ch.cloneNode(true)));
+    }
+  }, 300);
+
+  // Promo carousel (snap)
+  promo.forEach(it => {
+    const card = createEventCard(it);
+    card.style.minWidth = '300px';
+    promoTrack.appendChild(card);
+  });
+
+  // Upcoming list
+  upcoming.forEach(it => {
+    const wrap = document.createElement('div'); wrap.className = 'section-card mb-3';
+    wrap.innerHTML = `<div style="font-weight:700">${it.title}</div><div class="small muted">${fmt(it.date)} • ${it.location || 'Online'}</div><div style="margin-top:6px;color:#cfe7f0">${(it.description||'').slice(0,200)}</div>`;
+    upcomingList.appendChild(wrap);
+  });
+
+  // World continuous
+  world.forEach(it => worldRow.appendChild(createEventCard(it)));
+  setTimeout(()=> {
+    if (!worldRow.dataset.looped) {
+      worldRow.dataset.looped = '1';
+      const children = Array.from(worldRow.children);
+      children.forEach(ch => worldRow.appendChild(ch.cloneNode(true)));
+    }
+  }, 300);
+
+  // Virtual carousel
+  virtuals.forEach(it => {
+    const card = createEventCard(it);
+    card.style.minWidth = '300px';
+    virtualTrack.appendChild(card);
+  });
+
+  // Init / update map with world events
+  setTimeout(()=> {
+    initMap(world);
+  }, 300);
+
+  // update my events & admin if logged-in
+  if (currentUser) {
+    loadMyEvents();
+    if (userProfile?.is_admin) loadPendingEvents();
+  }
+}
+
+/* ---------- Map (Leaflet) ---------- */
+function initMap(items) {
+  try {
+    if (!mapDiv) return;
+    if (!leafletMap) {
+      leafletMap = L.map(mapDiv).setView([20, 0], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(leafletMap);
+    }
+    // remove existing markers
+    if (leafletMap._layers) {
+      Object.keys(leafletMap._layers).forEach(k => {
+        const layer = leafletMap._layers[k];
+        if (layer instanceof L.Marker) leafletMap.removeLayer(layer);
+      });
+    }
+    const markers = [];
+    (items || []).forEach(it => {
+      if (it.latitude && it.longitude) {
+        const m = L.marker([it.latitude, it.longitude]).addTo(leafletMap).bindPopup(`<b>${it.title}</b><div class="small">${it.location || ''}</div>`);
+        markers.push(m);
+      }
+    });
+    if (markers.length) {
+      const group = L.featureGroup(markers);
+      leafletMap.fitBounds(group.getBounds().pad(0.2));
+    }
+  } catch (e) {
+    console.error('map error', e);
+  }
+}
+
+/* ---------- Search & filters ---------- */
+searchBtn.onclick = async () => {
+  const q = searchInput.value.trim();
+  const cat = categoryFilter.value;
+  const date = dateFilter.value;
+  const filters = { q, category: cat || null, date_from: date || null };
+  // if GPS set and distance filter set, we'll do client-side filtering after fetch
+  await loadAllSections(filters);
+  if (latLngSearch && distanceFilter.value) {
+    applyDistanceFilter(Number(distanceFilter.value));
+  }
+};
+
+gpsBtn.onclick = () => {
+  if (!navigator.geolocation) return alert('GPS not supported'); 
+  navigator.geolocation.getCurrentPosition(p => {
+    latLngSearch = { lat: p.coords.latitude, lng: p.coords.longitude };
+    alert(`Location set: ${latLngSearch.lat.toFixed(4)}, ${latLngSearch.lng.toFixed(4)} — now press Search`);
+  }, e => alert('GPS error: ' + e.message));
+};
+
+function applyDistanceFilter(maxKm) {
+  if (!latLngSearch) return alert('Set your GPS location first');
+  // filter displayed sections by distance: find elements with metadata? easier: re-fetch world/upcoming and filter.
+  // We'll fetch all visible events and filter client-side (for simplicity)
+  Promise.all([
+    fetchEventsRaw('trending'),
+    fetchEventsRaw('upcoming'),
+    fetchEventsRaw('promo'),
+    fetchEventsRaw('world'),
+    fetchEventsRaw('virtual')
+  ]).then(([tr, up, pr, wo, vi])=>{
+    const all = {tr, up, pr, wo, vi};
+    // helper filter
+    const filterByD = arr => arr.filter(it => it.latitude && it.longitude && haversine(latLngSearch.lat, latLngSearch.lng, Number(it.latitude), Number(it.longitude)) <= maxKm);
+    trendingRow.innerHTML = ''; filterByD(tr).forEach(it=>trendingRow.appendChild(createEventCard(it)));
+    upcomingList.innerHTML = ''; filterByD(up).forEach(it=>{
+      const wrap = document.createElement('div'); wrap.className = 'section-card mb-3';
+      wrap.innerHTML = `<div style="font-weight:700">${it.title}</div><div class="small muted">${fmt(it.date)} • ${it.location || 'Online'}</div><div style="margin-top:6px;color:#cfe7f0">${(it.description||'').slice(0,200)}</div>`;
+      upcomingList.appendChild(wrap);
+    });
+    promoTrack.innerHTML = ''; filterByD(pr).forEach(it => { const c = createEventCard(it); c.style.minWidth='300px'; promoTrack.appendChild(c) });
+    worldRow.innerHTML = ''; filterByD(wo).forEach(it=>worldRow.appendChild(createEventCard(it)));
+    virtualTrack.innerHTML = ''; filterByD(vi).forEach(it=>{ const c = createEventCard(it); c.style.minWidth='300px'; virtualTrack.appendChild(c); });
+    initMap(filterByD(wo));
+  });
+}
+
+/* ---------- Post Event ---------- */
+postEventBtn.onclick = async () => {
+  if (!currentUser) return alert('Please login to post events');
+  const title = evTitle.value.trim();
+  const category = evCategory.value.trim() || 'Upcoming';
+  const date = evDate.value;
+  if (!title || !date) return postMsg.textContent = 'Title & date required';
+  const payload = {
+    title, category, description: evDesc.value.trim() || null, image_url: evImage.value.trim() || null,
+    location: evLocation.value.trim() || null,
+    latitude: evLat.value ? Number(evLat.value) : null, longitude: evLng.value ? Number(evLng.value) : null,
+    date: new Date(date).toISOString()
+  };
+  postMsg.textContent = 'Posting...';
+  const { data, error } = await supabase.from('events').insert([{ ...payload, user_id: currentUser.id, is_approved: false }]).select().single().catch(e=>({error:e}));
+  if (error) { postMsg.textContent = 'Post failed: ' + (error.message || error); return; }
+  postMsg.textContent = 'Event posted and pending approval';
+  // clear form
+  evTitle.value=''; evCategory.value=''; evDate.value=''; evImage.value=''; evLocation.value=''; evLat.value=''; evLng.value=''; evDesc.value='';
+  // update UI
+  await loadAllSections();
+};
+
+useGpsEvent.onclick = () => {
+  if (!navigator.geolocation) return alert('GPS not supported');
+  navigator.geolocation.getCurrentPosition(p => {
+    evLat.value = p.coords.latitude.toFixed(6);
+    evLng.value = p.coords.longitude.toFixed(6);
+  }, e => alert('GPS error: ' + e.message));
+};
+
+/* ---------- My Events (user) ---------- */
+async function loadMyEvents() {
+  myEventsList.innerHTML = '';
+  if (!currentUser) { myEventsList.innerHTML = '<div class="small muted">Login to manage your events</div>'; return; }
+  // fetch events for current user
+  const { data, error } = await supabase.from('events').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).catch(e=>({error:e}));
+  if (error) { myEventsList.innerHTML = 'Error loading your events'; return; }
+  (data || []).forEach(ev => {
+    const wrapper = document.createElement('div'); wrapper.className = 'section-card mb-3';
+    wrapper.innerHTML = `<div style="font-weight:700">${ev.title}</div><div class="small muted">${fmt(ev.date)} • ${ev.category || ''}</div><div style="margin-top:6px;color:#cfe7f0">${(ev.description||'').slice(0,160)}</div>`;
+    const actions = document.createElement('div'); actions.style.marginTop='8px';
+    const editBtn = document.createElement('button'); editBtn.textContent = 'Edit'; editBtn.className = 'px-3 py-1 rounded-md border mr-2'; editBtn.onclick = ()=> editMyEvent(ev);
+    const delBtn = document.createElement('button'); delBtn.textContent = 'Delete'; delBtn.className = 'px-3 py-1 rounded-md border'; delBtn.onclick = ()=> deleteMyEvent(ev.id);
+    actions.appendChild(editBtn); actions.appendChild(delBtn);
+    wrapper.appendChild(actions);
+    myEventsList.appendChild(wrapper);
+  });
+}
+
+function editMyEvent(ev) {
+  const newTitle = prompt('Title', ev.title); if (newTitle === null) return;
+  const newDesc = prompt('Description', ev.description || '');
+  supabase.from('events').update({ title: newTitle, description: newDesc }).eq('id', ev.id).then(()=>loadMyEvents()).catch(e=>alert('Edit failed'));
+}
+
+async function deleteMyEvent(id) {
+  if (!confirm('Delete this event?')) return;
+  const { error } = await supabase.from('events').delete().eq('id', id).catch(e=>({error:e}));
+  if (error) return alert('Delete failed');
+  await loadMyEvents();
+  await loadAllSections();
+}
+
+/* ---------- Admin: pending events ---------- */
+async function loadPendingEvents() {
+  pendingList.innerHTML = '';
+  const { data, error } = await supabase.from('events').select('*, users(full_name)').eq('is_approved', false).order('created_at', { ascending: false }).catch(e=>({error:e}));
+  if (error) { pendingList.innerHTML = 'Error loading pending'; return; }
+  (data || []).forEach(ev => {
+    const w = document.createElement('div'); w.className = 'section-card mb-3';
+    w.innerHTML = `<div style="font-weight:700">${ev.title}</div><div class="small muted">${ev.category} • ${fmt(ev.created_at)}</div><div style="margin-top:6px">${(ev.description||'').slice(0,120)}</div>`;
+    const act = document.createElement('div'); act.style.marginTop='8px';
+    const approveBtn = document.createElement('button'); approveBtn.textContent='Approve'; approveBtn.className='px-3 py-1 rounded-md mr-2'; approveBtn.onclick = async ()=> {
+      const { error } = await supabase.from('events').update({ is_approved: true }).eq('id', ev.id).catch(e=>({error:e}));
+      if (error) return alert('Approve failed');
+      await loadPendingEvents(); await loadAllSections();
     };
+    const delBtn = document.createElement('button'); delBtn.textContent='Delete'; delBtn.className='px-3 py-1 rounded-md'; delBtn.onclick = async ()=> {
+      if (!confirm('Delete?')) return;
+      const { error } = await supabase.from('events').delete().eq('id', ev.id).catch(e=>({error:e}));
+      if (error) return alert('Delete failed');
+      await loadPendingEvents(); await loadAllSections();
+    };
+    act.appendChild(approveBtn); act.appendChild(delBtn); w.appendChild(act); pendingList.appendChild(w);
+  });
+}
 
-    function Tag({ category }) {
-      const style = { background: categoryColors[category] || 'rgba(255,255,255,0.06)', padding:'4px 8px', borderRadius:999, color:'#fff', fontWeight:700, fontSize:12, display:'inline-block' };
-      return e('span', { style }, category || 'Event');
-    }
+/* ---------- Contact form ---------- */
+contactSend.onclick = async () => {
+  const name = contactName.value.trim(); const email = contactEmail.value.trim(); const message = contactMessage.value.trim();
+  if (!name || !email || !message) return contactStatus.textContent = 'All fields required';
+  contactStatus.textContent = 'Sending...';
+  const { data, error } = await supabase.from('contact_messages').insert([{ name, email, message }]).select().single().catch(e=>({error:e}));
+  if (error) { contactStatus.textContent = 'Send failed'; return; }
+  contactStatus.textContent = 'Thanks — we received your message.';
+  // clear
+  contactName.value=''; contactEmail.value=''; contactMessage.value='';
+  // NOTE: to send email alerts to admin, configure a Supabase Edge Function or Postgres trigger that sends email (secure).
+};
 
-    function formatDate(d) {
-      try { return new Date(d).toLocaleString(); } catch { return d || ''; }
-    }
+/* ---------- Auto-scrollers & carousels ---------- */
+(function initAutoScrolls(){
+  // continuous scroll for trending
+  let tPos = 0;
+  const tEl = trendingRow;
+  function tStep(){ if (!tEl) return; tPos+=0.45; if (tPos >= (tEl.scrollWidth/2)) tPos = 0; tEl.scrollLeft = tPos; requestAnimationFrame(tStep); }
+  requestAnimationFrame(tStep);
 
-    // Haversine distance (km)
-    function haversine(lat1, lon1, lat2, lon2) {
-      const toRad = v => v * Math.PI / 180;
-      const R = 6371;
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
-      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2)**2;
-      return R * 2 * Math.asin(Math.sqrt(a));
-    }
+  // continuous for world
+  let wPos = 0; const wEl = worldRow;
+  function wStep(){ if (!wEl) return; wPos+=0.35; if (wPos >= (wEl.scrollWidth/2)) wPos = 0; wEl.scrollLeft = wPos; requestAnimationFrame(wStep); }
+  requestAnimationFrame(wStep);
 
-    // ---------------------------
-    // Custom hooks for autoscroll
-    // ---------------------------
-    function useContinuousScroll(ref, speed = 0.4) {
-      useEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-        if (!el.dataset.looped) {
-          el.dataset.looped = "1";
-          const kids = Array.from(el.children);
-          kids.forEach(k => el.appendChild(k.cloneNode(true)));
-        }
-        let pos = 0;
-        let raf = null;
-        const step = () => {
-          pos += speed;
-          if (pos >= el.scrollWidth / 2) pos = 0;
-          el.scrollLeft = pos;
-          raf = requestAnimationFrame(step);
-        };
-        raf = requestAnimationFrame(step);
-        return () => cancelAnimationFrame(raf);
-      }, [ref, speed]);
-    }
+  // promo carousel snap every 3.5s
+  let promoIdx = 0;
+  setInterval(()=> {
+    const track = promoTrack;
+    if (!track || !track.children.length) return;
+    const w = track.children[0].offsetWidth + 12;
+    promoIdx = (promoIdx + 1) % track.children.length;
+    track.style.transform = `translateX(${-promoIdx * w}px)`;
+  }, 3500);
 
-    function useCarouselAuto(trackRef, itemCount, delay = 3000) {
-      useEffect(() => {
-        const track = trackRef.current;
-        if (!track || itemCount <= 1) return;
-        let idx = 0;
-        const tick = () => {
-          idx = (idx + 1) % itemCount;
-          const w = track.children[0]?.offsetWidth || 300;
-          track.style.transform = 'translateX(' + (-idx * w) + 'px)';
-        };
-        const t = setInterval(tick, delay);
-        return () => clearInterval(t);
-      }, [trackRef, itemCount, delay]);
-    }
+  // virtual carousel
+  let virtIdx = 0;
+  setInterval(()=> {
+    const track = virtualTrack;
+    if (!track || !track.children.length) return;
+    const w = track.children[0].offsetWidth + 12;
+    virtIdx = (virtIdx + 1) % track.children.length;
+    track.style.transform = `translateX(${-virtIdx * w}px)`;
+  }, 3200);
+})();
 
-    // ---------------------------
-    // UI components
-    // ---------------------------
-    function EventCard({ it, compact=false }) {
-      const image = it.image_url || ('https://picsum.photos/seed/' + (it.id || Math.random()) + '/600/300');
-      return e('div', { className: 'section-card fade-in' },
-        e('img', { src: image, className: 'event-image', alt: it.title }),
-        e('div', { style: { display:'flex', justifyContent:'space-between', alignItems:'center' } },
-          e('div', { style: { fontWeight:700 } }, it.title),
-          e('div', null, e(Tag, { category: it.category }))
-        ),
-        e('div', { className: 'small', style: { marginTop:6 } }, (it.location || 'Online') + ' • ' + formatDate(it.date || it.date_iso || it.created_at)),
-        compact ? null : e('div', { style: { marginTop:8, color:'#cfe7f0' } }, (it.description || '').slice(0,200))
-      );
-    }
+/* ---------- Initial load ---------- */
+async function init() {
+  // check session
+  const sessResp = await supabase.auth.getSession().catch(()=>null);
+  currentUser = sessResp?.data?.session?.user || null;
+  if (currentUser) await upsertProfile(currentUser);
+  // fetch profile row if logged in
+  if (currentUser) {
+    const { data } = await supabase.from('users').select('*').eq('id', currentUser.id).single().catch(()=>({data:null}));
+    userProfile = data || null;
+  }
+  await renderAuthControls();
+  await loadAllSections();
+  if (currentUser) { await loadMyEvents(); if (userProfile?.is_admin) await loadPendingEvents(); }
+}
 
-    // ---------------------------
-    // Main App
-    // ---------------------------
-    function App() {
-      // auth
-      const [user, setUser] = useState(null);
+/* listen to auth changes (works for OAuth redirect) */
+if (supabase.auth.onAuthStateChange) {
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    currentUser = session?.user || null;
+    if (currentUser) { await upsertProfile(currentUser); const { data } = await supabase.from('users').select('*').eq('id', currentUser.id).single().catch(()=>({data:null})); userProfile = data || null; }
+    await renderAuthControls();
+    await loadAllSections();
+    if (currentUser) { await loadMyEvents(); if (userProfile?.is_admin) await loadPendingEvents(); }
+  });
+}
 
-      // data
-      const [trending, setTrending] = useState([]);
-      const [upcoming, setUpcoming] = useState([]);
-      const [promo, setPromo] = useState([]);
-      const [worldEvents, setWorldEvents] = useState([]);
-      const [virtuals, setVirtuals] = useState([]);
-      const [pending, setPending] = useState([]);
-      const [audit, setAudit] = useState([]);
+/* kick off */
+init();
 
-      // UI / filters
-      const [filters, setFilters] = useState({ q:'', category:'', date_from:'', date_to:'', lat:'', lng:'', dist:'' });
-      const [page, setPage] = useState(1);
-      const [limit, setLimit] = useState(12);
-      const [theme, setTheme] = useState(localStorage.getItem('chutki_theme') || 'dark');
+</script>
 
-      // refs for auto-scroll
-      const trendingRef = useRef(null);
-      const worldRef = useRef(null);
-      const promoTrack = useRef(null);
-      const virtualTrack = useRef(null);
+<!-- ---------- Server-side email note ---------- -->
+<!--
+  EMAIL NOTIFICATIONS (recommended server-side)
+  ---------------------------------------------
+  To send emails when contact form is submitted or when a new event is posted, do NOT put email API keys in client code.
+  Instead, create one of the following:
 
-      // map ref
-      const mapRef = useRef(null);
+  1) Supabase Edge Function (recommended)
+     - Create an Edge Function that receives a POST with new contact/event data and uses your Resend/Sendgrid API key (server-only)
+     - Call this Edge Function from client after successful insert into contact_messages or events
+     - Example pseudo:
+       await fetch('/.netlify/functions/emailNotify', { method: 'POST', body: JSON.stringify({ type:'contact', payload }) });
 
-      useContinuousScroll(trendingRef, 0.45);
-      useContinuousScroll(worldRef, 0.35);
-      useCarouselAuto(promoTrack, Math.max(1, promo.length), 3500);
-      useCarouselAuto(virtualTrack, Math.max(1, virtuals.length), 3500);
+  2) Postgres trigger + webhook:
+     - Create a Postgres trigger in Supabase that posts to a secure webhook (Edge Function)
+     - Edge Function sends email
 
-      useEffect(() => { document.body.classList.toggle('light', theme === 'light'); localStorage.setItem('chutki_theme', theme); }, [theme]);
+  3) Small server (Vercel Serverless Function)
+     - Same idea: store keys in Vercel env and call from a function
 
-      useEffect(() => {
-        // restore session & subscribe auth changes
-        const session = supabase.auth.getSession().then(r => {
-          const s = r.data?.session || null;
-          if (s && s.user) {
-            setUser({ id: s.user.id, email: s.user.email, name: s.user.user_metadata?.full_name || s.user.user_metadata?.name || null });
-            ensureUserProfile(s.user);
-          } else {
-            // try local auth state
-            const local = null;
-          }
-        });
+  If you want, I can generate an Edge Function file for Resend (Node) and instructions to deploy it.
+-->
 
-        supabase.auth.onAuthStateChange((event, session) => {
-          if (session && session.user) {
-            setUser({ id: session.user.id, email: session.user.email, name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || null });
-            ensureUserProfile(session.user);
-          } else {
-            setUser(null);
-          }
-        });
-
-        loadAll();
-      }, []);
-
-      // ensure user profile row
-      async function ensureUserProfile(supUser) {
-        try {
-          const { data } = await supabase.from('users').select('id,full_name,email,is_admin').eq('id', supUser.id).single().catch(()=>({ data:null }));
-          if (!data) {
-            await supabase.from('users').insert([{ id: supUser.id, email: supUser.email, full_name: supUser.user_metadata?.name || supUser.user_metadata?.full_name || null }]);
-          }
-        } catch (e){ console.error(e); }
-      }
-
-      async function loadAll() {
-        // fetch sections (small limits)
-        const [t, u, p, w, v] = await Promise.all([
-          fetchSection('trending', 12),
-          fetchSection('upcoming', 12),
-          fetchSection('promo', 8),
-          fetchSection('world', 20),
-          fetchSection('virtual', 8)
-        ]);
-        setTrending(t || []);
-        setUpcoming(u || []);
-        setPromo(p || []);
-        setWorldEvents(w || []);
-        setVirtuals(v || []);
-        setTimeout(()=> initMap((w || []).filter(it=>it.latitude && it.longitude)), 250);
-        if (user) loadPending();
-        loadAudit();
-      }
-
-      async function loadPending() {
-        const { data } = await supabase.from('events').select('*, users(full_name)').eq('is_approved', false).order('created_at', { ascending:false });
-        setPending(data || []);
-      }
-
-      async function loadAudit() {
-        const { data } = await supabase.from('event_audit').select('*, events(title) ').order('created_at', { ascending:false }).limit(200);
-        setAudit(data || []);
-      }
-
-      async function fetchSection(section, lim=12) {
-        // calls /events with section param (client-side SQL via supabase)
-        try {
-          if (section === 'trending') {
-            const { data } = await supabase.from('events').select('*, users(full_name)').eq('is_approved', true).order('created_at', { ascending: false }).limit(lim);
-            return data || [];
-          } else if (section === 'upcoming') {
-            const { data } = await supabase.from('events').select('*, users(full_name)').gte('date', new Date().toISOString()).eq('is_approved', true).order('date', { ascending: true }).limit(lim);
-            return data || [];
-          } else if (section === 'promo') {
-            const { data } = await supabase.from('events').select('*, users(full_name)').or('category.eq.Promo,title.ilike.%promo%').eq('is_approved', true).order('created_at', { ascending: false }).limit(lim);
-            return data || [];
-          } else if (section === 'world') {
-            const { data } = await supabase.from('events').select('*, users(full_name)').not('latitude','is',null).not('longitude','is',null).eq('is_approved', true).order('created_at', { ascending: false }).limit(lim);
-            return data || [];
-          } else if (section === 'virtual') {
-            const { data } = await supabase.from('events').select('*, users(full_name)').or('category.eq.Virtual,description.ilike.%virtual%,title.ilike.%virtual%').eq('is_approved', true).order('created_at', { ascending: false }).limit(lim);
-            return data || [];
-          } else {
-            const { data } = await supabase.from('events').select('*, users(full_name)').eq('is_approved', true).order('date', { ascending: true }).limit(lim);
-            return data || [];
-          }
-        } catch (err) {
-          console.error('fetchSection', err);
-          return [];
-        }
-      }
-
-      // init leaflet map
-      function initMap(items) {
-        try {
-          if (!document.getElementById('map')) return;
-          if (!window._chutki_map) {
-            window._chutki_map = L.map('map').setView([20,0], 2);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap' }).addTo(window._chutki_map);
-          }
-          const map = window._chutki_map;
-          // remove existing markers
-          if (map._layers) {
-            Object.keys(map._layers).forEach(k => {
-              const layer = map._layers[k];
-              if (layer instanceof L.Marker) map.removeLayer(layer);
-            });
-          }
-          const markers = [];
-          items.forEach(it => {
-            const m = L.marker([it.latitude, it.longitude]).addTo(map).bindPopup('<b>' + (it.title||'') + '</b><br/>' + (it.location || ''));
-            markers.push(m);
-          });
-          if (markers.length) {
-            const group = L.featureGroup(markers);
-            map.fitBounds(group.getBounds().pad(0.2));
-          }
-        } catch(e) { console.error('map init', e); }
-      }
-
-      // ---------------------------
-      // Auth handlers
-      // ---------------------------
-      async function signUp(email, password, name = null) {
-        try {
-          const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name } } });
-          if (error) throw error;
-          alert('Signup initiated. Check email for confirmation if enabled.');
-        } catch (err) { alert(err.message || err); }
-      }
-
-      async function logIn(email, password) {
-        try {
-          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-          if (error) throw error;
-          if (data?.user) {
-            setUser({ id: data.user.id, email: data.user.email, name: data.user.user_metadata?.name || null });
-            ensureUserProfile(data.user);
-            loadAll();
-          }
-        } catch (err) { alert(err.message || err); }
-      }
-
-      async function oauthLogin(provider) {
-        try {
-          const { data, error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin } });
-          if (error) throw error;
-          // Supabase will redirect automatically
-        } catch (err) { console.error('oauth', err); alert('OAuth error'); }
-      }
-
-      async function logOut() {
-        await supabase.auth.signOut();
-        setUser(null);
-      }
-
-      // ---------------------------
-      // Event CRUD
-      // ---------------------------
-      async function createEvent(payload) {
-        try {
-          // create event as is_approved=false (pending)
-          const toInsert = {
-            title: payload.title,
-            description: payload.description || null,
-            category: payload.category || 'Upcoming',
-            image_url: payload.image_url || null,
-            location: payload.location || null,
-            latitude: payload.latitude || null,
-            longitude: payload.longitude || null,
-            date: payload.date,
-            user_id: (user && user.id) || null,
-            is_approved: false
-          };
-          const { data, error } = await supabase.from('events').insert([toInsert]).select().single();
-          if (error) throw error;
-          // audit
-          await supabase.from('event_audit').insert([{ event_id: data.id, user_id: data.user_id, action: 'create' }]);
-          alert('Event created and pending approval');
-          loadAll();
-          return data;
-        } catch (err) { console.error(err); alert('Create failed: ' + (err.message||err)); }
-      }
-
-      async function approveEvent(id) {
-        try {
-          // only admins should call this — UI shows it when user.is_admin
-          const { data, error } = await supabase.from('events').update({ is_approved: true }).eq('id', id).select().single();
-          if (error) throw error;
-          await supabase.from('event_audit').insert([{ event_id: id, user_id: user?.id || null, action: 'approve' }]);
-          loadAll(); loadPending();
-        } catch (err) { console.error(err); alert('Approve failed'); }
-      }
-
-      async function deleteEvent(id) {
-        try {
-          const { error } = await supabase.from('events').delete().eq('id', id);
-          if (error) throw error;
-          await supabase.from('event_audit').insert([{ event_id: id, user_id: user?.id || null, action: 'delete' }]);
-          loadAll(); loadPending();
-        } catch (err) { console.error(err); alert('Delete failed'); }
-      }
-
-      async function editEvent(id, updates) {
-        try {
-          const { data, error } = await supabase.from('events').update(updates).eq('id', id).select().single();
-          if (error) throw error;
-          await supabase.from('event_audit').insert([{ event_id: id, user_id: user?.id || null, action: 'update' }]);
-          loadAll();
-          return data;
-        } catch (err) { console.error(err); alert('Update failed'); }
-      }
-
-      // ---------------------------
-      // Contact form store
-      // ---------------------------
-      async function submitContact(payload) {
-        try {
-          const { name, email, message } = payload;
-          if (!name || !email || !message) { alert('All fields required'); return; }
-          const { error } = await supabase.from('contact_messages').insert([{ name, email, message }]);
-          if (error) throw error;
-          alert('Thanks — message saved. Admin will review.');
-        } catch (err) { console.error(err); alert('Contact failed'); }
-      }
-
-      // ---------------------------
-      // User "My Events"
-      // ---------------------------
-      const [myEvents, setMyEvents] = useState([]);
-      async function loadMyEvents() {
-        if (!user?.id) return;
-        const { data } = await supabase.from('events').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-        setMyEvents(data || []);
-      }
-
-      // call loadMyEvents whenever user changes
-      useEffect(()=> { if (user) loadMyEvents(); else setMyEvents([]); }, [user]);
-
-      // ---------------------------
-      // Admin flag
-      // ---------------------------
-      const [isAdmin, setIsAdmin] = useState(false);
-      async function checkAdmin() {
-        if (!user?.id) { setIsAdmin(false); return; }
-        const { data } = await supabase.from('users').select('is_admin').eq('id', user.id).single().catch(()=>({ data:null }));
-        setIsAdmin(!!(data && data.is_admin));
-      }
-      useEffect(()=> { checkAdmin(); }, [user]);
-
-      // ---------------------------
-      // Filters & search (client-side)
-      // ---------------------------
-      const [searchResults, setSearchResults] = useState([]);
-      async function searchApply() {
-        // a simple client-side combine of sections plus filter logic
-        // For speed we pull a reasonable number of rows and filter in JS
-        const { data } = await supabase.from('events').select('*, users(full_name)').eq('is_approved', true).order('date', { ascending: true }).limit(500);
-        let items = data || [];
-        const q = (filters.q || '').trim().toLowerCase();
-        if (q) items = items.filter(it => (it.title||'').toLowerCase().includes(q) || (it.description||'').toLowerCase().includes(q) || (it.location||'').toLowerCase().includes(q));
-        if (filters.category) items = items.filter(it => it.category === filters.category);
-        if (filters.date_from) items = items.filter(it => new Date(it.date) >= new Date(filters.date_from));
-        if (filters.date_to) items = items.filter(it => new Date(it.date) <= new Date(filters.date_to));
-        if (filters.lat && filters.lng && filters.dist) {
-          const latN = Number(filters.lat), lngN = Number(filters.lng), maxD = Number(filters.dist);
-          items = items.map(it => it.latitude && it.longitude ? ({ ...it, distance_km: haversine(latN, lngN, Number(it.latitude), Number(it.longitude)) }) : it).filter(it => it.distance_km == null || it.distance_km <= maxD);
-        }
-        setSearchResults(items);
-      }
-
-      // ---------------------------
-      // UI rendering
-      // ---------------------------
-      const promoTrackRef = promoTrack;
-      const virtualTrackRef = virtualTrack;
-
-      return e('div', { className: 'p-6 container mx-auto' },
-        // header
-        e('div', { style: { display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 } },
-          e('div', { style:{display:'flex', alignItems:'center', gap:12} },
-            e('div', { style:{width:56,height:56,borderRadius:12,background:'linear-gradient(135deg,#14b8a6,#60a5fa)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,color:'#022'} }, 'EF'),
-            e('div', null, e('h1', { style:{fontSize:20,fontWeight:800} }, 'Chutki — Event Finder'), e('div', { className:'small' }, 'Discover events worldwide'))
-          ),
-          e('div', null,
-            user ? e('span', { className:'small mr-4' }, user.name || user.email) : null,
-            user ? e('button', { className:'btn mr-2', onClick: logOut }, 'Logout') : null,
-            !user ? e('button', { className:'btn mr-2', onClick: ()=>{ const email = prompt('Email'); const pwd = prompt('Password'); if(email&&pwd) logIn(email,pwd); } }, 'Login') : null,
-            !user ? e('button', { className:'btn btn-primary mr-2', onClick: ()=>{ const name = prompt('Full name (optional)'); const email = prompt('Email'); const pwd = prompt('Password'); if(email&&pwd) signUp(email,pwd,name); } }, 'Signup') : null,
-            !user ? e('button', { className:'oauth-btn mr-2', onClick: ()=> oauthLogin('google') }, 'Google') : null,
-            !user ? e('button', { className:'oauth-btn', onClick: ()=> oauthLogin('facebook') }, 'Facebook') : null,
-            e('button', { className:'btn ml-3', onClick: ()=> setTheme(theme === 'dark' ? 'light' : 'dark') }, theme === 'dark' ? 'Light' : 'Dark')
-          )
-        ),
-
-        // top row: create event & contact & search
-        e('div', { style: { display:'grid', gridTemplateColumns: '1fr 360px', gap:12, marginBottom:12 } },
-          // left: create + filters
-          e('div', { className:'card' },
-            e('div', { style:{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8} },
-              e('div', { style:{fontWeight:700} }, 'Create Event'),
-              e('div', { className:'small' }, 'Posts require approval')
-            ),
-            e(CreateEventForm, { onCreate: createEvent, user }),
-            e('hr', { style:{margin:'12px 0', borderColor:'rgba(255,255,255,0.03)'} }),
-            e('div', null,
-              e('div', { style:{fontWeight:700, marginBottom:6} }, 'Search & Filters'),
-              e('div', { style:{display:'flex', gap:8, marginBottom:8} },
-                e('input', { placeholder:'Keyword', value:filters.q, onChange: (ev)=> setFilters({ ...filters, q: ev.target.value }), className:'p-2 rounded w-full', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} }),
-                e('select', { value: filters.category, onChange: (ev)=> setFilters({ ...filters, category: ev.target.value }), className:'p-2 rounded', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} },
-                  e('option', { value:'' }, 'All'),
-                  ['Trending','Upcoming','Promo','World','Virtual'].map(c => e('option', { key:c, value:c }, c))
-                )
-              ),
-              e('div', { style:{display:'flex', gap:8, marginBottom:8} },
-                e('input', { type:'date', value: filters.date_from, onChange: (ev)=> setFilters({ ...filters, date_from: ev.target.value }), className:'p-2 rounded', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} }),
-                e('input', { type:'date', value: filters.date_to, onChange: (ev)=> setFilters({ ...filters, date_to: ev.target.value }), className:'p-2 rounded', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} })
-              ),
-              e('div', { style:{display:'flex', gap:8, marginBottom:8} },
-                e('input', { placeholder:'Lat', value: filters.lat, onChange: (ev)=> setFilters({ ...filters, lat: ev.target.value }), className:'p-2 rounded', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} }),
-                e('input', { placeholder:'Lng', value: filters.lng, onChange: (ev)=> setFilters({ ...filters, lng: ev.target.value }), className:'p-2 rounded', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} }),
-                e('input', { placeholder:'Distance km', value: filters.dist, onChange: (ev)=> setFilters({ ...filters, dist: ev.target.value }), className:'p-2 rounded', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} }),
-                e('button', { className:'btn btn-primary', onClick: async ()=> { if(!filters.lat||!filters.lng) { navigator.geolocation?.getCurrentPosition(pos => setFilters({ ...filters, lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6) }), ()=>alert('Location denied')); } else { await searchApply(); } } }, 'Apply')
-              ),
-              e('div', null,
-                e('button', { className:'btn', onClick: ()=> { setFilters({ q:'', category:'', date_from:'', date_to:'', lat:'', lng:'', dist:'' }); setSearchResults([]); loadAll(); } }, 'Reset')
-              )
-            )
-          ),
-
-          // right: contact + my events quick
-          e('div', null,
-            e('div', { className:'card', style:{marginBottom:12} },
-              e('div', { style:{display:'flex', justifyContent:'space-between', alignItems:'center'} },
-                e('div', { style:{fontWeight:700} }, 'Contact Us'),
-                e('div', { className:'small' }, 'Messages saved')
-              ),
-              e(ContactForm, { onSubmit: submitContact })
-            ),
-            e('div', { className:'card' },
-              e('div', { style:{display:'flex', justifyContent:'space-between', alignItems:'center'} },
-                e('div', { style:{fontWeight:700} }, 'My Events'),
-                e('div', { className:'small' }, 'Manage your posts')
-              ),
-              e('div', null,
-                user ? e('div', null, myEvents.length === 0 ? e('div', null, 'You have no events') : myEvents.map(me => e('div', { key:me.id, style:{marginTop:8, border:'1px solid rgba(255,255,255,0.03)', padding:8, borderRadius:8} },
-                    e('div', { style:{fontWeight:700} }, me.title),
-                    e('div', { className:'small' }, me.category, ' • ', formatDate(me.date)),
-                    e('div', { style:{marginTop:8} }, e('button', { className:'btn btn-primary mr-2', onClick: ()=> { const want = confirm('Delete event?'); if(want) deleteEvent(me.id); } }, 'Delete') )
-                ))) : e('div', null, 'Login to see your events')
-              )
-            )
-          )
-        ),
-
-        // map preview / trending row
-        e('div', { className:'card', style:{marginBottom:12} },
-          e('div', { style:{display:'flex', justifyContent:'space-between', alignItems:'center'} },
-            e('div', { style:{fontWeight:700} }, 'Events'),
-            e('div', null, e('button', { className:'btn', onClick: loadAll }, 'Refresh'))
-          ),
-          e('div', { id:'map', style:{marginTop:8} })
-        ),
-
-        // Sections: Trending (continuous)
-        e('div', { className:'card fade-in', style:{marginBottom:12} },
-          e('div', { style:{display:'flex', justifyContent:'space-between', alignItems:'center'} },
-            e('h3', null, 'Trending'),
-            e('div', { className:'small' }, 'Auto-scrolling')
-          ),
-          e('div', { ref: trendingRef, className:'section-row', style:{marginTop:8} },
-            trending.length === 0 ? e('div', null, 'No trending events') : trending.map(it => e(EventCard, { it, key: it.id }))
-          )
-        ),
-
-        // Promo (carousel)
-        e('div', { className:'card fade-in', style:{marginBottom:12} },
-          e('div', { style:{display:'flex', justifyContent:'space-between', alignItems:'center'} }, e('h3', null, 'Promotions'), e('div', { className:'small' }, 'Carousel')),
-          e('div', { className:'carousel', style:{marginTop:8} },
-            e('div', { ref: promoTrackRef, className:'carousel-track', style:{width: (Math.max(1,promo.length) * 320) + 'px'} },
-              promo.length === 0 ? e('div', { className:'carousel-item section-card' }, 'No promotions') : promo.map(it => e('div', { className:'carousel-item section-card', key: it.id }, e('img', { src: it.image_url || ('https://picsum.photos/seed/' + it.id + '/600/300'), className:'event-image' }), e('div', { style:{fontWeight:700} }, it.title), e('div', { className:'small' }, it.category), e('div', null, (it.description||'').slice(0,120)))) )
-            )
-          )
-        ),
-
-        // Upcoming + map (small)
-        e('div', { className:'card', style:{marginBottom:12} },
-          e('div', { style:{display:'flex', justifyContent:'space-between', alignItems:'center'} },
-            e('h3', null, 'Upcoming'),
-            e('div', { className:'small' }, 'Soonest events')
-          ),
-          e('div', { style:{display:'grid', gridTemplateColumns:'1fr 420px', gap:12, marginTop:8} },
-            e('div', null, upcoming.length === 0 ? e('div', null, 'No upcoming events') : upcoming.map(it => e('div', { className:'section-card', key: it.id }, e('img', { src: it.image_url || ('https://picsum.photos/seed/' + it.id + '/600/300'), className:'event-image' }), e('div', { style:{display:'flex',justifyContent:'space-between',alignItems:'center'} }, e('div', { style:{fontWeight:700} }, it.title), e(Tag, { category: it.category })), e('div', { className:'small' }, (it.location||'Online') + ' • ' + formatDate(it.date)), e('div', { style:{marginTop:6,color:'#cfe7f0'} }, (it.description||'').slice(0,140)) )) ),
-            e('div', null, e('div', { id:'world-mini-map', style:{height:300, borderRadius:8} }) )
-          )
-        ),
-
-        // World events (continuous)
-        e('div', { className:'card fade-in', style:{marginBottom:12} },
-          e('div', { style:{display:'flex', justifyContent:'space-between', alignItems:'center'} }, e('h3', null, 'Events Around The World'), e('div', { className:'small' }, 'Global highlights')),
-          e('div', { ref: worldRef, className:'section-row', style:{marginTop:8} }, worldEvents.length === 0 ? e('div', null, 'No world events') : worldEvents.map(it => e(EventCard, { it, key: it.id })))
-        ),
-
-        // Virtual (carousel)
-        e('div', { className:'card fade-in', style:{marginBottom:12} },
-          e('div', { style:{display:'flex', justifyContent:'space-between', alignItems:'center'} }, e('h3', null, 'Virtual Events'), e('div', { className:'small' }, 'Online only')),
-          e('div', { className:'carousel', style:{marginTop:8} },
-            e('div', { ref: virtualTrackRef, className:'carousel-track', style:{width: (Math.max(1,virtuals.length) * 320) + 'px'} },
-              virtuals.length === 0 ? e('div', { className:'carousel-item section-card' }, 'No virtual events') : virtuals.map(it => e('div', { className:'carousel-item section-card', key: it.id }, e('img', { src: it.image_url || ('https://picsum.photos/seed/' + it.id + '/600/300'), className:'event-image' }), e('div', { style:{fontWeight:700} }, it.title), e('div', { className:'small' }, it.category), e('div', null, (it.description||'').slice(0,120)) )))
-            )
-          )
-        ),
-
-        // admin panel (if admin)
-        isAdmin ? e('div', { className:'card', style:{marginTop:12} },
-          e('h3', { style:{fontWeight:700} }, 'Admin — Pending Events'),
-          pending.length === 0 ? e('div', null, 'No pending events') : pending.map(p => e('div', { key:p.id, style:{marginBottom:8, border:'1px dashed rgba(255,255,255,0.03)', padding:8} }, e('div', { style:{fontWeight:700} }, p.title), e('div', { className:'small' }, p.category, ' • ', formatDate(p.created_at)), e('div', null, p.description || ''), e('div', { style:{marginTop:8} }, e('button', { className:'btn btn-primary mr-2', onClick: ()=> approveEvent(p.id) }, 'Approve'), e('button', { className:'btn', onClick: ()=> deleteEvent(p.id) }, 'Delete') )))
-        ) : null,
-
-        // audit log preview
-        e('div', { className:'card', style:{marginTop:12} },
-          e('h3', null, 'Recent Audit Log'),
-          audit.length === 0 ? e('div', null, 'No audit entries') : audit.slice(0,20).map(a => e('div', { key: a.id, style:{marginBottom:8, borderTop:'1px solid rgba(255,255,255,0.03)', paddingTop:8} }, e('div', { className:'small' }, new Date(a.created_at).toLocaleString(), ' — ', a.action), e('div', null, a.events?.title || '') ))
-        )
-      );
-    }
-
-    // ---------------------------
-    // CreateEventForm component
-    // ---------------------------
-    function CreateEventForm({ onCreate, user }) {
-      const [state, setState] = useState({ title:'', description:'', category:'Upcoming', date:'', location:'', latitude:'', longitude:'', image_url:'' });
-
-      return e('div', null,
-        e('input', { placeholder:'Title', value: state.title, onChange: (ev)=> setState({ ...state, title: ev.target.value }), className:'p-2 rounded w-full mb-2', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} }),
-        e('input', { placeholder:'Category', value: state.category, onChange: (ev)=> setState({ ...state, category: ev.target.value }), className:'p-2 rounded w-full mb-2', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} }),
-        e('input', { placeholder:'Date (YYYY-MM-DD or ISO)', value: state.date, onChange: (ev)=> setState({ ...state, date: ev.target.value }), className:'p-2 rounded w-full mb-2', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} }),
-        e('textarea', { placeholder:'Description', value: state.description, onChange: (ev)=> setState({ ...state, description: ev.target.value }), className:'p-2 rounded w-full mb-2', rows:3, style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} }),
-        e('input', { placeholder:'Location (city, country)', value: state.location, onChange: (ev)=> setState({ ...state, location: ev.target.value }), className:'p-2 rounded w-full mb-2', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} }),
-        e('div', { style:{display:'flex', gap:8, marginBottom:8} },
-          e('input', { placeholder:'Latitude', value: state.latitude, onChange: (ev)=> setState({ ...state, latitude: ev.target.value }), className:'p-2 rounded w-full', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} }),
-          e('input', { placeholder:'Longitude', value: state.longitude, onChange: (ev)=> setState({ ...state, longitude: ev.target.value }), className:'p-2 rounded w-full', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} })
-        ),
-        e('input', { placeholder:'Image URL (optional)', value: state.image_url, onChange: (ev)=> setState({ ...state, image_url: ev.target.value }), className:'p-2 rounded w-full mb-2', style:{background:'transparent', border:'1px solid rgba(255,255,255,0.04)'} }),
-        e('div', { style:{display:'flex', gap:8} },
-          e('button', { className:'btn btn-primary', onClick: ()=> { if (!state.title || !state.date) return alert('Title & date required'); onCreate(state); setState({ title:'', description:'', category:'Upcoming', date:'', location:'', latitude:'', longitude:'', image_url:'' }); } }, 'Post Event'),
-          e('button', { className:'btn', onClick: ()=> { navigator.geolocation?.getCurrentPosition(p => setState({ ...state, latitude: p.coords.latitude.toFixed(6), longitude: p.coords.longitude.toFixed(6) }), err => alert(err.message)); } }, 'Use GPS')
-        )
-      );
-    }
-
-    // ---------------------------
-    // ContactForm component
-    // ---------------------------
-    function ContactForm({ onSubmit }) {
-      const [form, setForm] = useState({ name:'', email:'', message:'' });
-      return e('form', { onSubmit: (ev)=> { ev.preventDefault(); onSubmit(form); setForm({ name:'', email:'', message:'' }); } },
-        e('input
+</body>
+</html>
